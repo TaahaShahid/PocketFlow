@@ -1,0 +1,147 @@
+@import "tailwindcss";
+
+@theme {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary-hover: var(--primary-hover);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  --color-jm-dark-blue: #2E3A8C;
+  --color-jm-light-blue: #4A5FD9;
+  --color-jm-navy: #1A2254;
+  --color-jm-light-gray: #F5F7FA;
+  --color-jm-dark-gray: #4A4A4A;
+  --color-jm-black: #1A1A1A;
+
+  --radius-lg: 12px;
+  --radius-md: 8px;
+  --radius-sm: 4px;
+
+  --animate-accordion-down: accordion-down 0.2s ease-out;
+  --animate-accordion-up: accordion-up 0.2s ease-out;
+}
+
+:root {
+  /* Brand Light Theme */
+  --background: #F5F7FA; /* JM Light Gray */
+  --foreground: #1A1A1A; /* JM Black */
+
+  --card: #FFFFFF; /* White Cards */
+  --card-foreground: #1A1A1A;
+
+  --popover: #FFFFFF;
+  --popover-foreground: #1A1A1A;
+
+  --primary: #2E3A8C; /* JM Dark Blue */
+  --primary-foreground: #FFFFFF;
+  --primary-hover: #4A5FD9; /* JM Light Blue */
+
+  --secondary: #4A5FD9; /* JM Light Blue */
+  --secondary-foreground: #FFFFFF;
+
+  --muted: #E2E8F0;
+  --muted-foreground: #4A4A4A; /* JM Dark Gray */
+
+  --accent: #F5F7FA;
+  --accent-foreground: #2E3A8C;
+
+  --destructive: #EF4444;
+  --destructive-foreground: #FFFFFF;
+
+  --border: #E0E0E0; /* Input border */
+  --input: #E0E0E0;
+  --ring: #2E3A8C;
+}
+
+.dark {
+  /* Brand Dark Theme */
+  --background: #0E122B; /* Very dark blue background */
+  --foreground: #FFFFFF;
+
+  --card: #1A2254; /* JM Navy Card Background */
+  --card-foreground: #FFFFFF;
+
+  --popover: #1A2254;
+  --popover-foreground: #FFFFFF;
+
+  --primary: #4A5FD9; /* JM Light Blue */
+  --primary-foreground: #FFFFFF;
+  --primary-hover: #5D72E5;
+
+  --secondary: #2E3A8C; /* JM Dark Blue */
+  --secondary-foreground: #FFFFFF;
+
+  --muted: #242E6B;
+  --muted-foreground: #A0AEC0;
+
+  --accent: #242E6B;
+  --accent-foreground: #FFFFFF;
+
+  --destructive: #F87171;
+  --destructive-foreground: #FFFFFF;
+
+  --border: #2E3A8C; /* Subtle border using Dark Blue */
+  --input: #2E3A8C;
+  --ring: #4A5FD9;
+}
+
+/* Base styles styling elements explicitly according to Brand Guidelines */
+* {
+  border-color: var(--border);
+  outline-color: var(--ring);
+}
+
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(46, 58, 140, 0.2);
+  border-radius: 3px;
+}
+.dark ::-webkit-scrollbar-thumb {
+  background: rgba(74, 95, 217, 0.3);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(46, 58, 140, 0.4);
+}
+
+/* Custom styling for charts, tooltips, buttons */
+.recharts-default-tooltip {
+  background-color: var(--card) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: 8px !important;
+  color: var(--foreground) !important;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1) !important;
+}
+
+.recharts-tooltip-label {
+  color: var(--foreground) !important;
+  font-weight: 600 !important;
+}

@@ -1,0 +1,82 @@
+####################################################
+# macOS
+####################################################
+.DS_Store
+
+####################################################
+# Frontend (Next.js)
+####################################################
+finance-dashboard/node_modules/
+finance-dashboard/.next/
+finance-dashboard/out/
+finance-dashboard/build/
+finance-dashboard/coverage/
+
+finance-dashboard/.pnp
+finance-dashboard/.pnp.*
+finance-dashboard/.yarn/*
+!finance-dashboard/.yarn/patches
+!finance-dashboard/.yarn/plugins
+!finance-dashboard/.yarn/releases
+!finance-dashboard/.yarn/versions
+
+finance-dashboard/.vercel
+
+finance-dashboard/npm-debug.log*
+finance-dashboard/yarn-debug.log*
+finance-dashboard/yarn-error.log*
+finance-dashboard/.pnpm-debug.log*
+
+finance-dashboard/*.tsbuildinfo
+finance-dashboard/next-env.d.ts
+
+####################################################
+# Backend (Python/FastAPI)
+####################################################
+finance-backend/__pycache__/
+finance-backend/.pytest_cache/
+finance-backend/.mypy_cache/
+finance-backend/.ruff_cache/
+
+finance-backend/.venv/
+finance-backend/venv/
+finance-backend/env/
+
+*.pyc
+*.pyo
+*.pyd
+
+####################################################
+# Environment Variables
+####################################################
+.env
+.env.*
+!.env.example
+
+####################################################
+# Terraform (Future)
+####################################################
+*.tfstate
+*.tfstate.*
+.terraform/
+
+####################################################
+# Docker
+####################################################
+docker-compose.override.yml
+
+####################################################
+# IDEs
+####################################################
+.vscode/
+.idea/
+
+####################################################
+# Logs
+####################################################
+*.log
+
+####################################################
+# Misc
+####################################################
+*.pem
