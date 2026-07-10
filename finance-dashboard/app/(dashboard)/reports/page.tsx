@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useMemo } from 'react';
-import { useFinanceStore } from '../../hooks/useFinanceStore';
+import { useFinanceStore } from '../../../hooks/useFinanceStore';
 import { Download, Printer, Calendar, FileText, CheckCircle } from 'lucide-react';
 
 export default function ReportsPage() {
@@ -93,21 +93,21 @@ export default function ReportsPage() {
       const formattedDate = new Date(tx.date).toLocaleDateString().replace(/,/g, '');
       const notesSafe = tx.notes ? tx.notes.replace(/"/g, '""').replace(/,/g, ';') : '';
       const recipientSafe = tx.recipientName.replace(/"/g, '""').replace(/,/g, ';');
-      
+
       csvContent += `"${tx.id}","${tx.type}","${recipientSafe}","${tx.category}",${tx.amount},"${formattedDate}","${notesSafe}"\n`;
     });
 
     const encodedUri = encodeURI(csvContent);
     const link = document.createElement('a');
     link.setAttribute('href', encodedUri);
-    
+
     const fileName = `JM_Solutionss_Report_${period}_${new Date().toISOString().split('T')[0]}.csv`;
     link.setAttribute('download', fileName);
-    
+
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
-    
+
     addToast('CSV spreadsheet downloaded successfully', 'success');
   };
 
@@ -122,7 +122,7 @@ export default function ReportsPage() {
 
   return (
     <div className="space-y-6">
-      
+
       {/* Printable CSS rules to hide Sidebar and Header during browser print */}
       <style jsx global>{`
         @media print {
@@ -162,7 +162,7 @@ export default function ReportsPage() {
             <Download className="h-4 w-4" />
             <span>Download CSV</span>
           </button>
-          
+
           <button
             onClick={handlePrint}
             className="flex items-center justify-center gap-2 h-11 px-5 text-sm font-semibold text-white bg-jm-dark-blue hover:bg-jm-light-blue rounded-xl shadow-md transition-all cursor-pointer"
@@ -175,7 +175,7 @@ export default function ReportsPage() {
 
       {/* Filter Options bar */}
       <div className="p-4 rounded-2xl bg-white dark:bg-jm-navy border border-slate-100 dark:border-jm-dark-blue shadow-sm flex flex-col md:flex-row md:items-end gap-4 no-print">
-        
+
         {/* Time Period select */}
         <div className="space-y-1.5 flex-1">
           <label className="text-xs font-bold text-slate-400 uppercase tracking-wider">Report Frame</label>
@@ -218,7 +218,7 @@ export default function ReportsPage() {
 
       {/* Printable Report Panel */}
       <div className="bg-white dark:bg-jm-navy border border-slate-100 dark:border-jm-dark-blue rounded-2xl shadow-sm p-8 print-full space-y-8 max-w-4xl mx-auto">
-        
+
         {/* Statement Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-100 dark:border-jm-dark-blue pb-6 gap-4">
           <div className="flex items-center gap-3">
@@ -273,7 +273,7 @@ export default function ReportsPage() {
         {/* Aggregate Financial Metrics */}
         <div>
           <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Timeframe Aggregates</h4>
-          
+
           <div className="grid grid-cols-2 md:grid-cols-4 border border-slate-100 dark:border-jm-dark-blue/80 rounded-2xl overflow-hidden divide-x divide-y md:divide-y-0 divide-slate-100 dark:divide-jm-dark-blue/80 text-center">
             <div className="p-4 bg-slate-50/50 dark:bg-slate-900/10">
               <p className="text-[10px] font-semibold text-slate-400 uppercase">Total Inflows</p>
@@ -299,7 +299,7 @@ export default function ReportsPage() {
         {/* Category Breakdown Table */}
         <div className="space-y-3">
           <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider">Spending & Income Breakdown by Category</h4>
-          
+
           <div className="border border-slate-100 dark:border-jm-dark-blue/80 rounded-2xl overflow-hidden">
             <table className="w-full text-left border-collapse text-sm">
               <thead>
@@ -312,7 +312,7 @@ export default function ReportsPage() {
               </thead>
               <tbody className="divide-y divide-slate-100 dark:divide-jm-dark-blue/55">
                 {summary.categories.map((c) => {
-                  const share = c.type === 'income' 
+                  const share = c.type === 'income'
                     ? (summary.income > 0 ? (c.amount / summary.income) * 100 : 0)
                     : (summary.expense > 0 ? (c.amount / summary.expense) * 100 : 0);
 

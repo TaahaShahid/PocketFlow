@@ -1,27 +1,27 @@
 'use client';
 
 import React, { useMemo } from 'react';
-import { useFinanceStore, CATEGORIES } from '../../hooks/useFinanceStore';
-import { 
-  ResponsiveContainer, 
-  PieChart, 
-  Pie, 
-  Cell, 
-  BarChart, 
-  Bar, 
-  XAxis, 
-  YAxis, 
-  CartesianGrid, 
-  Tooltip, 
+import { useFinanceStore, CATEGORIES } from '../../../hooks/useFinanceStore';
+import {
+  ResponsiveContainer,
+  PieChart,
+  Pie,
+  Cell,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
   Legend,
   LineChart,
   Line
 } from 'recharts';
-import { 
-  TrendingUp, 
-  TrendingDown, 
-  PieChart as PieIcon, 
-  BarChart3, 
+import {
+  TrendingUp,
+  TrendingDown,
+  PieChart as PieIcon,
+  BarChart3,
   TrendingUp as TrendingUpIcon,
   Percent,
   Calendar
@@ -64,7 +64,7 @@ export default function AnalyticsPage() {
   // 2. Spending by Category Pie Chart Data
   const categoryData = useMemo(() => {
     const spendingMap: Record<string, number> = {};
-    
+
     transactions.forEach((tx) => {
       if (tx.type === 'expense' && tx.status === 'completed') {
         spendingMap[tx.category] = (spendingMap[tx.category] || 0) + tx.amount;
@@ -81,7 +81,7 @@ export default function AnalyticsPage() {
   const trendData = useMemo(() => {
     const monthlyMap: Record<string, { month: string; Income: number; Expense: number; timestamp: number }> = {};
     const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-    
+
     // Seed the map with last 6 months to make sure it is populated
     const now = new Date();
     for (let i = 5; i >= 0; i--) {
@@ -94,7 +94,7 @@ export default function AnalyticsPage() {
       if (tx.status !== 'completed') return;
       const txDate = new Date(tx.date);
       const label = `${months[txDate.getMonth()]} ${txDate.getFullYear().toString().substring(2)}`;
-      
+
       if (monthlyMap[label]) {
         if (tx.type === 'income') {
           monthlyMap[label].Income += tx.amount;
@@ -121,7 +121,7 @@ export default function AnalyticsPage() {
 
   return (
     <div className="space-y-6">
-      
+
       {/* Header Panel */}
       <div>
         <h2 className="text-xl font-bold text-slate-800 dark:text-white">Financial Analytics</h2>
@@ -179,7 +179,7 @@ export default function AnalyticsPage() {
 
       {/* Analytics Charts Panels */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        
+
         {/* Income vs Expenses Chart (2 cols wide) */}
         <div className="lg:col-span-2 p-5 bg-white dark:bg-jm-navy border border-slate-100 dark:border-jm-dark-blue rounded-2xl shadow-sm flex flex-col">
           <div className="mb-6">
@@ -194,16 +194,16 @@ export default function AnalyticsPage() {
                 margin={{ top: 10, right: 10, left: -20, bottom: 0 }}
               >
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(200,200,200,0.15)" />
-                <XAxis 
-                  dataKey="month" 
-                  tickLine={false} 
+                <XAxis
+                  dataKey="month"
+                  tickLine={false}
                   axisLine={false}
                   tick={{ fill: 'currentColor', fontSize: 11 }}
                   className="text-slate-400 font-medium dark:text-slate-500"
                 />
-                <YAxis 
+                <YAxis
                   tickFormatter={(val) => `$${val}`}
-                  tickLine={false} 
+                  tickLine={false}
                   axisLine={false}
                   tick={{ fill: 'currentColor', fontSize: 11 }}
                   className="text-slate-400 font-medium dark:text-slate-500"
@@ -222,7 +222,7 @@ export default function AnalyticsPage() {
           <div>
             <h3 className="text-base font-bold text-slate-800 dark:text-white">Spending by Category</h3>
             <p className="text-xs text-slate-400 mt-0.5 mb-4">Proportionate breakdown of expense categories</p>
-            
+
             <div className="h-44 w-full relative">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
@@ -282,21 +282,19 @@ export default function AnalyticsPage() {
               <div key={b.id} className="p-4 rounded-xl border border-slate-100 dark:border-jm-dark-blue/80 bg-slate-50/40 dark:bg-slate-900/10 space-y-2">
                 <div className="flex justify-between items-center text-sm font-semibold">
                   <span className="text-slate-800 dark:text-white">{b.category}</span>
-                  <span className={`text-xs px-2 py-0.5 rounded-md ${
-                    isOver 
-                      ? 'bg-rose-50 dark:bg-rose-950/20 text-rose-500 font-bold' 
+                  <span className={`text-xs px-2 py-0.5 rounded-md ${isOver
+                      ? 'bg-rose-50 dark:bg-rose-950/20 text-rose-500 font-bold'
                       : 'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400'
-                  }`}>
+                    }`}>
                     {isOver ? 'Limit Exceeded' : `${ratio.toFixed(0)}% Utilized`}
                   </span>
                 </div>
 
                 {/* Progress bar */}
                 <div className="w-full h-2 bg-slate-200/50 dark:bg-slate-800 rounded-full overflow-hidden">
-                  <div 
-                    className={`h-full rounded-full transition-all duration-500 ${
-                      isOver ? 'bg-rose-500' : ratio >= 80 ? 'bg-amber-500' : 'bg-jm-dark-blue'
-                    }`}
+                  <div
+                    className={`h-full rounded-full transition-all duration-500 ${isOver ? 'bg-rose-500' : ratio >= 80 ? 'bg-amber-500' : 'bg-jm-dark-blue'
+                      }`}
                     style={{ width: `${Math.min(100, ratio)}%` }}
                   />
                 </div>

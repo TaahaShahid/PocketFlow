@@ -1,8 +1,8 @@
 'use client';
 
 import React, { useState } from 'react';
-import { useFinanceStore } from '../../hooks/useFinanceStore';
-import { Card, CardType } from '../../types';
+import { useFinanceStore } from '../../../hooks/useFinanceStore';
+import { Card, CardType } from '../../../types';
 import { Plus, CreditCard, Edit3, Trash2, ShieldCheck, AlertTriangle } from 'lucide-react';
 
 export default function WalletPage() {
@@ -61,7 +61,7 @@ export default function WalletPage() {
     if (isNaN(balVal) || balVal < 0) {
       errors.balance = 'Balance must be zero or a positive number';
     }
-    
+
     if (!formData.cardHolderName.trim()) {
       errors.cardHolderName = 'Cardholder name is required';
     }
@@ -70,7 +70,7 @@ export default function WalletPage() {
     const rawNumber = formData.cardNumber.replace(/\s+/g, '');
     const isMaskedFormat = /^\*+\d{4}$/.test(rawNumber);
     const isRaw16Digits = /^\d{16}$/.test(rawNumber);
-    
+
     if (!isMaskedFormat && !isRaw16Digits) {
       errors.cardNumber = 'Enter a 16-digit card number or **** 1234 format';
     }
@@ -149,7 +149,7 @@ export default function WalletPage() {
 
   return (
     <div className="space-y-6">
-      
+
       {/* Wallet Info header */}
       <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4">
         <div>
@@ -189,11 +189,11 @@ export default function WalletPage() {
       {/* Cards List Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {cards.map((c) => (
-          <div 
+          <div
             key={c.id}
             className={`rounded-2xl p-6 flex flex-col justify-between h-56 shadow-xl relative overflow-hidden group transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl ${getCardTheme(c.cardType)}`}
           >
-            
+
             {/* Card Background Mesh overlay */}
             <div className="absolute inset-0 bg-white/[0.03] bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-white/10 via-transparent to-transparent pointer-events-none" />
 
@@ -225,7 +225,7 @@ export default function WalletPage() {
                   <div className="border-amber-600/30" />
                 </div>
               </div>
-              
+
               <div className="flex items-center gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
                 <button
                   onClick={() => handleOpenEdit(c)}
@@ -259,7 +259,7 @@ export default function WalletPage() {
                 </p>
               </div>
             </div>
-            
+
           </div>
         ))}
 
@@ -290,7 +290,7 @@ export default function WalletPage() {
             <h2 className="text-xl font-bold text-slate-800 dark:text-white mb-4">
               {isEdit ? 'Edit Card Details' : 'Register New Card'}
             </h2>
-            
+
             <form onSubmit={handleSubmit} className="space-y-4">
               {/* Nickname / Alias */}
               <div>
@@ -312,9 +312,8 @@ export default function WalletPage() {
                   placeholder="e.g. Jane Doe"
                   value={formData.cardHolderName}
                   onChange={(e) => setFormData(f => ({ ...f, cardHolderName: e.target.value }))}
-                  className={`w-full h-11 px-3.5 border rounded-xl text-sm bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-jm-dark-blue/80 text-slate-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-jm-dark-blue ${
-                    formErrors.cardHolderName ? 'border-rose-500 ring-2 ring-rose-500/20' : ''
-                  }`}
+                  className={`w-full h-11 px-3.5 border rounded-xl text-sm bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-jm-dark-blue/80 text-slate-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-jm-dark-blue ${formErrors.cardHolderName ? 'border-rose-500 ring-2 ring-rose-500/20' : ''
+                    }`}
                 />
                 {formErrors.cardHolderName && <p className="text-rose-500 text-xs mt-1 font-medium">{formErrors.cardHolderName}</p>}
               </div>
@@ -329,9 +328,8 @@ export default function WalletPage() {
                   value={formData.cardNumber}
                   disabled={isEdit}
                   onChange={(e) => setFormData(f => ({ ...f, cardNumber: e.target.value }))}
-                  className={`w-full h-11 px-3.5 border rounded-xl text-sm bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-jm-dark-blue/80 text-slate-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-jm-dark-blue disabled:opacity-50 ${
-                    formErrors.cardNumber ? 'border-rose-500 ring-2 ring-rose-500/20' : ''
-                  }`}
+                  className={`w-full h-11 px-3.5 border rounded-xl text-sm bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-jm-dark-blue/80 text-slate-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-jm-dark-blue disabled:opacity-50 ${formErrors.cardNumber ? 'border-rose-500 ring-2 ring-rose-500/20' : ''
+                    }`}
                 />
                 <p className="text-[10px] text-slate-400 mt-1 font-medium">PCI Compliance: Numbers are masked automatically upon submit.</p>
                 {formErrors.cardNumber && <p className="text-rose-500 text-xs mt-1 font-medium">{formErrors.cardNumber}</p>}
@@ -347,9 +345,8 @@ export default function WalletPage() {
                     placeholder="MM/YY"
                     value={formData.expiryDate}
                     onChange={(e) => setFormData(f => ({ ...f, expiryDate: e.target.value }))}
-                    className={`w-full h-11 px-3.5 border rounded-xl text-sm bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-jm-dark-blue/80 text-slate-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-jm-dark-blue ${
-                      formErrors.expiryDate ? 'border-rose-500 ring-2 ring-rose-500/20' : ''
-                    }`}
+                    className={`w-full h-11 px-3.5 border rounded-xl text-sm bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-jm-dark-blue/80 text-slate-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-jm-dark-blue ${formErrors.expiryDate ? 'border-rose-500 ring-2 ring-rose-500/20' : ''
+                      }`}
                   />
                   {formErrors.expiryDate && <p className="text-rose-500 text-xs mt-1 font-medium">{formErrors.expiryDate}</p>}
                 </div>
@@ -379,9 +376,8 @@ export default function WalletPage() {
                   placeholder="0.00"
                   value={formData.balance}
                   onChange={(e) => setFormData(f => ({ ...f, balance: e.target.value }))}
-                  className={`w-full h-11 px-3.5 border rounded-xl text-sm bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-jm-dark-blue/80 text-slate-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-jm-dark-blue ${
-                    formErrors.balance ? 'border-rose-500 ring-2 ring-rose-500/20' : ''
-                  }`}
+                  className={`w-full h-11 px-3.5 border rounded-xl text-sm bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-jm-dark-blue/80 text-slate-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-jm-dark-blue ${formErrors.balance ? 'border-rose-500 ring-2 ring-rose-500/20' : ''
+                    }`}
                 />
                 {formErrors.balance && <p className="text-rose-500 text-xs mt-1 font-medium">{formErrors.balance}</p>}
               </div>
@@ -423,7 +419,7 @@ export default function WalletPage() {
               </div>
               <h3 className="text-lg font-bold text-slate-800 dark:text-white">Delete Card?</h3>
             </div>
-            
+
             <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
               Are you sure you want to delete this payment card? Transactions linked to this card will lose their wallet association. This action is permanent.
             </p>

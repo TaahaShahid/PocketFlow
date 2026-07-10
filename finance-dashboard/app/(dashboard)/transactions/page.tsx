@@ -1,17 +1,17 @@
 'use client';
 
 import React, { useState, useMemo } from 'react';
-import { useFinanceStore, CATEGORIES } from '../../hooks/useFinanceStore';
-import { Transaction, TransactionType, TransactionStatus } from '../../types';
-import { 
-  Plus, 
-  Search, 
-  Trash2, 
-  Edit3, 
-  ChevronLeft, 
-  ChevronRight, 
-  Filter, 
-  ArrowUpDown, 
+import { useFinanceStore, CATEGORIES } from '../../../hooks/useFinanceStore';
+import { Transaction, TransactionType, TransactionStatus } from '../../../types';
+import {
+  Plus,
+  Search,
+  Trash2,
+  Edit3,
+  ChevronLeft,
+  ChevronRight,
+  Filter,
+  ArrowUpDown,
   Calendar,
   AlertTriangle,
   ArrowUpRight,
@@ -27,7 +27,7 @@ export default function TransactionsPage() {
   const [categoryFilter, setCategoryFilter] = useState<string>('all');
   const [walletFilter, setWalletFilter] = useState<string>('all');
   const [sortBy, setSortBy] = useState<'date-desc' | 'date-asc' | 'amount-desc' | 'amount-asc'>('date-desc');
-  
+
   // Pagination State
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 8;
@@ -164,7 +164,7 @@ export default function TransactionsPage() {
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase();
       result = result.filter(
-        (t) => 
+        (t) =>
           t.recipientName.toLowerCase().includes(q) ||
           (t.notes && t.notes.toLowerCase().includes(q)) ||
           t.category.toLowerCase().includes(q)
@@ -218,7 +218,7 @@ export default function TransactionsPage() {
 
   return (
     <div className="space-y-6">
-      
+
       {/* Upper Panel header */}
       <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4">
         <div>
@@ -238,7 +238,7 @@ export default function TransactionsPage() {
 
       {/* Interactive Filters Grid */}
       <div className="p-4 rounded-2xl bg-white dark:bg-jm-navy border border-slate-100 dark:border-jm-dark-blue/80 shadow-sm grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3.5 items-end">
-        
+
         {/* Search */}
         <div className="space-y-1.5 lg:col-span-1">
           <label className="text-xs font-bold text-slate-400 uppercase tracking-wider">Search</label>
@@ -318,7 +318,7 @@ export default function TransactionsPage() {
 
       {/* Main Transactions List / Desktop Grid */}
       <div className="bg-white dark:bg-jm-navy border border-slate-100 dark:border-jm-dark-blue rounded-2xl shadow-sm overflow-hidden">
-        
+
         {/* Table View (for larger screens) */}
         <div className="overflow-x-auto hidden md:block">
           <table className="w-full text-left border-collapse">
@@ -395,7 +395,7 @@ export default function TransactionsPage() {
                     {isIncome ? '+' : '-'}${tx.amount.toFixed(2)}
                   </p>
                 </div>
-                
+
                 {tx.notes && (
                   <p className="text-xs text-slate-400 dark:text-slate-500 bg-slate-50 dark:bg-slate-900/50 p-2 rounded-lg italic">
                     {tx.notes}
@@ -406,7 +406,7 @@ export default function TransactionsPage() {
                   <span className="text-slate-400">
                     {new Date(tx.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
                   </span>
-                  
+
                   <div className="flex items-center gap-1.5">
                     <button
                       onClick={() => handleOpenEdit(tx)}
@@ -453,7 +453,7 @@ export default function TransactionsPage() {
               Showing {Math.min(filteredTransactions.length, (currentPage - 1) * itemsPerPage + 1)}-
               {Math.min(filteredTransactions.length, currentPage * itemsPerPage)} of {filteredTransactions.length}
             </span>
-            
+
             <div className="flex items-center gap-1">
               <button
                 onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
@@ -485,7 +485,7 @@ export default function TransactionsPage() {
             <h2 className="text-xl font-bold text-slate-800 dark:text-white mb-4">
               {isAddOpen ? 'Add Transaction' : 'Edit Transaction'}
             </h2>
-            
+
             <form onSubmit={handleSaveTransaction} className="space-y-4">
               {/* Type Selection */}
               <div>
@@ -494,22 +494,20 @@ export default function TransactionsPage() {
                   <button
                     type="button"
                     onClick={() => { setFormData(f => ({ ...f, type: 'expense', category: '' })) }}
-                    className={`py-2 px-4 rounded-xl text-sm font-semibold transition-all ${
-                      formData.type === 'expense'
+                    className={`py-2 px-4 rounded-xl text-sm font-semibold transition-all ${formData.type === 'expense'
                         ? 'bg-rose-500 text-white shadow-md shadow-rose-500/20'
                         : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
-                    }`}
+                      }`}
                   >
                     Expense
                   </button>
                   <button
                     type="button"
                     onClick={() => { setFormData(f => ({ ...f, type: 'income', category: '' })) }}
-                    className={`py-2 px-4 rounded-xl text-sm font-semibold transition-all ${
-                      formData.type === 'income'
+                    className={`py-2 px-4 rounded-xl text-sm font-semibold transition-all ${formData.type === 'income'
                         ? 'bg-emerald-500 text-white shadow-md shadow-emerald-500/20'
                         : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
-                    }`}
+                      }`}
                   >
                     Income
                   </button>
@@ -526,9 +524,8 @@ export default function TransactionsPage() {
                     placeholder="0.00"
                     value={formData.amount}
                     onChange={(e) => setFormData(f => ({ ...f, amount: e.target.value }))}
-                    className={`w-full h-11 px-3.5 border rounded-xl text-sm bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-jm-dark-blue/80 text-slate-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-jm-dark-blue focus:border-transparent ${
-                      formErrors.amount ? 'border-rose-500 ring-2 ring-rose-500/20' : ''
-                    }`}
+                    className={`w-full h-11 px-3.5 border rounded-xl text-sm bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-jm-dark-blue/80 text-slate-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-jm-dark-blue focus:border-transparent ${formErrors.amount ? 'border-rose-500 ring-2 ring-rose-500/20' : ''
+                      }`}
                   />
                   {formErrors.amount && <p className="text-rose-500 text-xs mt-1 font-medium">{formErrors.amount}</p>}
                 </div>
@@ -540,9 +537,8 @@ export default function TransactionsPage() {
                     type="date"
                     value={formData.date}
                     onChange={(e) => setFormData(f => ({ ...f, date: e.target.value }))}
-                    className={`w-full h-11 px-3.5 border rounded-xl text-sm bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-jm-dark-blue/80 text-slate-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-jm-dark-blue focus:border-transparent ${
-                      formErrors.date ? 'border-rose-500 ring-2 ring-rose-500/20' : ''
-                    }`}
+                    className={`w-full h-11 px-3.5 border rounded-xl text-sm bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-jm-dark-blue/80 text-slate-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-jm-dark-blue focus:border-transparent ${formErrors.date ? 'border-rose-500 ring-2 ring-rose-500/20' : ''
+                      }`}
                   />
                   {formErrors.date && <p className="text-rose-500 text-xs mt-1 font-medium">{formErrors.date}</p>}
                 </div>
@@ -554,9 +550,8 @@ export default function TransactionsPage() {
                 <select
                   value={formData.category}
                   onChange={(e) => setFormData(f => ({ ...f, category: e.target.value }))}
-                  className={`w-full h-11 px-3.5 border rounded-xl text-sm bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-jm-dark-blue/80 text-slate-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-jm-dark-blue focus:border-transparent ${
-                    formErrors.category ? 'border-rose-500 ring-2 ring-rose-500/20' : ''
-                  }`}
+                  className={`w-full h-11 px-3.5 border rounded-xl text-sm bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-jm-dark-blue/80 text-slate-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-jm-dark-blue focus:border-transparent ${formErrors.category ? 'border-rose-500 ring-2 ring-rose-500/20' : ''
+                    }`}
                 >
                   <option value="">Select Category</option>
                   {formCategories.map((c) => (
@@ -574,9 +569,8 @@ export default function TransactionsPage() {
                 <select
                   value={formData.walletId}
                   onChange={(e) => setFormData(f => ({ ...f, walletId: e.target.value }))}
-                  className={`w-full h-11 px-3.5 border rounded-xl text-sm bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-jm-dark-blue/80 text-slate-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-jm-dark-blue focus:border-transparent ${
-                    formErrors.walletId ? 'border-rose-500 ring-2 ring-rose-500/20' : ''
-                  }`}
+                  className={`w-full h-11 px-3.5 border rounded-xl text-sm bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-jm-dark-blue/80 text-slate-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-jm-dark-blue focus:border-transparent ${formErrors.walletId ? 'border-rose-500 ring-2 ring-rose-500/20' : ''
+                    }`}
                 >
                   <option value="">Select Wallet</option>
                   {cards.map((c) => (
@@ -596,9 +590,8 @@ export default function TransactionsPage() {
                   placeholder="e.g. Amazon, Salary payout"
                   value={formData.recipientName}
                   onChange={(e) => setFormData(f => ({ ...f, recipientName: e.target.value }))}
-                  className={`w-full h-11 px-3.5 border rounded-xl text-sm bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-jm-dark-blue/80 text-slate-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-jm-dark-blue focus:border-transparent ${
-                    formErrors.recipientName ? 'border-rose-500 ring-2 ring-rose-500/20' : ''
-                  }`}
+                  className={`w-full h-11 px-3.5 border rounded-xl text-sm bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-jm-dark-blue/80 text-slate-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-jm-dark-blue focus:border-transparent ${formErrors.recipientName ? 'border-rose-500 ring-2 ring-rose-500/20' : ''
+                    }`}
                 />
                 {formErrors.recipientName && <p className="text-rose-500 text-xs mt-1 font-medium">{formErrors.recipientName}</p>}
               </div>
@@ -646,7 +639,7 @@ export default function TransactionsPage() {
               </div>
               <h3 className="text-lg font-bold text-slate-800 dark:text-white">Delete Transaction?</h3>
             </div>
-            
+
             <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
               Are you sure you want to delete this transaction record? This action will restore the amount to the wallet balance and cannot be undone.
             </p>

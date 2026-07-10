@@ -1,753 +1,574 @@
-'use client';
+"use client";
 
-import React, { useState, useMemo } from 'react';
-import { useFinanceStore, CATEGORIES } from '../hooks/useFinanceStore';
-import { 
-  ArrowUpRight, 
-  ArrowDownRight, 
-  Wallet as WalletIcon, 
-  Plus, 
-  PiggyBank, 
-  DollarSign, 
-  TrendingUp, 
-  TrendingDown, 
-  ChevronRight,
-  Activity
-} from 'lucide-react';
-import { 
-  BarChart, 
-  Bar, 
-  XAxis, 
-  YAxis, 
-  CartesianGrid, 
-  Tooltip, 
-  Legend, 
-  ResponsiveContainer 
-} from 'recharts';
-import Link from 'next/link';
+import { useEffect, useRef } from "react";
 
-// Quick Custom Transaction Modal for instant data input
-function AddTransactionModal({ isOpen, onClose }: { isOpen: boolean, onClose: () => void }) {
-  const { cards, addTransaction, addToast } = useFinanceStore();
-  const [type, setType] = useState<'income' | 'expense'>('expense');
-  const [amount, setAmount] = useState('');
-  const [category, setCategory] = useState('');
-  const [walletId, setWalletId] = useState('');
-  const [recipient, setRecipient] = useState('');
-  const [notes, setNotes] = useState('');
-  const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
-  const [errors, setErrors] = useState<Record<string, string>>({});
+export default function Home() {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
 
-  if (!isOpen) return null;
+  // WebGL animated background shader
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    const newErrors: Record<string, string> = {};
-    
-    // Validations
-    const numAmount = parseFloat(amount);
-    if (isNaN(numAmount) || numAmount <= 0) {
-      newErrors.amount = 'Amount must be greater than zero';
-    }
-    if (!category) {
-      newErrors.category = 'Category is required';
-    }
-    if (!walletId) {
-      newErrors.walletId = 'Wallet/Account is required';
-    }
-    if (!date) {
-      newErrors.date = 'Date is required';
-    }
-    if (!recipient.trim()) {
-      newErrors.recipient = 'Recipient or Payee name is required';
-    }
-
-    if (Object.keys(newErrors).length > 0) {
-      setErrors(newErrors);
-      addToast('Please fix validation errors', 'error');
-      return;
-    }
-
-    // Process Add Transaction
-    addTransaction({
-      type,
-      amount: numAmount,
-      category,
-      walletId,
-      recipientName: recipient,
-      status: 'completed',
-      date: new Date(date).getTime(),
-      notes: notes || null
-    });
-
-    addToast('Transaction recorded successfully!', 'success');
-    onClose();
-  };
-
-  const currentCategories = type === 'income' ? CATEGORIES.income : CATEGORIES.expense;
-
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/55 backdrop-blur-sm animate-fade-in">
-      <div className="w-full max-w-lg bg-white dark:bg-jm-navy rounded-2xl shadow-xl border border-slate-200 dark:border-jm-dark-blue p-6 relative">
-        <h2 className="text-xl font-bold text-slate-800 dark:text-white mb-4">Add Transaction</h2>
-        
-        <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Type Selector */}
-          <div>
-            <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">Type</label>
-            <div className="grid grid-cols-2 gap-2">
-              <button
-                type="button"
-                onClick={() => { setType('expense'); setCategory(''); }}
-                className={`py-2 px-4 rounded-xl text-sm font-semibold transition-all ${
-                  type === 'expense'
-                    ? 'bg-rose-500 text-white shadow-md shadow-rose-500/20'
-                    : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
-                }`}
-              >
-                Expense
-              </button>
-              <button
-                type="button"
-                onClick={() => { setType('income'); setCategory(''); }}
-                className={`py-2 px-4 rounded-xl text-sm font-semibold transition-all ${
-                  type === 'income'
-                    ? 'bg-emerald-500 text-white shadow-md shadow-emerald-500/20'
-                    : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
-                }`}
-              >
-                Income
-              </button>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            {/* Amount */}
-            <div>
-              <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">Amount ($)</label>
-              <input
-                type="number"
-                step="0.01"
-                placeholder="0.00"
-                value={amount}
-                onChange={(e) => setAmount(e.target.value)}
-                className={`w-full h-11 px-3.5 border rounded-xl text-sm bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-jm-dark-blue/80 text-slate-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-jm-dark-blue focus:border-transparent ${
-                  errors.amount ? 'border-rose-500 ring-2 ring-rose-500/20' : ''
-                }`}
-              />
-              {errors.amount && <p className="text-rose-500 text-xs mt-1 font-medium">{errors.amount}</p>}
-            </div>
-
-            {/* Date */}
-            <div>
-              <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">Date</label>
-              <input
-                type="date"
-                value={date}
-                onChange={(e) => setDate(e.target.value)}
-                className={`w-full h-11 px-3.5 border rounded-xl text-sm bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-jm-dark-blue/80 text-slate-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-jm-dark-blue focus:border-transparent ${
-                  errors.date ? 'border-rose-500 ring-2 ring-rose-500/20' : ''
-                }`}
-              />
-              {errors.date && <p className="text-rose-500 text-xs mt-1 font-medium">{errors.date}</p>}
-            </div>
-          </div>
-
-          {/* Category Selector */}
-          <div>
-            <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">Category</label>
-            <select
-              value={category}
-              onChange={(e) => setCategory(e.target.value)}
-              className={`w-full h-11 px-3.5 border rounded-xl text-sm bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-jm-dark-blue/80 text-slate-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-jm-dark-blue focus:border-transparent ${
-                errors.category ? 'border-rose-500 ring-2 ring-rose-500/20' : ''
-              }`}
-            >
-              <option value="">Select Category</option>
-              {currentCategories.map((c) => (
-                <option key={c.name} value={c.name}>
-                  {c.name}
-                </option>
-              ))}
-            </select>
-            {errors.category && <p className="text-rose-500 text-xs mt-1 font-medium">{errors.category}</p>}
-          </div>
-
-          {/* Wallet / Card Selector */}
-          <div>
-            <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">Wallet / Account</label>
-            <select
-              value={walletId}
-              onChange={(e) => setWalletId(e.target.value)}
-              className={`w-full h-11 px-3.5 border rounded-xl text-sm bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-jm-dark-blue/80 text-slate-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-jm-dark-blue focus:border-transparent ${
-                errors.walletId ? 'border-rose-500 ring-2 ring-rose-500/20' : ''
-              }`}
-            >
-              <option value="">Select Wallet</option>
-              {cards.map((c) => (
-                <option key={c.id} value={c.id}>
-                  {c.nickname || 'Unnamed Card'} ({c.cardNumber}) - ${c.balance.toFixed(2)}
-                </option>
-              ))}
-            </select>
-            {errors.walletId && <p className="text-rose-500 text-xs mt-1 font-medium">{errors.walletId}</p>}
-          </div>
-
-          {/* Recipient / Payee */}
-          <div>
-            <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">Recipient / Payee</label>
-            <input
-              type="text"
-              placeholder="e.g. Starbucks, Salary Inc."
-              value={recipient}
-              onChange={(e) => setRecipient(e.target.value)}
-              className={`w-full h-11 px-3.5 border rounded-xl text-sm bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-jm-dark-blue/80 text-slate-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-jm-dark-blue focus:border-transparent ${
-                errors.recipient ? 'border-rose-500 ring-2 ring-rose-500/20' : ''
-              }`}
-            />
-            {errors.recipient && <p className="text-rose-500 text-xs mt-1 font-medium">{errors.recipient}</p>}
-          </div>
-
-          {/* Notes */}
-          <div>
-            <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">Notes (Optional)</label>
-            <textarea
-              placeholder="Additional comments or descriptions..."
-              rows={2}
-              value={notes}
-              onChange={(e) => setNotes(e.target.value)}
-              className="w-full p-3 border rounded-xl text-sm bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-jm-dark-blue/80 text-slate-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-jm-dark-blue focus:border-transparent"
-            />
-          </div>
-
-          {/* Actions */}
-          <div className="flex justify-end gap-2 pt-2">
-            <button
-              type="button"
-              onClick={onClose}
-              className="px-4 py-2 text-sm font-semibold rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-400"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              className="px-5 py-2 text-sm font-semibold text-white bg-jm-dark-blue rounded-xl hover:bg-jm-light-blue transition-colors shadow-md shadow-jm-dark-blue/20"
-            >
-              Add Transaction
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
-  );
-}
-
-export default function Dashboard() {
-  const { transactions, cards, goals, budgets } = useFinanceStore();
-  const [chartPeriod, setChartPeriod] = useState<'this-month' | 'last-3' | 'last-6' | 'this-year'>('this-month');
-  const [isAddTxOpen, setIsAddTxOpen] = useState(false);
-
-  // 1. Calculate Key Metrics
-  // We'll calculate totals for current month and previous month to show percentage changes
-  const metrics = useMemo(() => {
-    const now = new Date();
-    const currentMonth = now.getMonth();
-    const currentYear = now.getFullYear();
-
-    const firstOfCurrentMonth = new Date(currentYear, currentMonth, 1).getTime();
-    const firstOfPrevMonth = new Date(currentYear, currentMonth - 1, 1).getTime();
-
-    let curIncome = 0;
-    let curExpense = 0;
-    let prevIncome = 0;
-    let prevExpense = 0;
-
-    transactions.forEach((t) => {
-      if (t.status !== 'completed') return;
-      
-      if (t.date >= firstOfCurrentMonth) {
-        if (t.type === 'income') curIncome += t.amount;
-        else curExpense += t.amount;
-      } else if (t.date >= firstOfPrevMonth && t.date < firstOfCurrentMonth) {
-        if (t.type === 'income') prevIncome += t.amount;
-        else prevExpense += t.amount;
+    function syncSize() {
+      const w = canvas!.clientWidth || 1280;
+      const h = canvas!.clientHeight || 720;
+      if (canvas!.width !== w || canvas!.height !== h) {
+        canvas!.width = w;
+        canvas!.height = h;
       }
-    });
-
-    const totalBalance = cards.reduce((sum, c) => sum + c.balance, 0);
-    const curSavings = curIncome - curExpense;
-    const prevSavings = prevIncome - prevExpense;
-
-    // Helper to calculate percentage change
-    const getChange = (curr: number, prev: number) => {
-      if (prev === 0) return curr > 0 ? 100 : 0;
-      return ((curr - prev) / prev) * 100;
-    };
-
-    // Calculate percentage change for total balance:
-    // (We will simulate it based on this month's savings versus current balance as a baseline)
-    const balanceChange = getChange(totalBalance, totalBalance - curSavings);
-    const incomeChange = getChange(curIncome, prevIncome);
-    const expenseChange = getChange(curExpense, prevExpense);
-    const savingsChange = getChange(curSavings, prevSavings);
-
-    return {
-      totalBalance,
-      balanceChange,
-      income: curIncome,
-      incomeChange,
-      expense: curExpense,
-      expenseChange,
-      savings: curSavings,
-      savingsChange
-    };
-  }, [transactions, cards]);
-
-  // 2. Prepare Income Chart Data
-  const incomeChartData = useMemo(() => {
-    const now = new Date();
-    const currentYear = now.getFullYear();
-    const currentMonth = now.getMonth();
-
-    let startDate = new Date();
-
-    if (chartPeriod === 'this-month') {
-      startDate = new Date(currentYear, currentMonth, 1);
-    } else if (chartPeriod === 'last-3') {
-      startDate = new Date(currentYear, currentMonth - 2, 1);
-    } else if (chartPeriod === 'last-6') {
-      startDate = new Date(currentYear, currentMonth - 5, 1);
-    } else if (chartPeriod === 'this-year') {
-      startDate = new Date(currentYear, 0, 1);
     }
 
-    const startTimestamp = startDate.getTime();
+    let resizeObserver: ResizeObserver | null = null;
+    if (typeof ResizeObserver !== "undefined") {
+      resizeObserver = new ResizeObserver(syncSize);
+      resizeObserver.observe(canvas);
+    }
+    syncSize();
 
-    // If "This month", split by weeks
-    if (chartPeriod === 'this-month') {
-      const data = [
-        { label: 'Week 1', Fixed: 0, Variable: 0 },
-        { label: 'Week 2', Fixed: 0, Variable: 0 },
-        { label: 'Week 3', Fixed: 0, Variable: 0 },
-        { label: 'Week 4', Fixed: 0, Variable: 0 },
-      ];
+    const gl = (canvas.getContext("webgl") ||
+      canvas.getContext("experimental-webgl")) as WebGLRenderingContext | null;
+    if (!gl) return;
 
-      transactions.forEach((t) => {
-        if (t.type !== 'income' || t.date < startTimestamp || t.status !== 'completed') return;
-        const txDate = new Date(t.date);
-        const dayOfMonth = txDate.getDate();
-        
-        let weekIndex = Math.min(3, Math.floor((dayOfMonth - 1) / 7));
-        const isFixed = t.category === 'Salary'; // Salary is Fixed, others Variable
-        
-        if (isFixed) {
-          data[weekIndex].Fixed += t.amount;
-        } else {
-          data[weekIndex].Variable += t.amount;
-        }
-      });
-      return data;
+    const vs = `attribute vec2 a_position;
+varying vec2 v_texCoord;
+void main() {
+  v_texCoord = a_position * 0.5 + 0.5;
+  gl_Position = vec4(a_position, 0.0, 1.0);
+}`;
+
+    const fs = `precision highp float;
+uniform float u_time;
+uniform vec2 u_resolution;
+varying vec2 v_texCoord;
+
+void main() {
+    vec2 uv = v_texCoord;
+
+    float t = u_time * 0.2;
+
+    vec2 p1 = vec2(0.5 + 0.3 * cos(t), 0.5 + 0.2 * sin(t * 1.2));
+    vec2 p2 = vec2(0.3 + 0.2 * sin(t * 1.5), 0.7 + 0.1 * cos(t * 0.8));
+    vec2 p3 = vec2(0.7 + 0.2 * cos(t * 0.9), 0.3 + 0.3 * sin(t * 1.1));
+
+    float d1 = 1.0 - smoothstep(0.0, 0.6, distance(uv, p1));
+    float d2 = 1.0 - smoothstep(0.0, 0.7, distance(uv, p2));
+    float d3 = 1.0 - smoothstep(0.0, 0.5, distance(uv, p3));
+
+    vec3 baseColor = vec3(0.008, 0.024, 0.09);
+    vec3 accentColor = vec3(0.231, 0.51, 0.965);
+    vec3 deepBlue = vec3(0.059, 0.09, 0.165);
+
+    vec3 color = baseColor;
+    color = mix(color, deepBlue, d2 * 0.5);
+    color = mix(color, accentColor, d1 * 0.2);
+    color = mix(color, accentColor, d3 * 0.15);
+
+    float noise = fract(sin(dot(uv, vec2(12.9898, 78.233))) * 43758.5453);
+    color += noise * 0.015;
+
+    gl_FragColor = vec4(color, 1.0);
+}`;
+
+    function compileShader(type: number, src: string) {
+      const s = gl!.createShader(type)!;
+      gl!.shaderSource(s, src);
+      gl!.compileShader(s);
+      return s;
     }
 
-    // For multi-month views, group by month
-    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-    const monthDataMap: Record<string, { label: string; Fixed: number; Variable: number; order: number }> = {};
+    const prog = gl.createProgram()!;
+    gl.attachShader(prog, compileShader(gl.VERTEX_SHADER, vs));
+    gl.attachShader(prog, compileShader(gl.FRAGMENT_SHADER, fs));
+    gl.linkProgram(prog);
+    gl.useProgram(prog);
 
-    // Seed map with expected months
-    let iter = new Date(startDate);
-    let order = 0;
-    while (iter <= now) {
-      const label = `${months[iter.getMonth()]} ${iter.getFullYear().toString().substring(2)}`;
-      monthDataMap[label] = { label, Fixed: 0, Variable: 0, order };
-      iter.setMonth(iter.getMonth() + 1);
-      order++;
-    }
-
-    transactions.forEach((t) => {
-      if (t.type !== 'income' || t.date < startTimestamp || t.status !== 'completed') return;
-      const txDate = new Date(t.date);
-      const label = `${months[txDate.getMonth()]} ${txDate.getFullYear().toString().substring(2)}`;
-      
-      if (monthDataMap[label]) {
-        const isFixed = t.category === 'Salary';
-        if (isFixed) {
-          monthDataMap[label].Fixed += t.amount;
-        } else {
-          monthDataMap[label].Variable += t.amount;
-        }
-      }
-    });
-
-    return Object.values(monthDataMap).sort((a, b) => a.order - b.order);
-  }, [transactions, chartPeriod]);
-
-  // 3. Extract Recent Transactions (last 5)
-  const recentTransactions = useMemo(() => {
-    return transactions.slice(0, 5);
-  }, [transactions]);
-
-  // Format Helper
-  const formatVal = (val: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-      minimumFractionDigits: 2
-    }).format(val);
-  };
-
-  const renderTrend = (value: number) => {
-    const isPositive = value >= 0;
-    return (
-      <span className={`inline-flex items-center text-xs font-bold gap-0.5 px-2 py-1 rounded-lg ${
-        isPositive 
-          ? 'bg-emerald-50 dark:bg-emerald-950/20 text-emerald-600 dark:text-emerald-400' 
-          : 'bg-rose-50 dark:bg-rose-950/20 text-rose-600 dark:text-rose-400'
-      }`}>
-        {isPositive ? <ArrowUpRight className="h-3 w-3" /> : <ArrowDownRight className="h-3 w-3" />}
-        {Math.abs(value).toFixed(1)}%
-      </span>
+    const buf = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+    gl.bufferData(
+      gl.ARRAY_BUFFER,
+      new Float32Array([-1, -1, 1, -1, -1, 1, 1, 1]),
+      gl.STATIC_DRAW
     );
-  };
+    const posLoc = gl.getAttribLocation(prog, "a_position");
+    gl.enableVertexAttribArray(posLoc);
+    gl.vertexAttribPointer(posLoc, 2, gl.FLOAT, false, 0, 0);
+
+    const uTime = gl.getUniformLocation(prog, "u_time");
+    const uRes = gl.getUniformLocation(prog, "u_resolution");
+    const uMouse = gl.getUniformLocation(prog, "u_mouse");
+
+    const mouse = { x: canvas.width / 2, y: canvas.height / 2 };
+    function handleMouseMove(event: MouseEvent) {
+      const rect = canvas!.getBoundingClientRect();
+      if (rect.width && rect.height) {
+        const nx = (event.clientX - rect.left) / rect.width;
+        const ny = 1.0 - (event.clientY - rect.top) / rect.height;
+        mouse.x = nx * canvas!.width;
+        mouse.y = ny * canvas!.height;
+      }
+    }
+    window.addEventListener("mousemove", handleMouseMove);
+
+    let rafId: number;
+    function render(t: number) {
+      if (typeof ResizeObserver === "undefined") syncSize();
+      gl!.viewport(0, 0, canvas!.width, canvas!.height);
+      if (uTime) gl!.uniform1f(uTime, t * 0.001);
+      if (uRes) gl!.uniform2f(uRes, canvas!.width, canvas!.height);
+      if (uMouse) gl!.uniform2f(uMouse, mouse.x, mouse.y);
+      gl!.drawArrays(gl!.TRIANGLE_STRIP, 0, 4);
+      rafId = requestAnimationFrame(render);
+    }
+    rafId = requestAnimationFrame(render);
+
+    return () => {
+      cancelAnimationFrame(rafId);
+      window.removeEventListener("mousemove", handleMouseMove);
+      resizeObserver?.disconnect();
+    };
+  }, []);
+
+  // Smooth scroll + fade-up scroll observer
+  useEffect(() => {
+    const anchors = document.querySelectorAll('a[href^="#"]');
+    const handleClick = function (this: HTMLAnchorElement, e: Event) {
+      e.preventDefault();
+      const targetId = this.getAttribute("href");
+      if (targetId && targetId !== "#") {
+        document.querySelector(targetId)?.scrollIntoView({ behavior: "smooth" });
+      }
+    };
+    anchors.forEach((anchor) =>
+      anchor.addEventListener("click", handleClick as EventListener)
+    );
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add("animate-fade-up");
+            observer.unobserve(entry.target);
+          }
+        });
+      },
+      { threshold: 0.1 }
+    );
+    document.querySelectorAll(".animate-fade-up-scroll").forEach((el) => observer.observe(el));
+
+    return () => {
+      anchors.forEach((anchor) =>
+        anchor.removeEventListener("click", handleClick as EventListener)
+      );
+      observer.disconnect();
+    };
+  }, []);
 
   return (
-    <div className="space-y-6 animate-in fade-in duration-300">
-      
-      {/* Upper Panel: Welcome and CTA */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h2 className="text-xl font-bold text-slate-800 dark:text-white">JM Solutionss Financial Command Center</h2>
-          <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
-            Real-time analytics and transaction management system.
-          </p>
-        </div>
-        <button
-          onClick={() => setIsAddTxOpen(true)}
-          className="flex items-center justify-center gap-2 h-11 px-5 text-sm font-semibold text-white bg-jm-dark-blue rounded-xl hover:bg-jm-light-blue transition-all shadow-md shadow-jm-dark-blue/20 cursor-pointer self-start sm:self-auto"
-        >
-          <Plus className="h-4.5 w-4.5" />
-          <span>Add Transaction</span>
-        </button>
-      </div>
-
-      {/* 4 Key Metric Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {/* Card 1: Balance */}
-        <div className="p-5 rounded-2xl bg-white dark:bg-jm-navy border border-slate-100 dark:border-jm-dark-blue shadow-sm flex flex-col justify-between min-h-36">
-          <div className="flex items-center justify-between">
-            <span className="text-sm font-semibold text-slate-500 dark:text-slate-400">Total Balance</span>
-            <div className="p-2 bg-jm-dark-blue/10 dark:bg-jm-light-blue/20 rounded-xl text-jm-dark-blue dark:text-jm-light-blue">
-              <WalletIcon className="h-5 w-5" />
-            </div>
-          </div>
-          <div className="mt-3">
-            <h3 className="text-2xl font-bold text-slate-800 dark:text-white tracking-tight">{formatVal(metrics.totalBalance)}</h3>
-            <div className="flex items-center gap-1.5 mt-2">
-              {renderTrend(metrics.balanceChange)}
-              <span className="text-[11px] text-slate-400 dark:text-slate-500 font-semibold uppercase">from last month</span>
-            </div>
-          </div>
-        </div>
-
-        {/* Card 2: Income */}
-        <div className="p-5 rounded-2xl bg-white dark:bg-jm-navy border border-slate-100 dark:border-jm-dark-blue shadow-sm flex flex-col justify-between min-h-36">
-          <div className="flex items-center justify-between">
-            <span className="text-sm font-semibold text-slate-500 dark:text-slate-400">Monthly Income</span>
-            <div className="p-2 bg-emerald-500/10 rounded-xl text-emerald-600 dark:text-emerald-400">
-              <TrendingUp className="h-5 w-5" />
-            </div>
-          </div>
-          <div className="mt-3">
-            <h3 className="text-2xl font-bold text-slate-800 dark:text-white tracking-tight">{formatVal(metrics.income)}</h3>
-            <div className="flex items-center gap-1.5 mt-2">
-              {renderTrend(metrics.incomeChange)}
-              <span className="text-[11px] text-slate-400 dark:text-slate-500 font-semibold uppercase">from last month</span>
-            </div>
-          </div>
-        </div>
-
-        {/* Card 3: Expense */}
-        <div className="p-5 rounded-2xl bg-white dark:bg-jm-navy border border-slate-100 dark:border-jm-dark-blue shadow-sm flex flex-col justify-between min-h-36">
-          <div className="flex items-center justify-between">
-            <span className="text-sm font-semibold text-slate-500 dark:text-slate-400">Monthly Expenses</span>
-            <div className="p-2 bg-rose-500/10 rounded-xl text-rose-600 dark:text-rose-400">
-              <TrendingDown className="h-5 w-5" />
-            </div>
-          </div>
-          <div className="mt-3">
-            <h3 className="text-2xl font-bold text-slate-800 dark:text-white tracking-tight">{formatVal(metrics.expense)}</h3>
-            <div className="flex items-center gap-1.5 mt-2">
-              {renderTrend(metrics.expenseChange)}
-              <span className="text-[11px] text-slate-400 dark:text-slate-500 font-semibold uppercase">from last month</span>
-            </div>
-          </div>
-        </div>
-
-        {/* Card 4: Savings */}
-        <div className="p-5 rounded-2xl bg-white dark:bg-jm-navy border border-slate-100 dark:border-jm-dark-blue shadow-sm flex flex-col justify-between min-h-36">
-          <div className="flex items-center justify-between">
-            <span className="text-sm font-semibold text-slate-500 dark:text-slate-400">Monthly Savings</span>
-            <div className="p-2 bg-violet-500/10 rounded-xl text-violet-600 dark:text-violet-400">
-              <PiggyBank className="h-5 w-5" />
-            </div>
-          </div>
-          <div className="mt-3">
-            <h3 className="text-2xl font-bold text-slate-800 dark:text-white tracking-tight">{formatVal(metrics.savings)}</h3>
-            <div className="flex items-center gap-1.5 mt-2">
-              {renderTrend(metrics.savingsChange)}
-              <span className="text-[11px] text-slate-400 dark:text-slate-500 font-semibold uppercase">from last month</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Main Panel Content: Chart & Side info */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        
-        {/* Income Chart Card (2 Columns wide) */}
-        <div className="lg:col-span-2 p-5 rounded-2xl bg-white dark:bg-jm-navy border border-slate-100 dark:border-jm-dark-blue shadow-sm flex flex-col">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
-            <div>
-              <h3 className="text-base font-bold text-slate-800 dark:text-white">Income Analysis</h3>
-              <p className="text-xs text-slate-400 mt-0.5">Fixed vs Variable income split over time</p>
-            </div>
-            
-            {/* Period Selector Tabs */}
-            <div className="flex bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-jm-dark-blue/80 p-1 rounded-xl">
-              {(['this-month', 'last-3', 'last-6', 'this-year'] as const).map((p) => {
-                const labelMap = {
-                  'this-month': 'This Month',
-                  'last-3': '3 Months',
-                  'last-6': '6 Months',
-                  'this-year': 'This Year'
-                };
-                return (
-                  <button
-                    key={p}
-                    onClick={() => setChartPeriod(p)}
-                    className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-all ${
-                      chartPeriod === p
-                        ? 'bg-jm-dark-blue text-white shadow-sm'
-                        : 'text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200'
-                    }`}
-                  >
-                    {labelMap[p]}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-
-          <div className="h-72 w-full">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart
-                data={incomeChartData}
-                margin={{ top: 10, right: 10, left: -20, bottom: 0 }}
+    <div className="bg-surface text-on-surface selection:bg-pf-primary selection:text-on-pf-primary-container font-body-md overflow-x-hidden">
+      {/* TopNavBar */}
+      <header className="fixed top-0 w-full z-50 bg-surface/60 backdrop-blur-xl border-b border-white/10 shadow-2xl">
+        <nav className="flex items-center justify-between px-gutter py-xs max-w-[1280px] mx-auto">
+          <div className="flex items-center gap-sm">
+            <div className="w-8 h-8 bg-pf-primary-container rounded-[2rem] flex items-center justify-center">
+              {/* <span
+                className="material-symbols-outlined text-on-pf-primary-container text-[20px]"
+                style={{ fontVariationSettings: "'FILL' 1" }}
               >
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(200,200,200,0.15)" />
-                <XAxis 
-                  dataKey="label" 
-                  tickLine={false} 
-                  axisLine={false}
-                  tick={{ fill: 'currentColor', fontSize: 11 }}
-                  className="text-slate-400 dark:text-slate-500 font-medium"
-                />
-                <YAxis 
-                  tickLine={false} 
-                  axisLine={false}
-                  tickFormatter={(val) => `$${val}`}
-                  tick={{ fill: 'currentColor', fontSize: 11 }}
-                  className="text-slate-400 dark:text-slate-500 font-medium"
-                />
-                <Tooltip />
-                <Legend iconType="circle" wrapperStyle={{ fontSize: 12, paddingTop: 10 }} />
-                {/* Fixed Income = Dark Blue, Variable = Light Blue */}
-                <Bar dataKey="Fixed" stackId="a" fill="#2E3A8C" radius={[0, 0, 0, 0]} name="Fixed (Salary)" />
-                <Bar dataKey="Variable" stackId="a" fill="#4A5FD9" radius={[4, 4, 0, 0]} name="Variable (Consulting/Freelance)" />
-              </BarChart>
-            </ResponsiveContainer>
+                account_balance_wallet
+              </span> */}
+            </div>
+            <span className="font-display-md text-display-md font-bold tracking-tight text-on-surface">
+              PocketFlow
+            </span>
           </div>
-        </div>
+          <div className="hidden md:flex items-center gap-lg">
+            <a
+              className="font-body-md text-body-md text-pf-primary font-bold border-b-2 border-pf-primary pb-1 transition-colors duration-300"
+              href="#"
+            >
+              Features
+            </a>
+            <a
+              className="font-body-md text-body-md text-on-surface-variant font-medium hover:text-pf-primary transition-colors duration-300"
+              href="#"
+            >
+              Solutions
+            </a>
+            <a
+              className="font-body-md text-body-md text-on-surface-variant font-medium hover:text-pf-primary transition-colors duration-300"
+              href="#"
+            >
+              Pricing
+            </a>
+            <a
+              className="font-body-md text-body-md text-on-surface-variant font-medium hover:text-pf-primary transition-colors duration-300"
+              href="#"
+            >
+              About
+            </a>
+          </div>
+          <div className="flex items-center gap-sm">
+            <button className="hidden sm:block font-body-md text-body-md text-on-surface-variant font-medium hover:text-pf-primary transition-colors duration-300 px-sm py-xs">
+              Log In
+            </button>
+            <button className="bg-pf-primary-container text-on-pf-primary-container font-body-md text-body-md font-semibold px-md py-xs rounded-full hover:shadow-[0_0_20px_rgba(77,142,255,0.4)] transition-all">
+              Get Started
+            </button>
+          </div>
+        </nav>
+      </header>
 
-        {/* Budgets Tracker Card (1 Column wide) */}
-        <div className="p-5 rounded-2xl bg-white dark:bg-jm-navy border border-slate-100 dark:border-jm-dark-blue shadow-sm flex flex-col justify-between">
+      <main className="relative">
+        {/* Hero Section with Animation */}
+        <section className="relative min-h-screen flex flex-col items-center justify-center px-gutter pt-xl">
+          <div className="absolute inset-0 w-full h-full opacity-40" style={{ display: "block" }}>
+            <canvas
+              ref={canvasRef}
+              id="shader-canvas-ANIMATION_2"
+              style={{ display: "block", width: "100%", height: "100%" }}
+            />
+          </div>
+
+          <div className="relative z-10 text-center max-w-4xl mx-auto animate-fade-up">
+            <div className="inline-flex items-center gap-xs bg-white/5 border border-white/10 px-sm py-1 rounded-full mb-md backdrop-blur-md">
+              <span className="w-2 h-2 rounded-full bg-pf-primary animate-pulse"></span>
+              <span className="font-label-md text-label-md text-on-surface-variant">V2.0 Now Live</span>
+            </div>
+            <h1 className="font-display-lg text-display-lg md:text-[64px] mb-sm leading-tight">
+              Take Control of Your <br />
+              <span className="blue-gradient-text">Financial Future</span>
+            </h1>
+            <p className="font-body-lg text-body-lg text-on-surface-variant max-w-2xl mx-auto mb-lg">
+              AI-powered insights to master your wealth, automate savings, and predict your financial horizon with
+              precision.
+            </p>
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-sm mb-xl">
+              <button className="w-full sm:w-auto bg-pf-primary text-on-pf-primary px-xl py-md rounded-full font-title-lg text-title-lg hover:scale-105 transition-transform">
+                Start Free Trial
+              </button>
+              <button className="w-full sm:w-auto glass-card px-xl py-md rounded-full font-title-lg text-title-lg flex items-center justify-center gap-xs">
+                <span className="material-symbols-outlined"></span> View Demo
+              </button>
+            </div>
+
+            {/* Featured Visual */}
+            <div className="tilt-container max-w-5xl mx-auto mt-lg">
+              <div className="tilt-inner rounded-[3rem] overflow-hidden glass-card p-xs">
+                <div className="relative rounded-[2rem] overflow-hidden border border-white/5 shadow-2xl">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    alt="PocketFlow Dashboard Preview"
+                    className="w-full h-auto object-cover"
+                    src="https://lh3.googleusercontent.com/aida-public/AB6AXuBrXzqx9h5qFIJ5Rc27YDRu31GCwqB4ePOSsAz6fBxjV3fbylYz-AzQ3_HlwwvcyFnOlQkdHNP_jepNLiP8Y4SeYFAkEUz29K2kK_-coxyHaxn9hbJ2N0S8_3jiRqJi6TLqX-vi21FkujEwvA6fE0R70Ixc0BOCFitE-4GhoZYGdlYqEi_V3vfi1F7IVTcTsey_njW_O1-CcgEqi0VDXj-yCAZal5KRiS8W9j8FbW0A4yyekSbWopdnwA"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Stats Grid */}
+        <section className="py-xl px-gutter max-w-[1280px] mx-auto">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-md">
+            <div className="glass-card p-md rounded-[3rem] animate-fade-up" style={{ animationDelay: "0.1s" }}>
+              <div className="flex items-center justify-between mb-sm">
+                <span className="font-label-md text-label-md text-on-surface-variant">Total Balance</span>
+              </div>
+              <div className="font-headline-lg text-headline-lg text-on-surface">$1,248,500.00</div>
+              <div className="font-label-sm text-label-sm text-tertiary-container mt-xs flex items-center gap-1">
+                <span className="material-symbols-outlined text-[14px]"></span> +12.5% this month
+              </div>
+            </div>
+            <div className="glass-card p-md rounded-[3rem] animate-fade-up" style={{ animationDelay: "0.2s" }}>
+              <div className="flex items-center justify-between mb-sm">
+                <span className="font-label-md text-label-md text-on-surface-variant">Transactions</span>
+
+              </div>
+              <div className="font-headline-lg text-headline-lg text-on-surface">482</div>
+              <div className="font-label-sm text-label-sm text-on-surface-variant mt-xs">Average $2.4k per txn</div>
+            </div>
+            <div className="glass-card p-md rounded-[3rem] animate-fade-up" style={{ animationDelay: "0.3s" }}>
+              <div className="flex items-center justify-between mb-sm">
+                <span className="font-label-md text-label-md text-on-surface-variant">Savings Rate</span>
+
+              </div>
+              <div className="font-headline-lg text-headline-lg text-on-surface">24.8%</div>
+              <div className="font-label-sm text-label-sm text-tertiary-container mt-xs flex items-center gap-1">
+                <span className="material-symbols-outlined text-[14px]"></span> Target: 30%
+              </div>
+            </div>
+            <div
+              className="glass-card p-md rounded-[3rem] border-pf-primary/20 bg-pf-primary-container/5 animate-fade-up"
+              style={{ animationDelay: "0.4s" }}
+            >
+              <div className="flex items-center justify-between mb-sm">
+                <span className="font-label-md text-label-md text-pf-primary">AI Insights</span>
+
+              </div>
+              <div className="font-headline-lg text-headline-lg text-on-surface">12 New</div>
+              <div className="font-label-sm text-label-sm text-pf-primary mt-xs">Optimize portfolio risk</div>
+            </div>
+          </div>
+        </section>
+
+        {/* Features Section */}
+        <section className="py-xl px-gutter max-w-[1280px] mx-auto bg-surface-container-lowest/50 rounded-[3rem] my-xl border border-white/5">
+          <div className="text-center mb-xl">
+            <h2 className="font-display-md text-display-md mb-xs">Designed for Modern Finance</h2>
+            <p className="font-body-md text-body-md text-on-surface-variant">
+              Everything you need to scale your wealth in one place.
+            </p>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-md">
+            <div className="glass-card p-lg rounded-[3rem] group">
+              <div className="w-12 h-12 bg-white/5 rounded-[2rem] flex items-center justify-center mb-md group-hover:bg-pf-primary/20 transition-colors">
+
+              </div>
+              <h3 className="font-title-lg text-title-lg mb-xs">Smart Wallet</h3>
+              <p className="font-body-md text-body-md text-on-surface-variant">
+                Multi-currency support with real-time exchange rates and instant settlements.
+              </p>
+            </div>
+            <div className="glass-card p-lg rounded-[3rem] group">
+              <div className="w-12 h-12 bg-white/5 rounded-[2rem] flex items-center justify-center mb-md group-hover:bg-pf-primary/20 transition-colors">
+
+              </div>
+              <h3 className="font-title-lg text-title-lg mb-xs">Advanced Analytics</h3>
+              <p className="font-body-md text-body-md text-on-surface-variant">
+                Deep dive into spending habits with interactive bento-style visualizations.
+              </p>
+            </div>
+            <div className="glass-card p-lg rounded-[3rem] group">
+              <div className="w-12 h-12 bg-white/5 rounded-[2rem] flex items-center justify-center mb-md group-hover:bg-pf-primary/20 transition-colors">
+
+              </div>
+              <h3 className="font-title-lg text-title-lg mb-xs">Enterprise Security</h3>
+              <p className="font-body-md text-body-md text-on-surface-variant">
+                Bank-grade 256-bit encryption with multi-factor biometric authentication.
+              </p>
+            </div>
+            <div className="glass-card p-lg rounded-[3rem] group">
+              <div className="w-12 h-12 bg-white/5 rounded-[2rem] flex items-center justify-center mb-md group-hover:bg-pf-primary/20 transition-colors">
+
+              </div>
+              <h3 className="font-title-lg text-title-lg mb-xs">Instant Automation</h3>
+              <p className="font-body-md text-body-md text-on-surface-variant">
+                Set complex triggers to move funds, pay bills, or invest automatically.
+              </p>
+            </div>
+            <div className="glass-card p-lg rounded-[3rem] group">
+              <div className="w-12 h-12 bg-white/5 rounded-[2rem] flex items-center justify-center mb-md group-hover:bg-pf-primary/20 transition-colors">
+
+              </div>
+              <h3 className="font-title-lg text-title-lg mb-xs">Predictive Forecasting</h3>
+              <p className="font-body-md text-body-md text-on-surface-variant">
+                Project your future net worth based on historical data and market trends.
+              </p>
+            </div>
+            <div className="glass-card p-lg rounded-[3rem] group relative overflow-hidden">
+              <div className="absolute top-4 right-4 bg-tertiary text-on-tertiary text-[10px] px-xs py-0.5 rounded-full font-bold uppercase tracking-wider">
+                Coming Soon
+              </div>
+              <div className="w-12 h-12 bg-white/5 rounded-[2rem] flex items-center justify-center mb-md group-hover:bg-pf-primary/20 transition-colors">
+
+              </div>
+              <h3 className="font-title-lg text-title-lg mb-xs">Cognitive Advisory</h3>
+              <p className="font-body-md text-body-md text-on-surface-variant">
+                An AI advisor that understands your goals and suggests custom strategies.
+              </p>
+            </div>
+          </div>
+        </section>
+
+        {/* Tech Stack Section */}
+        <section className="py-xl text-center px-gutter">
+          <h4 className="font-label-md text-label-md text-on-surface-variant mb-md uppercase tracking-[0.2em]">
+            The Power Behind the Flow
+          </h4>
+          <div className="flex flex-wrap items-center justify-center gap-sm">
+            <span className="glass-card px-md py-xs rounded-full font-label-md text-label-md flex items-center gap-xs">
+              <span className="w-2 h-2 rounded-full bg-white"></span> Next.js
+            </span>
+            <span className="glass-card px-md py-xs rounded-full font-label-md text-label-md flex items-center gap-xs">
+              <span className="w-2 h-2 rounded-full bg-pf-primary"></span> FastAPI
+            </span>
+            <span className="glass-card px-md py-xs rounded-full font-label-md text-label-md flex items-center gap-xs">
+              <span className="w-2 h-2 rounded-full bg-tertiary"></span> PostgreSQL
+            </span>
+            <span className="glass-card px-md py-xs rounded-full font-label-md text-label-md flex items-center gap-xs">
+              <span className="w-2 h-2 rounded-full bg-pf-secondary"></span> AWS
+            </span>
+          </div>
+        </section>
+
+        {/* AI Section */}
+        <section className="py-xl relative">
+          <div className="absolute inset-0 bg-gradient-to-b from-pf-primary/5 via-surface to-surface pointer-events-none"></div>
+          <div className="max-w-[1280px] mx-auto px-gutter relative z-10">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-xl items-center">
+              <div className="animate-fade-up">
+                <h2 className="font-display-lg text-display-lg mb-md leading-tight">
+                  Financial Intelligence <br />
+                  <span className="blue-gradient-text">Conversational Interface</span>
+                </h2>
+                <div className="space-y-md">
+                  <div className="glass-card p-md rounded-[3rem]">
+                    <div className="flex gap-sm">
+                      <div className="w-10 h-10 rounded-full bg-pf-primary/20 flex items-center justify-center shrink-0">
+
+                      </div>
+                      <div>
+                        <p className="font-body-md text-body-md italic text-on-surface-variant">
+                          &quot;Can I afford a $2k trip next month while maintaining my savings target?&quot;
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="glass-card p-md rounded-[3rem] border-pf-primary/40 bg-pf-primary-container/10">
+                    <div className="flex gap-sm">
+                      <div className="w-10 h-10 rounded-full bg-pf-primary flex items-center justify-center shrink-0">
+
+                      </div>
+                      <div>
+                        <p className="font-body-md text-body-md text-on-surface">
+                          &quot;Based on your current trajectory, yes. You have a $450 surplus projected. If you
+                          reduce dining out by 15%, you&apos;ll actually exceed your goal.&quot;
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div className="relative glass-card aspect-video rounded-[3rem] overflow-hidden flex items-center justify-center border-pf-primary/20">
+                <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-pf-primary/10 via-transparent to-transparent"></div>
+                <div className="text-center p-xl">
+                  <div className="material-symbols-outlined text-[64px] text-pf-primary mb-md animate-pulse">
+                    monitoring
+                  </div>
+                  <h4 className="font-title-lg text-title-lg mb-xs">Probabilistic Forecasting</h4>
+                  <p className="font-body-md text-body-md text-on-surface-variant">
+                    Monte Carlo simulations run in real-time on every transaction.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Final CTA */}
+        <section className="py-xl px-gutter text-center max-w-4xl mx-auto">
+          <div className="glass-card p-xl rounded-[3rem] border-pf-primary/20 relative overflow-hidden">
+            <div className="absolute -top-24 -right-24 w-64 h-64 bg-pf-primary/10 rounded-full blur-3xl"></div>
+            <div className="absolute -bottom-24 -left-24 w-64 h-64 bg-pf-primary/10 rounded-full blur-3xl"></div>
+            <h2 className="font-display-lg text-display-lg mb-sm">Ready to Flow?</h2>
+            <p className="font-body-lg text-body-lg text-on-surface-variant mb-xl">
+              Join 50,000+ users taking control of their financial destiny today.
+            </p>
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-md">
+              <button className="w-full sm:w-auto bg-pf-primary text-on-pf-primary px-xl py-md rounded-full font-title-lg text-title-lg hover:scale-105 transition-transform">
+                Get Started Now
+              </button>
+              <button className="w-full sm:w-auto glass-card px-xl py-md rounded-full font-title-lg text-title-lg hover:bg-white/5 transition-colors">
+                Talk to Sales
+              </button>
+            </div>
+          </div>
+        </section>
+      </main>
+
+      {/* Footer */}
+      <footer className="bg-surface-container-lowest w-full py-xl mt-xl border-t border-outline-variant">
+        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-md px-gutter max-w-[1280px] mx-auto">
+          <div className="col-span-2">
+            <div className="flex items-center gap-sm mb-md">
+              <div className="w-8 h-8 bg-pf-primary-container rounded-[2rem] flex items-center justify-center">
+
+              </div>
+              <span className="font-headline-lg text-headline-lg font-black text-on-surface">PocketFlow</span>
+            </div>
+            <p className="text-base text-gray-400 max-w-2xl leading-relaxed mb-6">
+              The next-generation wealth management platform for the modern individual.
+            </p>
+            <p className="font-label-md text-label-md text-on-surface-variant">© 2024 PocketFlow AI. All rights reserved.</p>
+          </div>
           <div>
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-base font-bold text-slate-800 dark:text-white">Budget Utilization</h3>
-              <Link href="/analytics" className="text-xs font-semibold text-jm-light-blue hover:underline flex items-center">
-                <span>View All</span>
-                <ChevronRight className="h-3 w-3 ml-0.5" />
-              </Link>
-            </div>
-            
-            <div className="space-y-4">
-              {budgets.slice(0, 4).map((b) => {
-                const ratio = b.monthlyLimit > 0 ? (b.spent / b.monthlyLimit) * 100 : 0;
-                let colorClass = 'bg-jm-dark-blue';
-                if (ratio >= 90) colorClass = 'bg-rose-500';
-                else if (ratio >= 75) colorClass = 'bg-amber-500';
-
-                return (
-                  <div key={b.id} className="space-y-1.5">
-                    <div className="flex items-center justify-between text-xs font-semibold">
-                      <span className="text-slate-700 dark:text-slate-300">{b.category}</span>
-                      <span className="text-slate-400">
-                        ${b.spent.toFixed(0)} / <span className="text-slate-600 dark:text-slate-400">${b.monthlyLimit}</span>
-                      </span>
-                    </div>
-                    <div className="w-full h-2 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
-                      <div 
-                        className={`h-full rounded-full transition-all duration-500 ${colorClass}`}
-                        style={{ width: `${Math.min(100, ratio)}%` }}
-                      />
-                    </div>
-                  </div>
-                );
-              })}
-              {budgets.length === 0 && (
-                <div className="text-center py-8 text-sm text-slate-400 font-medium">
-                  No budgets configured.
-                </div>
-              )}
-            </div>
+            <h5 className="font-label-md text-label-md text-on-surface font-semibold mb-sm">Product</h5>
+            <ul className="space-y-xs">
+              <li>
+                <a className="font-label-md text-label-md text-on-surface-variant hover:text-pf-primary transition-colors" href="#">
+                  Features
+                </a>
+              </li>
+              <li>
+                <a className="font-label-md text-label-md text-on-surface-variant hover:text-pf-primary transition-colors" href="#">
+                  Solutions
+                </a>
+              </li>
+              <li>
+                <a className="font-label-md text-label-md text-on-surface-variant hover:text-pf-primary transition-colors" href="#">
+                  Pricing
+                </a>
+              </li>
+            </ul>
           </div>
-
-          <div className="pt-4 border-t border-slate-100 dark:border-jm-dark-blue mt-4">
-            <div className="flex items-center justify-between text-xs">
-              <span className="text-slate-500 dark:text-slate-400 font-semibold">Monthly Limit Total:</span>
-              <span className="font-bold text-slate-800 dark:text-slate-200">
-                ${budgets.reduce((sum, b) => sum + b.monthlyLimit, 0)}
-              </span>
-            </div>
+          <div>
+            <h5 className="font-label-md text-label-md text-on-surface font-semibold mb-sm">Company</h5>
+            <ul className="space-y-xs">
+              <li>
+                <a className="font-label-md text-label-md text-on-surface-variant hover:text-pf-primary transition-colors" href="#">
+                  About
+                </a>
+              </li>
+              <li>
+                <a className="font-label-md text-label-md text-on-surface-variant hover:text-pf-primary transition-colors" href="#">
+                  Contact Support
+                </a>
+              </li>
+              <li>
+                <a className="font-label-md text-label-md text-on-surface-variant hover:text-pf-primary transition-colors" href="#">
+                  Status
+                </a>
+              </li>
+            </ul>
           </div>
-        </div>
-
-      </div>
-
-      {/* Lower Panel Content: Recent Transactions & Savings Goals */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        
-        {/* Recent Transactions List (2 Columns wide) */}
-        <div className="lg:col-span-2 p-5 rounded-2xl bg-white dark:bg-jm-navy border border-slate-100 dark:border-jm-dark-blue shadow-sm">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-base font-bold text-slate-800 dark:text-white">Recent Transactions</h3>
-            <Link href="/transactions" className="text-xs font-semibold text-jm-light-blue hover:underline flex items-center">
-              <span>See History</span>
-              <ChevronRight className="h-3 w-3 ml-0.5" />
-            </Link>
+          <div>
+            <h5 className="font-label-md text-label-md text-on-surface font-semibold mb-sm">Legal</h5>
+            <ul className="space-y-xs">
+              <li>
+                <a className="font-label-md text-label-md text-on-surface-variant hover:text-pf-primary transition-colors" href="#">
+                  Privacy Policy
+                </a>
+              </li>
+              <li>
+                <a className="font-label-md text-label-md text-on-surface-variant hover:text-pf-primary transition-colors" href="#">
+                  Terms of Service
+                </a>
+              </li>
+              <li>
+                <a className="font-label-md text-label-md text-on-surface-variant hover:text-pf-primary transition-colors" href="#">
+                  Security
+                </a>
+              </li>
+            </ul>
           </div>
-
-          <div className="divide-y divide-slate-100 dark:divide-jm-dark-blue/55">
-            {recentTransactions.map((tx) => {
-              const isIncome = tx.type === 'income';
-              const card = cards.find(c => c.id === tx.walletId);
-              
-              return (
-                <div key={tx.id} className="flex items-center justify-between py-3.5 first:pt-0 last:pb-0">
-                  <div className="flex items-center gap-3.5 min-w-0">
-                    <div className={`p-2.5 rounded-xl flex-shrink-0 ${
-                      isIncome 
-                        ? 'bg-emerald-50 dark:bg-emerald-950/20 text-emerald-600 dark:text-emerald-400' 
-                        : 'bg-rose-50 dark:bg-rose-950/20 text-rose-600 dark:text-rose-400'
-                    }`}>
-                      <DollarSign className="h-4.5 w-4.5" />
-                    </div>
-                    <div className="min-w-0">
-                      <p className="text-sm font-bold text-slate-800 dark:text-slate-100 truncate">
-                        {tx.recipientName}
-                      </p>
-                      <div className="flex items-center gap-1.5 mt-0.5 text-xs text-slate-400 dark:text-slate-400 font-medium">
-                        <span>{tx.category}</span>
-                        <span>•</span>
-                        <span className="truncate">{card?.nickname || 'Account'}</span>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="text-right">
-                    <p className={`text-sm font-bold ${
-                      isIncome ? 'text-emerald-500' : 'text-slate-800 dark:text-slate-100'
-                    }`}>
-                      {isIncome ? '+' : '-'}${tx.amount.toFixed(2)}
-                    </p>
-                    <p className="text-[11px] text-slate-400 mt-0.5">
-                      {new Date(tx.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
-                    </p>
-                  </div>
-                </div>
-              );
-            })}
-            {recentTransactions.length === 0 && (
-              <div className="text-center py-10 text-sm text-slate-400 font-medium">
-                No transactions yet.
-              </div>
-            )}
+          <div>
+            <h5 className="font-label-md text-label-md text-on-surface font-semibold mb-sm">Developers</h5>
+            <ul className="space-y-xs">
+              <li>
+                <a className="font-label-md text-label-md text-on-surface-variant hover:text-pf-primary transition-colors" href="#">
+                  API Docs
+                </a>
+              </li>
+              <li>
+                <a className="font-label-md text-label-md text-on-surface-variant hover:text-pf-primary transition-colors" href="#">
+                  Changelog
+                </a>
+              </li>
+            </ul>
           </div>
         </div>
-
-        {/* Savings Goals progress (1 Column wide) */}
-        <div className="p-5 rounded-2xl bg-white dark:bg-jm-navy border border-slate-100 dark:border-jm-dark-blue shadow-sm">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-base font-bold text-slate-800 dark:text-white">Savings Goals</h3>
-            <Link href="/goals" className="text-xs font-semibold text-jm-light-blue hover:underline flex items-center">
-              <span>Details</span>
-              <ChevronRight className="h-3 w-3 ml-0.5" />
-            </Link>
-          </div>
-
-          <div className="space-y-4">
-            {goals.slice(0, 3).map((g) => {
-              const ratio = g.targetAmount > 0 ? (g.currentAmount / g.targetAmount) * 100 : 0;
-              const daysLeft = Math.max(0, Math.ceil((g.deadline - Date.now()) / (24 * 60 * 60 * 1000)));
-
-              return (
-                <div key={g.id} className="p-3.5 rounded-xl border border-slate-100 dark:border-jm-dark-blue/80 bg-slate-50/50 dark:bg-slate-900/30 space-y-2">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <div className="p-1.5 bg-jm-dark-blue/10 dark:bg-jm-light-blue/20 rounded-lg text-jm-dark-blue dark:text-jm-light-blue">
-                        <PiggyBank className="h-4 w-4" />
-                      </div>
-                      <span className="text-xs font-bold text-slate-800 dark:text-slate-200 truncate max-w-[130px]">
-                        {g.name}
-                      </span>
-                    </div>
-                    <span className="text-[10px] font-bold text-slate-400 uppercase">
-                      {g.status === 'completed' ? 'Completed' : `${daysLeft} Days left`}
-                    </span>
-                  </div>
-
-                  <div className="w-full h-1.5 bg-slate-200/60 dark:bg-slate-800 rounded-full overflow-hidden">
-                    <div 
-                      className="h-full bg-jm-light-blue rounded-full transition-all duration-500"
-                      style={{ width: `${Math.min(100, ratio)}%` }}
-                    />
-                  </div>
-
-                  <div className="flex items-center justify-between text-[11px] font-semibold">
-                    <span className="text-slate-600 dark:text-slate-400">
-                      ${g.currentAmount.toLocaleString()}
-                    </span>
-                    <span className="text-slate-400">
-                      target ${g.targetAmount.toLocaleString()}
-                    </span>
-                  </div>
-                </div>
-              );
-            })}
-            {goals.length === 0 && (
-              <div className="text-center py-8 text-sm text-slate-400 font-medium">
-                Create your first savings goal.
-              </div>
-            )}
-          </div>
-        </div>
-
-      </div>
-
-      {/* Add Transaction Modal component */}
-      <AddTransactionModal 
-        isOpen={isAddTxOpen} 
-        onClose={() => setIsAddTxOpen(false)} 
-      />
-
+      </footer>
     </div>
   );
 }

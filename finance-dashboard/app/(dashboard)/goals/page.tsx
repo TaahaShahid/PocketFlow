@@ -1,8 +1,8 @@
 'use client';
 
 import React, { useState } from 'react';
-import { useFinanceStore } from '../../hooks/useFinanceStore';
-import { Goal } from '../../types';
+import { useFinanceStore } from '../../../hooks/useFinanceStore';
+import { Goal } from '../../../types';
 import { Plus, PiggyBank, Calendar, Trash2, CheckCircle2, ChevronRight, DollarSign, AlertTriangle } from 'lucide-react';
 
 export default function GoalsPage() {
@@ -12,14 +12,14 @@ export default function GoalsPage() {
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [isContributeOpen, setIsContributeOpen] = useState(false);
   const [activeGoal, setActiveGoal] = useState<Goal | null>(null);
-  
+
   // Form fields
   const [goalName, setGoalName] = useState('');
   const [targetAmount, setTargetAmount] = useState('');
   const [currentAmount, setCurrentAmount] = useState('');
   const [deadline, setDeadline] = useState('');
   const [contribution, setContribution] = useState('');
-  
+
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const handleOpenAdd = () => {
@@ -113,7 +113,7 @@ export default function GoalsPage() {
 
   return (
     <div className="space-y-6">
-      
+
       {/* Header Panel */}
       <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4">
         <div>
@@ -139,7 +139,7 @@ export default function GoalsPage() {
           const daysLeft = Math.max(0, Math.ceil((g.deadline - Date.now()) / (24 * 60 * 60 * 1000)));
 
           return (
-            <div 
+            <div
               key={g.id}
               className="p-6 rounded-2xl bg-white dark:bg-jm-navy border border-slate-100 dark:border-jm-dark-blue shadow-sm flex flex-col justify-between h-72 relative overflow-hidden"
             >
@@ -147,11 +147,10 @@ export default function GoalsPage() {
                 {/* Upper line: Title & Icon */}
                 <div className="flex items-start justify-between">
                   <div className="flex items-center gap-3">
-                    <div className={`p-3 rounded-xl ${
-                      isCompleted 
-                        ? 'bg-emerald-50 dark:bg-emerald-950/20 text-emerald-600 dark:text-emerald-400' 
+                    <div className={`p-3 rounded-xl ${isCompleted
+                        ? 'bg-emerald-50 dark:bg-emerald-950/20 text-emerald-600 dark:text-emerald-400'
                         : 'bg-jm-dark-blue/10 dark:bg-jm-light-blue/20 text-jm-dark-blue dark:text-jm-light-blue'
-                    }`}>
+                      }`}>
                       <PiggyBank className="h-6 w-6" />
                     </div>
                     <div>
@@ -191,10 +190,9 @@ export default function GoalsPage() {
               <div className="space-y-4">
                 <div className="space-y-1">
                   <div className="w-full h-2.5 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
-                    <div 
-                      className={`h-full rounded-full transition-all duration-500 ${
-                        isCompleted ? 'bg-emerald-500' : 'bg-jm-light-blue'
-                      }`}
+                    <div
+                      className={`h-full rounded-full transition-all duration-500 ${isCompleted ? 'bg-emerald-500' : 'bg-jm-light-blue'
+                        }`}
                       style={{ width: `${Math.min(100, ratio)}%` }}
                     />
                   </div>
@@ -248,7 +246,7 @@ export default function GoalsPage() {
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/55 backdrop-blur-sm">
           <div className="w-full max-w-md bg-white dark:bg-jm-navy border border-slate-200 dark:border-jm-dark-blue rounded-2xl shadow-xl p-6">
             <h2 className="text-xl font-bold text-slate-800 dark:text-white mb-4">Create Savings Goal</h2>
-            
+
             <form onSubmit={handleAddGoalSubmit} className="space-y-4">
               {/* Goal Name */}
               <div>
@@ -258,9 +256,8 @@ export default function GoalsPage() {
                   placeholder="e.g. Tesla Model Y Fund"
                   value={goalName}
                   onChange={(e) => setGoalName(e.target.value)}
-                  className={`w-full h-11 px-3.5 border rounded-xl text-sm bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-jm-dark-blue/80 text-slate-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-jm-dark-blue ${
-                    errors.name ? 'border-rose-500 ring-2 ring-rose-500/20' : ''
-                  }`}
+                  className={`w-full h-11 px-3.5 border rounded-xl text-sm bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-jm-dark-blue/80 text-slate-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-jm-dark-blue ${errors.name ? 'border-rose-500 ring-2 ring-rose-500/20' : ''
+                    }`}
                 />
                 {errors.name && <p className="text-rose-500 text-xs mt-1 font-medium">{errors.name}</p>}
               </div>
@@ -275,9 +272,8 @@ export default function GoalsPage() {
                     placeholder="0"
                     value={targetAmount}
                     onChange={(e) => setTargetAmount(e.target.value)}
-                    className={`w-full h-11 px-3.5 border rounded-xl text-sm bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-jm-dark-blue/80 text-slate-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-jm-dark-blue ${
-                      errors.targetAmount ? 'border-rose-500 ring-2 ring-rose-500/20' : ''
-                    }`}
+                    className={`w-full h-11 px-3.5 border rounded-xl text-sm bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-jm-dark-blue/80 text-slate-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-jm-dark-blue ${errors.targetAmount ? 'border-rose-500 ring-2 ring-rose-500/20' : ''
+                      }`}
                   />
                   {errors.targetAmount && <p className="text-rose-500 text-xs mt-1 font-medium">{errors.targetAmount}</p>}
                 </div>
@@ -291,9 +287,8 @@ export default function GoalsPage() {
                     placeholder="0"
                     value={currentAmount}
                     onChange={(e) => setCurrentAmount(e.target.value)}
-                    className={`w-full h-11 px-3.5 border rounded-xl text-sm bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-jm-dark-blue/80 text-slate-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-jm-dark-blue ${
-                      errors.currentAmount ? 'border-rose-500 ring-2 ring-rose-500/20' : ''
-                    }`}
+                    className={`w-full h-11 px-3.5 border rounded-xl text-sm bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-jm-dark-blue/80 text-slate-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-jm-dark-blue ${errors.currentAmount ? 'border-rose-500 ring-2 ring-rose-500/20' : ''
+                      }`}
                   />
                   {errors.currentAmount && <p className="text-rose-500 text-xs mt-1 font-medium">{errors.currentAmount}</p>}
                 </div>
@@ -306,9 +301,8 @@ export default function GoalsPage() {
                   type="date"
                   value={deadline}
                   onChange={(e) => setDeadline(e.target.value)}
-                  className={`w-full h-11 px-3.5 border rounded-xl text-sm bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-jm-dark-blue/80 text-slate-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-jm-dark-blue ${
-                    errors.deadline ? 'border-rose-500 ring-2 ring-rose-500/20' : ''
-                  }`}
+                  className={`w-full h-11 px-3.5 border rounded-xl text-sm bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-jm-dark-blue/80 text-slate-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-jm-dark-blue ${errors.deadline ? 'border-rose-500 ring-2 ring-rose-500/20' : ''
+                    }`}
                 />
                 {errors.deadline && <p className="text-rose-500 text-xs mt-1 font-medium">{errors.deadline}</p>}
               </div>
@@ -342,7 +336,7 @@ export default function GoalsPage() {
             <p className="text-xs text-slate-400 mb-4">
               Allocate savings to: <span className="font-bold text-slate-700 dark:text-slate-200">{activeGoal.name}</span>
             </p>
-            
+
             <form onSubmit={handleContributeSubmit} className="space-y-4">
               {/* Contribution Input */}
               <div>
@@ -357,13 +351,12 @@ export default function GoalsPage() {
                     placeholder="0.00"
                     value={contribution}
                     onChange={(e) => setContribution(e.target.value)}
-                    className={`w-full h-11 pl-9 pr-3.5 border rounded-xl text-sm bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-jm-dark-blue/80 text-slate-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-jm-dark-blue ${
-                      errors.contribution ? 'border-rose-500 ring-2 ring-rose-500/20' : ''
-                    }`}
+                    className={`w-full h-11 pl-9 pr-3.5 border rounded-xl text-sm bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-jm-dark-blue/80 text-slate-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-jm-dark-blue ${errors.contribution ? 'border-rose-500 ring-2 ring-rose-500/20' : ''
+                      }`}
                   />
                 </div>
                 {errors.contribution && <p className="text-rose-500 text-xs mt-1 font-medium">{errors.contribution}</p>}
-                
+
                 <p className="text-[10px] text-slate-400 mt-2 font-medium">
                   Note: Funds will be deducted from your primary wallet/debit card and registered as a savings transaction.
                 </p>

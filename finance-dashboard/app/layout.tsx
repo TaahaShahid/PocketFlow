@@ -1,8 +1,7 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
-import { ThemeProvider } from "../components/shared/ThemeProvider";
-import ClientLayout from "../components/shared/ClientLayout";
+import { ThemeProvider } from "@/components/shared/ThemeProvider";
 
 const inter = Inter({
   variable: "--font-sans",
@@ -10,9 +9,17 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "PoketFlow | Personal Finance Dashboard",
-  description: "Personal finance and budget tracking dashboard developed for PocketFlow.",
-  keywords: ["finance", "dashboard", "budget", "expenses", "saving goals", "PocketFlow"],
+  title: "PocketFlow | Personal Finance Dashboard",
+  description:
+    "Personal finance and budget tracking dashboard developed for PocketFlow.",
+  keywords: [
+    "finance",
+    "dashboard",
+    "budget",
+    "expenses",
+    "saving goals",
+    "PocketFlow",
+  ],
   authors: [{ name: "PocketFlow Team" }],
 };
 
@@ -27,10 +34,8 @@ export default function RootLayout({
       className={`${inter.variable} h-full antialiased`}
       suppressHydrationWarning
     >
-      <body className="min-h-full font-sans">
-        <ThemeProvider>
-          <ClientLayout>{children}</ClientLayout>
-        </ThemeProvider>
+      <body className="min-h-full font-sans bg-background">
+        <ThemeProvider>{children}</ThemeProvider>
       </body>
     </html>
   );

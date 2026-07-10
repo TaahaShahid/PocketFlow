@@ -1,4 +1,6 @@
 @import "tailwindcss";
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Geist:wght@400;500;600&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap");
 
 @theme {
   --color-background: var(--background);
@@ -35,28 +37,87 @@
 
   --animate-accordion-down: accordion-down 0.2s ease-out;
   --animate-accordion-up: accordion-up 0.2s ease-out;
+
+  /* ===== PocketFlow landing page tokens (prefixed pf- so they never collide with the brand theme above) ===== */
+  --color-pf-primary: #2563eb;
+  /* Strong, professional Blue */
+  --color-pf-primary-container: #1e3a8a;
+  --color-pf-secondary: #64748b;
+  --color-surface: #020617;
+  --color-surface-container-lowest: #0b0f10;
+  --color-on-surface: #f8fafc;
+  --color-on-surface-variant: #c2c6d6;
+  --color-on-tertiary: #502400;
+  --color-tertiary: #ffb786;
+  --color-tertiary-container: #df7412;
+  --color-outline-variant: #424754;
+
+  --spacing-base: 4px;
+  --spacing-xs: 8px;
+  --spacing-sm: 16px;
+  --spacing-md: 24px;
+  --spacing-lg: 40px;
+  --spacing-xl: 64px;
+  --spacing-gutter: 24px;
+
+  --font-body-md: "Inter", sans-serif;
+  --font-title-lg: "Inter", sans-serif;
+  --font-display-md: "Inter", sans-serif;
+  --font-display-lg: "Inter", sans-serif;
+  --font-body-lg: "Inter", sans-serif;
+  --font-headline-lg: "Inter", sans-serif;
+  --font-label-sm: "Geist", sans-serif;
+  --font-label-md: "Geist", sans-serif;
+
+  --text-body-md: 16px;
+  --text-body-md--line-height: 24px;
+  --text-title-lg: 20px;
+  --text-title-lg--line-height: 28px;
+  --text-display-md: 36px;
+  --text-display-md--line-height: 1.2;
+  --text-display-md--letter-spacing: -0.02em;
+  --text-display-lg: 48px;
+  --text-display-lg--line-height: 1.1;
+  --text-display-lg--letter-spacing: -0.02em;
+  --text-body-lg: 18px;
+  --text-body-lg--line-height: 28px;
+  --text-headline-lg: 30px;
+  --text-headline-lg--line-height: 1.3;
+  --text-label-sm: 12px;
+  --text-label-sm--line-height: 16px;
+  --text-label-sm--letter-spacing: 0.02em;
+  --text-label-md: 14px;
+  --text-label-md--line-height: 20px;
+  --text-label-md--letter-spacing: 0.01em;
 }
 
 :root {
   /* Brand Light Theme */
-  --background: #F5F7FA; /* JM Light Gray */
-  --foreground: #1A1A1A; /* JM Black */
+  --background: #F5F7FA;
+  /* JM Light Gray */
+  --foreground: #1A1A1A;
+  /* JM Black */
 
-  --card: #FFFFFF; /* White Cards */
+  --card: #FFFFFF;
+  /* White Cards */
   --card-foreground: #1A1A1A;
 
   --popover: #FFFFFF;
   --popover-foreground: #1A1A1A;
 
-  --primary: #2E3A8C; /* JM Dark Blue */
+  --primary: #2E3A8C;
+  /* JM Dark Blue */
   --primary-foreground: #FFFFFF;
-  --primary-hover: #4A5FD9; /* JM Light Blue */
+  --primary-hover: #4A5FD9;
+  /* JM Light Blue */
 
-  --secondary: #4A5FD9; /* JM Light Blue */
+  --secondary: #4A5FD9;
+  /* JM Light Blue */
   --secondary-foreground: #FFFFFF;
 
   --muted: #E2E8F0;
-  --muted-foreground: #4A4A4A; /* JM Dark Gray */
+  --muted-foreground: #4A4A4A;
+  /* JM Dark Gray */
 
   --accent: #F5F7FA;
   --accent-foreground: #2E3A8C;
@@ -64,27 +125,32 @@
   --destructive: #EF4444;
   --destructive-foreground: #FFFFFF;
 
-  --border: #E0E0E0; /* Input border */
+  --border: #E0E0E0;
+  /* Input border */
   --input: #E0E0E0;
   --ring: #2E3A8C;
 }
 
 .dark {
   /* Brand Dark Theme */
-  --background: #0E122B; /* Very dark blue background */
+  --background: #0E122B;
+  /* Very dark blue background */
   --foreground: #FFFFFF;
 
-  --card: #1A2254; /* JM Navy Card Background */
+  --card: #1A2254;
+  /* JM Navy Card Background */
   --card-foreground: #FFFFFF;
 
   --popover: #1A2254;
   --popover-foreground: #FFFFFF;
 
-  --primary: #4A5FD9; /* JM Light Blue */
+  --primary: #4A5FD9;
+  /* JM Light Blue */
   --primary-foreground: #FFFFFF;
   --primary-hover: #5D72E5;
 
-  --secondary: #2E3A8C; /* JM Dark Blue */
+  --secondary: #2E3A8C;
+  /* JM Dark Blue */
   --secondary-foreground: #FFFFFF;
 
   --muted: #242E6B;
@@ -96,7 +162,8 @@
   --destructive: #F87171;
   --destructive-foreground: #FFFFFF;
 
-  --border: #2E3A8C; /* Subtle border using Dark Blue */
+  --border: #2E3A8C;
+  /* Subtle border using Dark Blue */
   --input: #2E3A8C;
   --ring: #4A5FD9;
 }
@@ -118,16 +185,20 @@ body {
   width: 6px;
   height: 6px;
 }
+
 ::-webkit-scrollbar-track {
   background: transparent;
 }
+
 ::-webkit-scrollbar-thumb {
   background: rgba(46, 58, 140, 0.2);
   border-radius: 3px;
 }
+
 .dark ::-webkit-scrollbar-thumb {
   background: rgba(74, 95, 217, 0.3);
 }
+
 ::-webkit-scrollbar-thumb:hover {
   background: rgba(46, 58, 140, 0.4);
 }
@@ -138,10 +209,73 @@ body {
   border: 1px solid var(--border) !important;
   border-radius: 8px !important;
   color: var(--foreground) !important;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1) !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important;
 }
 
 .recharts-tooltip-label {
   color: var(--foreground) !important;
   font-weight: 600 !important;
+}
+
+/* ===== PocketFlow landing page: component classes ===== */
+.material-symbols-outlined {
+  font-family: "Material Symbols Outlined";
+  font-weight: normal;
+  font-style: normal;
+  font-size: 24px;
+  line-height: 1;
+  letter-spacing: normal;
+  text-transform: none;
+  display: inline-block;
+  white-space: nowrap;
+  word-wrap: normal;
+  direction: ltr;
+  -webkit-font-feature-settings: "liga";
+  -webkit-font-smoothing: antialiased;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-up {
+  animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.glass-card {
+  background: rgba(15, 23, 42, 0.6);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transition: all 0.3s ease;
+}
+
+.glass-card:hover {
+  border-color: rgba(255, 255, 255, 0.2);
+  box-shadow: 0 0 30px rgba(173, 198, 255, 0.1);
+}
+
+.blue-gradient-text {
+  background: linear-gradient(90deg, #adc6ff, #4d8eff);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.tilt-container {
+  perspective: 1000px;
+}
+
+.tilt-inner {
+  transition: transform 0.5s ease;
+}
+
+.tilt-container:hover .tilt-inner {
+  transform: rotateX(2deg) rotateY(-2deg) scale(1.02);
 }
