@@ -1,6 +1,6 @@
 @import "tailwindcss";
 @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Geist:wght@400;500;600&display=swap");
-@import url("https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=block");
 
 @theme {
   --color-background: var(--background);
@@ -39,18 +39,24 @@
   --animate-accordion-up: accordion-up 0.2s ease-out;
 
   /* ===== PocketFlow landing page tokens (prefixed pf- so they never collide with the brand theme above) ===== */
-  --color-pf-primary: #2563eb;
-  /* Strong, professional Blue */
-  --color-pf-primary-container: #1e3a8a;
-  --color-pf-secondary: #64748b;
-  --color-surface: #020617;
+  --color-pf-primary: #adc6ff;
+  --color-pf-primary-container: #4d8eff;
+  --color-pf-secondary: #bec6e0;
+  --color-surface: #101415;
   --color-surface-container-lowest: #0b0f10;
-  --color-on-surface: #f8fafc;
+  --color-on-surface: #e0e3e5;
   --color-on-surface-variant: #c2c6d6;
   --color-on-tertiary: #502400;
   --color-tertiary: #ffb786;
   --color-tertiary-container: #df7412;
   --color-outline-variant: #424754;
+  --color-outline: #8c909f;
+  --color-error: #ffb4ab;
+  --color-surface-container: #1d2022;
+  --color-surface-container-highest: #323537;
+  --color-secondary-container: #3f465c;
+  --color-on-secondary-container: #adb4ce;
+  --color-on-primary: #002e6a;
 
   --spacing-base: 4px;
   --spacing-xs: 8px;
@@ -169,9 +175,11 @@
 }
 
 /* Base styles styling elements explicitly according to Brand Guidelines */
-* {
-  border-color: var(--border);
-  outline-color: var(--ring);
+@layer base {
+  * {
+    border-color: var(--border);
+    outline-color: var(--ring);
+  }
 }
 
 body {
@@ -278,4 +286,39 @@ body {
 
 .tilt-container:hover .tilt-inner {
   transform: rotateX(2deg) rotateY(-2deg) scale(1.02);
+}
+
+.glass-panel {
+  background: rgba(15, 23, 42, 0.6);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.ai-border-active {
+  position: relative;
+}
+
+.ai-border-active::after {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  padding: 1px;
+  background: conic-gradient(from 0deg, transparent, #adc6ff, transparent 25%);
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  animation: rotate-gradient 4s linear infinite;
+}
+
+@keyframes rotate-gradient {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
 }

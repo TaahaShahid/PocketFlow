@@ -33,7 +33,7 @@ export interface Category {
 
 export type CardType = 'visa' | 'mastercard' | 'amex' | 'other';
 
-export interface Card {
+export interface Wallet {
   id: string;
   cardNumber: string; // masked, last 4 only e.g. "**** 1234"
   cardHolderName: string;
@@ -43,6 +43,8 @@ export interface Card {
   balance: number;
   createdAt: number; // timestamp
 }
+
+export type Card = Wallet;
 
 export interface Goal {
   id: string;

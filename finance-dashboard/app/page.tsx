@@ -209,12 +209,12 @@ void main() {
             </a>
           </div>
           <div className="flex items-center gap-sm">
-            <button className="hidden sm:block font-body-md text-body-md text-on-surface-variant font-medium hover:text-pf-primary transition-colors duration-300 px-sm py-xs">
+            <a className="hidden sm:block font-body-md text-body-md text-on-surface-variant font-medium hover:text-pf-primary transition-colors duration-300 px-sm py-xs" href="/login">
               Log In
-            </button>
-            <button className="bg-pf-primary-container text-on-pf-primary-container font-body-md text-body-md font-semibold px-md py-xs rounded-full hover:shadow-[0_0_20px_rgba(77,142,255,0.4)] transition-all">
+            </a>
+            <a className="bg-pf-primary-container text-on-pf-primary-container font-body-md text-body-md font-semibold px-md py-xs rounded-full hover:shadow-[0_0_20px_rgba(77,142,255,0.4)] transition-all" href="/signup">
               Get Started
-            </button>
+            </a>
           </div>
         </nav>
       </header>
@@ -244,12 +244,12 @@ void main() {
               precision.
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-sm mb-xl">
-              <button className="w-full sm:w-auto bg-pf-primary text-on-pf-primary px-xl py-md rounded-full font-title-lg text-title-lg hover:scale-105 transition-transform">
+              <a className="w-full sm:w-auto bg-pf-primary text-on-pf-primary px-xl py-md rounded-full font-title-lg text-title-lg hover:scale-105 transition-transform" href="/signup">
                 Start Free Trial
-              </button>
-              <button className="w-full sm:w-auto glass-card px-xl py-md rounded-full font-title-lg text-title-lg flex items-center justify-center gap-xs">
+              </a>
+              <a className="w-full sm:w-auto glass-card px-xl py-md rounded-full font-title-lg text-title-lg flex items-center justify-center gap-xs" href="/demo">
                 <span className="material-symbols-outlined"></span> View Demo
-              </button>
+              </a>
             </div>
 
             {/* Featured Visual */}
@@ -443,9 +443,9 @@ void main() {
               <div className="relative glass-card aspect-video rounded-[3rem] overflow-hidden flex items-center justify-center border-pf-primary/20">
                 <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-pf-primary/10 via-transparent to-transparent"></div>
                 <div className="text-center p-xl">
-                  <div className="material-symbols-outlined text-[64px] text-pf-primary mb-md animate-pulse">
+                  {/* <div className="material-symbols-outlined text-[64px] text-pf-primary mb-md animate-pulse">
                     monitoring
-                  </div>
+                  </div> */}
                   <h4 className="font-title-lg text-title-lg mb-xs">Probabilistic Forecasting</h4>
                   <p className="font-body-md text-body-md text-on-surface-variant">
                     Monte Carlo simulations run in real-time on every transaction.

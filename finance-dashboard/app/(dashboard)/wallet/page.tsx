@@ -2,17 +2,27 @@
 
 import React, { useState } from 'react';
 import { useFinanceStore } from '../../../hooks/useFinanceStore';
+import { useWallets } from '@/context/WalletContext';
 import { Card, CardType } from '../../../types';
-import { Plus, CreditCard, Edit3, Trash2, ShieldCheck, AlertTriangle } from 'lucide-react';
+import { Plus, CreditCard, Edit3, Trash2, ShieldCheck, AlertTriangle, Loader2 } from 'lucide-react';
 
 export default function WalletPage() {
-  const { cards, addCard, editCard, deleteCard, addToast } = useFinanceStore();
+  const { wallets: cards, addWallet: addCard, editWallet: editCard, removeWallet: deleteCard, loading } = useWallets();
+  const { addToast } = useFinanceStore();
 
   // Modal States
   const [isOpen, setIsOpen] = useState(false);
   const [isEdit, setIsEdit] = useState(false);
   const [editingCard, setEditingCard] = useState<Card | null>(null);
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
+
+  if (loading) {
+    return (
+      <div className="min-h-[60vh] flex items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-pf-primary" />
+      </div>
+    );
+  }
 
   // Form state
   const [formData, setFormData] = useState({
@@ -168,7 +178,7 @@ export default function WalletPage() {
       </div>
 
       {/* Total Balance Overview */}
-      <div className="p-6 rounded-2xl bg-white dark:bg-jm-navy border border-slate-100 dark:border-jm-dark-blue shadow-sm flex flex-col sm:flex-row justify-between sm:items-center gap-4">
+      <div className="p-6 rounded-2xl glass-card border border-slate-100 dark:border-jm-dark-blue shadow-sm flex flex-col sm:flex-row justify-between sm:items-center gap-4">
         <div className="flex items-center gap-4">
           <div className="p-3 bg-jm-dark-blue/10 dark:bg-jm-light-blue/20 text-jm-dark-blue dark:text-jm-light-blue rounded-2xl">
             <CreditCard className="h-7 w-7" />
@@ -285,155 +295,251 @@ export default function WalletPage() {
 
       {/* Add / Edit Dialog */}
       {isOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/55 backdrop-blur-sm">
-          <div className="w-full max-w-md bg-white dark:bg-jm-navy border border-slate-200 dark:border-jm-dark-blue rounded-2xl shadow-xl p-6">
-            <h2 className="text-xl font-bold text-slate-800 dark:text-white mb-4">
-              {isEdit ? 'Edit Card Details' : 'Register New Card'}
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/55 backdrop-blur-sm animate-fade-in">
+          <div
+            className="bg-jm-navy rounded-2xl shadow-2xl border border-jm-dark-blue p-6 relative"
+            style={{
+              width: "640px",
+              maxWidth: "95vw",
+              maxHeight: "90vh",
+            }}
+          >
+            {/* Header */}
+            <h2 className="text-xl font-bold text-white mb-6 shrink-0">
+              {isEdit ? "Edit Card Details" : "Register New Card"}
             </h2>
 
-            <form onSubmit={handleSubmit} className="space-y-4">
-              {/* Nickname / Alias */}
-              <div>
-                <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1.5">Card Nickname</label>
-                <input
-                  type="text"
-                  placeholder="e.g. Main Checking Account"
-                  value={formData.nickname}
-                  onChange={(e) => setFormData(f => ({ ...f, nickname: e.target.value }))}
-                  className="w-full h-11 px-3.5 border border-slate-200 dark:border-jm-dark-blue/80 bg-slate-50 dark:bg-slate-900 rounded-xl text-sm text-slate-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-jm-dark-blue"
-                />
-              </div>
+            {/* Scrollable Body */}
+            <div className="overflow-y-auto max-h-[70vh] pr-2">
+              <form onSubmit={handleSubmit} className="space-y-5">
 
-              {/* Cardholder Name */}
-              <div>
-                <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1.5">Cardholder Name</label>
-                <input
-                  type="text"
-                  placeholder="e.g. Jane Doe"
-                  value={formData.cardHolderName}
-                  onChange={(e) => setFormData(f => ({ ...f, cardHolderName: e.target.value }))}
-                  className={`w-full h-11 px-3.5 border rounded-xl text-sm bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-jm-dark-blue/80 text-slate-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-jm-dark-blue ${formErrors.cardHolderName ? 'border-rose-500 ring-2 ring-rose-500/20' : ''
-                    }`}
-                />
-                {formErrors.cardHolderName && <p className="text-rose-500 text-xs mt-1 font-medium">{formErrors.cardHolderName}</p>}
-              </div>
-
-              {/* Card Number */}
-              <div>
-                <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1.5">Card Number (16-digits)</label>
-                <input
-                  type="text"
-                  maxLength={16}
-                  placeholder="1234567812345678"
-                  value={formData.cardNumber}
-                  disabled={isEdit}
-                  onChange={(e) => setFormData(f => ({ ...f, cardNumber: e.target.value }))}
-                  className={`w-full h-11 px-3.5 border rounded-xl text-sm bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-jm-dark-blue/80 text-slate-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-jm-dark-blue disabled:opacity-50 ${formErrors.cardNumber ? 'border-rose-500 ring-2 ring-rose-500/20' : ''
-                    }`}
-                />
-                <p className="text-[10px] text-slate-400 mt-1 font-medium">PCI Compliance: Numbers are masked automatically upon submit.</p>
-                {formErrors.cardNumber && <p className="text-rose-500 text-xs mt-1 font-medium">{formErrors.cardNumber}</p>}
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                {/* Expiry Date */}
+                {/* Nickname */}
                 <div>
-                  <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1.5">Expiry Date</label>
+                  <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1.5">
+                    Card Nickname
+                  </label>
                   <input
                     type="text"
-                    maxLength={5}
-                    placeholder="MM/YY"
-                    value={formData.expiryDate}
-                    onChange={(e) => setFormData(f => ({ ...f, expiryDate: e.target.value }))}
-                    className={`w-full h-11 px-3.5 border rounded-xl text-sm bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-jm-dark-blue/80 text-slate-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-jm-dark-blue ${formErrors.expiryDate ? 'border-rose-500 ring-2 ring-rose-500/20' : ''
+                    placeholder="e.g. Main Checking Account"
+                    value={formData.nickname}
+                    onChange={(e) =>
+                      setFormData((f) => ({ ...f, nickname: e.target.value }))
+                    }
+                    className="w-full h-11 px-3.5 border border-slate-200 dark:border-jm-dark-blue/80 bg-slate-50 dark:bg-slate-900 rounded-xl text-sm text-slate-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-jm-dark-blue"
+                  />
+                </div>
+
+                {/* Cardholder */}
+                <div>
+                  <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1.5">
+                    Cardholder Name
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="e.g. Jane Doe"
+                    value={formData.cardHolderName}
+                    onChange={(e) =>
+                      setFormData((f) => ({
+                        ...f,
+                        cardHolderName: e.target.value,
+                      }))
+                    }
+                    className={`w-full h-11 px-3.5 border rounded-xl text-sm bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-jm-dark-blue ${formErrors.cardHolderName
+                      ? "border-rose-500 ring-2 ring-rose-500/20"
+                      : "border-slate-200 dark:border-jm-dark-blue/80"
                       }`}
                   />
-                  {formErrors.expiryDate && <p className="text-rose-500 text-xs mt-1 font-medium">{formErrors.expiryDate}</p>}
+                  {formErrors.cardHolderName && (
+                    <p className="text-rose-500 text-xs mt-1 font-medium">
+                      {formErrors.cardHolderName}
+                    </p>
+                  )}
                 </div>
 
-                {/* Card Type */}
+                {/* Card Number */}
                 <div>
-                  <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1.5">Network</label>
-                  <select
-                    value={formData.cardType}
-                    onChange={(e) => setFormData(f => ({ ...f, cardType: e.target.value as CardType }))}
-                    className="w-full h-11 px-3.5 border border-slate-200 dark:border-jm-dark-blue/80 bg-slate-50 dark:bg-slate-900 rounded-xl text-sm text-slate-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-jm-dark-blue"
-                  >
-                    <option value="visa">Visa</option>
-                    <option value="mastercard">Mastercard</option>
-                    <option value="amex">Amex</option>
-                    <option value="other">Other</option>
-                  </select>
+                  <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1.5">
+                    Card Number (16-digits)
+                  </label>
+                  <input
+                    type="text"
+                    maxLength={16}
+                    placeholder="1234567812345678"
+                    value={formData.cardNumber}
+                    disabled={isEdit}
+                    onChange={(e) =>
+                      setFormData((f) => ({
+                        ...f,
+                        cardNumber: e.target.value,
+                      }))
+                    }
+                    className={`w-full h-11 px-3.5 border rounded-xl text-sm bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-jm-dark-blue disabled:opacity-50 ${formErrors.cardNumber
+                      ? "border-rose-500 ring-2 ring-rose-500/20"
+                      : "border-slate-200 dark:border-jm-dark-blue/80"
+                      }`}
+                  />
+                  <p className="text-[10px] text-slate-400 mt-1 font-medium">
+                    PCI Compliance: Numbers are masked automatically upon submit.
+                  </p>
+                  {formErrors.cardNumber && (
+                    <p className="text-rose-500 text-xs mt-1 font-medium">
+                      {formErrors.cardNumber}
+                    </p>
+                  )}
                 </div>
-              </div>
 
-              {/* Initial Balance */}
-              <div>
-                <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1.5">Starting Balance ($)</label>
-                <input
-                  type="number"
-                  step="0.01"
-                  placeholder="0.00"
-                  value={formData.balance}
-                  onChange={(e) => setFormData(f => ({ ...f, balance: e.target.value }))}
-                  className={`w-full h-11 px-3.5 border rounded-xl text-sm bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-jm-dark-blue/80 text-slate-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-jm-dark-blue ${formErrors.balance ? 'border-rose-500 ring-2 ring-rose-500/20' : ''
-                    }`}
-                />
-                {formErrors.balance && <p className="text-rose-500 text-xs mt-1 font-medium">{formErrors.balance}</p>}
-              </div>
+                {/* Expiry + Network */}
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1.5">
+                      Expiry Date
+                    </label>
+                    <input
+                      type="text"
+                      maxLength={5}
+                      placeholder="MM/YY"
+                      value={formData.expiryDate}
+                      onChange={(e) =>
+                        setFormData((f) => ({
+                          ...f,
+                          expiryDate: e.target.value,
+                        }))
+                      }
+                      className={`w-full h-11 px-3.5 border rounded-xl text-sm bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-jm-dark-blue ${formErrors.expiryDate
+                        ? "border-rose-500 ring-2 ring-rose-500/20"
+                        : "border-slate-200 dark:border-jm-dark-blue/80"
+                        }`}
+                    />
+                    {formErrors.expiryDate && (
+                      <p className="text-rose-500 text-xs mt-1 font-medium">
+                        {formErrors.expiryDate}
+                      </p>
+                    )}
+                  </div>
 
-              {/* Compliance note */}
-              <div className="p-3 bg-amber-50 dark:bg-amber-950/20 text-[11px] text-amber-700 dark:text-amber-400 rounded-xl flex items-start gap-2 font-medium">
-                <AlertTriangle className="h-4.5 w-4.5 flex-shrink-0 mt-0.5" />
-                <span>Security rule: CVV, PIN codes, or full magnetic tracks are never captured or saved.</span>
-              </div>
+                  <div>
+                    <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1.5">
+                      Network
+                    </label>
+                    <select
+                      value={formData.cardType}
+                      onChange={(e) =>
+                        setFormData((f) => ({
+                          ...f,
+                          cardType: e.target.value as CardType,
+                        }))
+                      }
+                      className="w-full h-11 px-3.5 border border-slate-200 dark:border-jm-dark-blue/80 bg-slate-50 dark:bg-slate-900 rounded-xl text-sm text-slate-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-jm-dark-blue"
+                    >
+                      <option value="visa">Visa</option>
+                      <option value="mastercard">Mastercard</option>
+                      <option value="amex">Amex</option>
+                      <option value="other">Other</option>
+                    </select>
+                  </div>
+                </div>
 
-              {/* Actions */}
-              <div className="flex justify-end gap-2 pt-2">
-                <button
-                  type="button"
-                  onClick={() => setIsOpen(false)}
-                  className="px-4 py-2 text-sm font-semibold rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 dark:text-slate-400"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="px-5 py-2 text-sm font-semibold text-white bg-jm-dark-blue rounded-xl hover:bg-jm-light-blue shadow-md"
-                >
-                  Save Card
-                </button>
-              </div>
-            </form>
+                {/* Balance */}
+                <div>
+                  <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1.5">
+                    Starting Balance ($)
+                  </label>
+                  <input
+                    type="number"
+                    step="0.01"
+                    placeholder="0.00"
+                    value={formData.balance}
+                    onChange={(e) =>
+                      setFormData((f) => ({
+                        ...f,
+                        balance: e.target.value,
+                      }))
+                    }
+                    className={`w-full h-11 px-3.5 border rounded-xl text-sm bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-jm-dark-blue ${formErrors.balance
+                      ? "border-rose-500 ring-2 ring-rose-500/20"
+                      : "border-slate-200 dark:border-jm-dark-blue/80"
+                      }`}
+                  />
+                  {formErrors.balance && (
+                    <p className="text-rose-500 text-xs mt-1 font-medium">
+                      {formErrors.balance}
+                    </p>
+                  )}
+                </div>
+
+                {/* Compliance Note */}
+                <div className="p-3 bg-amber-50 dark:bg-amber-950/20 text-[11px] text-amber-700 dark:text-amber-400 rounded-xl flex items-start gap-2 font-medium">
+                  <AlertTriangle className="h-4.5 w-4.5 flex-shrink-0 mt-0.5" />
+                  <span>
+                    Security rule: CVV, PIN codes, or full magnetic tracks are never
+                    captured or saved.
+                  </span>
+                </div>
+
+                {/* Actions */}
+                <div className="flex justify-end gap-2 pt-4">
+                  <button
+                    type="button"
+                    onClick={() => setIsOpen(false)}
+                    className="px-4 py-2 text-sm font-semibold rounded-xl hover:bg-slate-800 text-slate-400"
+                  >
+                    Cancel
+                  </button>
+
+                  <button
+                    type="submit"
+                    className="px-5 py-2 text-sm font-semibold text-white bg-jm-dark-blue rounded-xl hover:bg-jm-light-blue shadow-md"
+                  >
+                    Save Card
+                  </button>
+                </div>
+
+              </form>
+            </div>
           </div>
         </div>
       )}
 
       {/* Delete Confirm */}
       {deleteConfirmId && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/55 backdrop-blur-sm">
-          <div className="w-full max-w-md bg-white dark:bg-jm-navy border border-slate-200 dark:border-jm-dark-blue rounded-2xl p-6 shadow-xl space-y-4">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/55 backdrop-blur-sm animate-fade-in">
+          <div
+            className="bg-jm-navy rounded-2xl shadow-2xl border border-jm-dark-blue p-6 relative"
+            style={{
+              width: "500px",
+              maxWidth: "95vw",
+            }}
+          >
+            {/* Header */}
             <div className="flex items-center gap-3 text-rose-500">
               <div className="p-2 bg-rose-50 dark:bg-rose-950/20 rounded-xl">
                 <AlertTriangle className="h-6 w-6" />
               </div>
-              <h3 className="text-lg font-bold text-slate-800 dark:text-white">Delete Card?</h3>
+
+              <h3 className="text-lg font-bold text-white">
+                Delete Card?
+              </h3>
             </div>
 
-            <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
-              Are you sure you want to delete this payment card? Transactions linked to this card will lose their wallet association. This action is permanent.
+            {/* Message */}
+            <p className="mt-4 text-sm text-slate-300 leading-relaxed">
+              Are you sure you want to delete this payment card? Transactions linked
+              to this card will lose their wallet association. This action is
+              permanent.
             </p>
 
-            <div className="flex justify-end gap-2 pt-2">
+            {/* Actions */}
+            <div className="flex justify-end gap-2 pt-6">
               <button
                 onClick={() => setDeleteConfirmId(null)}
-                className="px-4 py-2 text-xs font-semibold rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 dark:text-slate-400"
+                className="px-4 py-2 text-sm font-semibold rounded-xl hover:bg-slate-800 text-slate-400"
               >
                 Cancel
               </button>
+
               <button
                 onClick={() => handleDeleteCard(deleteConfirmId)}
-                className="px-4 py-2 text-xs font-semibold text-white bg-rose-500 hover:bg-rose-600 rounded-lg shadow-sm"
+                className="px-5 py-2 text-sm font-semibold text-white bg-rose-500 rounded-xl hover:bg-rose-600 shadow-md"
               >
                 Remove Card
               </button>

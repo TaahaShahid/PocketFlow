@@ -2,10 +2,16 @@
 
 import React, { useState, useMemo } from 'react';
 import { useFinanceStore } from '../../../hooks/useFinanceStore';
-import { Download, Printer, Calendar, FileText, CheckCircle } from 'lucide-react';
+import { useTransactions } from '@/context/TransactionContext';
+import { useAuth } from '@/context/AuthContext';
+import { Download, Printer, Calendar, FileText, CheckCircle, Loader2 } from 'lucide-react';
 
 export default function ReportsPage() {
-  const { transactions, user, addToast } = useFinanceStore();
+  const { transactions, loading: txLoading } = useTransactions();
+  const { profile, loading: authLoading } = useAuth();
+  const { addToast } = useFinanceStore();
+
+  const loading = txLoading || authLoading;
 
   // Filters State
   const [period, setPeriod] = useState<'this-month' | 'last-month' | 'this-year' | 'custom'>('this-month');
@@ -120,6 +126,14 @@ export default function ReportsPage() {
     return `${new Date(dateRange.start).toLocaleDateString(undefined, opt)} - ${new Date(dateRange.end).toLocaleDateString(undefined, opt)}`;
   };
 
+  if (loading) {
+    return (
+      <div className="min-h-[60vh] flex items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-pf-primary" />
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
 
@@ -149,15 +163,15 @@ export default function ReportsPage() {
       {/* Header and top menu controls */}
       <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4 no-print">
         <div>
-          <h2 className="text-xl font-bold text-slate-800 dark:text-white">Export Financial Reports</h2>
-          <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
+          <h2 className="text-xl font-bold text-on-surface">Export Financial Reports</h2>
+          <p className="text-sm text-on-surface-variant mt-1">
             Generate printable statements and download spreadsheets of transaction history.
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
           <button
             onClick={handleExportCSV}
-            className="flex items-center justify-center gap-2 h-11 px-4 text-sm font-semibold text-slate-700 dark:text-slate-200 bg-white dark:bg-jm-navy hover:bg-slate-50 dark:hover:bg-slate-800/80 border border-slate-200 dark:border-jm-dark-blue rounded-xl shadow-sm transition-all cursor-pointer"
+            className="flex items-center justify-center gap-2 h-11 px-4 text-sm font-semibold text-on-surface-variant glass-card hover:bg-white/5 rounded-xl shadow-sm transition-all cursor-pointer"
           >
             <Download className="h-4 w-4" />
             <span>Download CSV</span>
@@ -165,7 +179,7 @@ export default function ReportsPage() {
 
           <button
             onClick={handlePrint}
-            className="flex items-center justify-center gap-2 h-11 px-5 text-sm font-semibold text-white bg-jm-dark-blue hover:bg-jm-light-blue rounded-xl shadow-md transition-all cursor-pointer"
+            className="flex items-center justify-center gap-2 h-11 px-5 text-sm font-semibold text-on-primary bg-pf-primary hover:bg-pf-primary-container rounded-xl shadow-md transition-all cursor-pointer"
           >
             <Printer className="h-4 w-4" />
             <span>Print Report</span>
@@ -174,15 +188,15 @@ export default function ReportsPage() {
       </div>
 
       {/* Filter Options bar */}
-      <div className="p-4 rounded-2xl bg-white dark:bg-jm-navy border border-slate-100 dark:border-jm-dark-blue shadow-sm flex flex-col md:flex-row md:items-end gap-4 no-print">
+      <div className="p-4 rounded-2xl glass-card shadow-sm flex flex-col md:flex-row md:items-end gap-4 no-print">
 
         {/* Time Period select */}
         <div className="space-y-1.5 flex-1">
-          <label className="text-xs font-bold text-slate-400 uppercase tracking-wider">Report Frame</label>
+          <label className="text-xs font-bold text-on-surface-variant uppercase tracking-wider">Report Frame</label>
           <select
             value={period}
             onChange={(e) => setPeriod(e.target.value as any)}
-            className="w-full h-11 px-3.5 border border-slate-200 dark:border-jm-dark-blue/80 bg-slate-50 dark:bg-slate-900 rounded-xl text-sm font-semibold text-slate-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-jm-dark-blue"
+            className="w-full h-11 px-3.5 border border-white/10 bg-slate-900 rounded-xl text-sm font-semibold text-on-surface focus:outline-none focus:ring-2 focus:ring-pf-primary"
           >
             <option value="this-month">This Month</option>
             <option value="last-month">Last Month</option>
@@ -195,21 +209,21 @@ export default function ReportsPage() {
         {period === 'custom' && (
           <>
             <div className="space-y-1.5">
-              <label className="text-xs font-bold text-slate-400 uppercase tracking-wider">From Date</label>
+              <label className="text-xs font-bold text-on-surface-variant uppercase tracking-wider">From Date</label>
               <input
                 type="date"
                 value={startDate}
                 onChange={(e) => setStartDate(e.target.value)}
-                className="h-11 px-3.5 border border-slate-200 dark:border-jm-dark-blue/80 bg-slate-50 dark:bg-slate-900 rounded-xl text-sm font-semibold text-slate-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-jm-dark-blue"
+                className="h-11 px-3.5 border border-white/10 bg-slate-900 rounded-xl text-sm font-semibold text-on-surface focus:outline-none focus:ring-2 focus:ring-pf-primary"
               />
             </div>
             <div className="space-y-1.5">
-              <label className="text-xs font-bold text-slate-400 uppercase tracking-wider">To Date</label>
+              <label className="text-xs font-bold text-on-surface-variant uppercase tracking-wider">To Date</label>
               <input
                 type="date"
                 value={endDate}
                 onChange={(e) => setEndDate(e.target.value)}
-                className="h-11 px-3.5 border border-slate-200 dark:border-jm-dark-blue/80 bg-slate-50 dark:bg-slate-900 rounded-xl text-sm font-semibold text-slate-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-jm-dark-blue"
+                className="h-11 px-3.5 border border-white/10 bg-slate-900 rounded-xl text-sm font-semibold text-on-surface focus:outline-none focus:ring-2 focus:ring-pf-primary"
               />
             </div>
           </>
@@ -217,28 +231,28 @@ export default function ReportsPage() {
       </div>
 
       {/* Printable Report Panel */}
-      <div className="bg-white dark:bg-jm-navy border border-slate-100 dark:border-jm-dark-blue rounded-2xl shadow-sm p-8 print-full space-y-8 max-w-4xl mx-auto">
+      <div className="glass-card rounded-2xl shadow-sm p-8 print-full space-y-8 max-w-4xl mx-auto">
 
         {/* Statement Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-100 dark:border-jm-dark-blue pb-6 gap-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-white/10 pb-6 gap-4">
           <div className="flex items-center gap-3">
-            <div className="flex items-center justify-center w-11 h-11 rounded-xl bg-jm-dark-blue text-white shadow-md">
+            <div className="flex items-center justify-center w-11 h-11 rounded-xl bg-pf-primary text-on-primary shadow-md">
               <span className="text-2xl font-bold font-sans">J</span>
-              <span className="text-xs font-bold font-sans self-end mb-1 ml-0.5 text-jm-light-blue">M</span>
+              <span className="text-xs font-bold font-sans self-end mb-1 ml-0.5 text-on-primary/70">M</span>
             </div>
             <div>
-              <h2 className="text-lg font-bold tracking-tight text-slate-800 dark:text-white uppercase leading-none">
+              <h2 className="text-lg font-bold tracking-tight text-on-surface uppercase leading-none">
                 JM Solutionss
               </h2>
-              <span className="text-[10px] font-bold text-jm-light-blue tracking-wider uppercase">
+              <span className="text-[10px] font-bold text-pf-primary tracking-wider uppercase">
                 Corporate Finance Division
               </span>
             </div>
           </div>
 
           <div className="text-right sm:text-right font-medium">
-            <h3 className="text-base font-bold text-slate-800 dark:text-white">FINANCIAL STATEMENT</h3>
-            <p className="text-xs text-slate-400 mt-1 flex items-center justify-end gap-1.5">
+            <h3 className="text-base font-bold text-on-surface">FINANCIAL STATEMENT</h3>
+            <p className="text-xs text-on-surface-variant mt-1 flex items-center justify-end gap-1.5">
               <Calendar className="h-3.5 w-3.5" />
               <span>{formatDateRangeLabel()}</span>
             </p>
@@ -248,22 +262,22 @@ export default function ReportsPage() {
         {/* Report metadata block */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-sm py-2">
           <div>
-            <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">Statement Subject</p>
-            <p className="font-bold text-slate-700 dark:text-slate-300 mt-1">{user.name}</p>
+            <p className="text-xs font-bold text-on-surface-variant uppercase tracking-wider">Statement Subject</p>
+            <p className="font-bold text-on-surface mt-1">{profile?.displayName || "User"}</p>
           </div>
           <div>
-            <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">Email Profile</p>
-            <p className="font-semibold text-slate-700 dark:text-slate-300 mt-1">{user.email}</p>
+            <p className="text-xs font-bold text-on-surface-variant uppercase tracking-wider">Email Profile</p>
+            <p className="font-semibold text-on-surface mt-1">{profile?.email}</p>
           </div>
           <div>
-            <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">Report Generated</p>
-            <p className="font-semibold text-slate-500 dark:text-slate-400 mt-1">
+            <p className="text-xs font-bold text-on-surface-variant uppercase tracking-wider">Report Generated</p>
+            <p className="font-semibold text-on-surface-variant mt-1">
               {new Date().toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' })}
             </p>
           </div>
           <div>
-            <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">Status</p>
-            <p className="font-bold text-emerald-500 mt-1 flex items-center gap-1">
+            <p className="text-xs font-bold text-on-surface-variant uppercase tracking-wider">Status</p>
+            <p className="font-bold text-green-400 mt-1 flex items-center gap-1">
               <CheckCircle className="h-3.5 w-3.5" />
               <span>Audited & Signed</span>
             </p>
@@ -272,66 +286,66 @@ export default function ReportsPage() {
 
         {/* Aggregate Financial Metrics */}
         <div>
-          <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Timeframe Aggregates</h4>
+          <h4 className="text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-3">Timeframe Aggregates</h4>
 
-          <div className="grid grid-cols-2 md:grid-cols-4 border border-slate-100 dark:border-jm-dark-blue/80 rounded-2xl overflow-hidden divide-x divide-y md:divide-y-0 divide-slate-100 dark:divide-jm-dark-blue/80 text-center">
-            <div className="p-4 bg-slate-50/50 dark:bg-slate-900/10">
-              <p className="text-[10px] font-semibold text-slate-400 uppercase">Total Inflows</p>
-              <h5 className="text-lg font-bold text-emerald-500 mt-1">${summary.income.toFixed(2)}</h5>
+          <div className="grid grid-cols-2 md:grid-cols-4 border border-white/10 rounded-2xl overflow-hidden divide-x divide-y md:divide-y-0 divide-white/10 text-center">
+            <div className="p-4 bg-white/5">
+              <p className="text-[10px] font-semibold text-on-surface-variant uppercase">Total Inflows</p>
+              <h5 className="text-lg font-bold text-green-400 mt-1">${summary.income.toFixed(2)}</h5>
             </div>
-            <div className="p-4 bg-slate-50/50 dark:bg-slate-900/10">
-              <p className="text-[10px] font-semibold text-slate-400 uppercase">Total Outflows</p>
-              <h5 className="text-lg font-bold text-slate-800 dark:text-white mt-1">${summary.expense.toFixed(2)}</h5>
+            <div className="p-4 bg-white/5">
+              <p className="text-[10px] font-semibold text-on-surface-variant uppercase">Total Outflows</p>
+              <h5 className="text-lg font-bold text-on-surface mt-1">${summary.expense.toFixed(2)}</h5>
             </div>
-            <div className="p-4 bg-slate-50/50 dark:bg-slate-900/10">
-              <p className="text-[10px] font-semibold text-slate-400 uppercase">Net Savings</p>
-              <h5 className={`text-lg font-bold mt-1 ${summary.netSavings >= 0 ? 'text-emerald-500' : 'text-rose-500'}`}>
+            <div className="p-4 bg-white/5">
+              <p className="text-[10px] font-semibold text-on-surface-variant uppercase">Net Savings</p>
+              <h5 className={`text-lg font-bold mt-1 ${summary.netSavings >= 0 ? 'text-green-400' : 'text-error'}`}>
                 ${summary.netSavings.toFixed(2)}
               </h5>
             </div>
-            <div className="p-4 bg-slate-50/50 dark:bg-slate-900/10">
-              <p className="text-[10px] font-semibold text-slate-400 uppercase">Savings Efficiency</p>
-              <h5 className="text-lg font-bold text-violet-500 mt-1">{summary.savingsRate.toFixed(1)}%</h5>
+            <div className="p-4 bg-white/5">
+              <p className="text-[10px] font-semibold text-on-surface-variant uppercase">Savings Efficiency</p>
+              <h5 className="text-lg font-bold text-violet-400 mt-1">{summary.savingsRate.toFixed(1)}%</h5>
             </div>
           </div>
         </div>
 
         {/* Category Breakdown Table */}
         <div className="space-y-3">
-          <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider">Spending & Income Breakdown by Category</h4>
+          <h4 className="text-xs font-bold text-on-surface-variant uppercase tracking-wider">Spending & Income Breakdown by Category</h4>
 
-          <div className="border border-slate-100 dark:border-jm-dark-blue/80 rounded-2xl overflow-hidden">
+          <div className="border border-white/10 rounded-2xl overflow-hidden">
             <table className="w-full text-left border-collapse text-sm">
               <thead>
-                <tr className="bg-slate-50/70 dark:bg-slate-900/40 border-b border-slate-100 dark:border-jm-dark-blue text-slate-400 font-bold uppercase text-[10px]">
+                <tr className="bg-white/5 border-b border-white/10 text-on-surface-variant font-bold uppercase text-[10px]">
                   <th className="py-3 px-5">Category</th>
                   <th className="py-3 px-5">Flow Type</th>
                   <th className="py-3 px-5 text-right">Sum Total</th>
                   <th className="py-3 px-5 text-right">Share</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100 dark:divide-jm-dark-blue/55">
+              <tbody className="divide-y divide-white/10">
                 {summary.categories.map((c) => {
                   const share = c.type === 'income'
                     ? (summary.income > 0 ? (c.amount / summary.income) * 100 : 0)
                     : (summary.expense > 0 ? (c.amount / summary.expense) * 100 : 0);
 
                   return (
-                    <tr key={c.name} className="text-slate-700 dark:text-slate-300 font-medium">
-                      <td className="py-3 px-5 font-bold">{c.name}</td>
+                    <tr key={c.name} className="text-on-surface-variant font-medium">
+                      <td className="py-3 px-5 font-bold text-on-surface">{c.name}</td>
                       <td className="py-3 px-5 uppercase text-xs font-bold">
-                        <span className={c.type === 'income' ? 'text-emerald-500' : 'text-rose-500'}>
+                        <span className={c.type === 'income' ? 'text-green-400' : 'text-error'}>
                           {c.type}
                         </span>
                       </td>
-                      <td className="py-3 px-5 text-right font-bold">${c.amount.toFixed(2)}</td>
-                      <td className="py-3 px-5 text-right text-slate-400 font-semibold">{share.toFixed(1)}%</td>
+                      <td className="py-3 px-5 text-right font-bold text-on-surface">${c.amount.toFixed(2)}</td>
+                      <td className="py-3 px-5 text-right text-on-surface-variant font-semibold">{share.toFixed(1)}%</td>
                     </tr>
                   );
                 })}
                 {summary.categories.length === 0 && (
                   <tr>
-                    <td colSpan={4} className="text-center py-8 text-slate-400 font-medium">
+                    <td colSpan={4} className="text-center py-8 text-on-surface-variant font-medium">
                       No matching records found for this timeframe.
                     </td>
                   </tr>
@@ -342,7 +356,7 @@ export default function ReportsPage() {
         </div>
 
         {/* Footer Audit disclosure */}
-        <div className="flex flex-col sm:flex-row justify-between items-center text-[10px] text-slate-400 font-medium border-t border-slate-100 dark:border-jm-dark-blue/80 pt-6 gap-2">
+        <div className="flex flex-col sm:flex-row justify-between items-center text-[10px] text-on-surface-variant font-medium border-t border-white/10 pt-6 gap-2">
           <span>Official Statement Audit Signature Code: JM-F-{(dateRange.start % 100000).toString(16).toUpperCase()}</span>
           <span>© {new Date().getFullYear()} JM Solutionss. All rights reserved.</span>
         </div>

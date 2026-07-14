@@ -1,7 +1,13 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
+
 import { useFinanceStore, CATEGORIES } from '../../../hooks/useFinanceStore';
+import { useWallets } from '@/context/WalletContext';
+import { useTransactions } from '@/context/TransactionContext';
+import { useGoals } from '@/context/GoalContext';
+import { useBudgets } from '@/context/BudgetContext';
+import { Loader2 } from 'lucide-react';
 import {
     ArrowUpRight,
     ArrowDownRight,
@@ -36,7 +42,9 @@ import Link from 'next/link';
 
 // Quick Custom Transaction Modal for instant data input
 function AddTransactionModal({ isOpen, onClose }: { isOpen: boolean, onClose: () => void }) {
-    const { cards, addTransaction, addToast } = useFinanceStore();
+    const { wallets: cards } = useWallets();
+    const { addTransaction } = useTransactions();
+    const { addToast } = useFinanceStore();
     const [type, setType] = useState<'income' | 'expense'>('expense');
     const [amount, setAmount] = useState('');
     const [category, setCategory] = useState('');
@@ -312,7 +320,15 @@ const goalTextColors = ['text-pf-primary', 'text-green-400', 'text-tertiary'];
 const chartTooltipStyle = { backgroundColor: '#1d2022', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 12, color: '#e0e3e5' };
 
 export default function Dashboard() {
-    const { transactions, cards, goals, budgets } = useFinanceStore();
+
+    const { transactions, loading: txLoading } = useTransactions();
+    const { wallets: cards, loading: walletsLoading } = useWallets();
+    const { goals, loading: goalsLoading } = useGoals();
+    const { budgets, loading: budgetsLoading } = useBudgets();
+    const { addToast } = useFinanceStore();
+
+    const loading = txLoading || walletsLoading || goalsLoading || budgetsLoading;
+
     const [chartPeriod, setChartPeriod] = useState<'this-month' | 'last-3' | 'last-6' | 'this-year'>('this-month');
     const [isAddTxOpen, setIsAddTxOpen] = useState(false);
 
@@ -525,6 +541,14 @@ export default function Dashboard() {
             </span>
         );
     };
+
+    if (loading) {
+        return (
+            <div className="min-h-[60vh] flex items-center justify-center">
+                <Loader2 className="h-8 w-8 animate-spin text-pf-primary" />
+            </div>
+        );
+    }
 
     return (
         <div className="space-y-6 animate-in fade-in duration-300 relative pb-20">

@@ -2,6 +2,9 @@
 
 import React, { useMemo } from 'react';
 import { useFinanceStore, CATEGORIES } from '../../../hooks/useFinanceStore';
+import { useTransactions } from '@/context/TransactionContext';
+import { useBudgets } from '@/context/BudgetContext';
+import { Loader2 } from 'lucide-react';
 import {
   ResponsiveContainer,
   PieChart,
@@ -28,7 +31,10 @@ import {
 } from 'lucide-react';
 
 export default function AnalyticsPage() {
-  const { transactions, budgets } = useFinanceStore();
+  const { transactions, loading: txLoading } = useTransactions();
+  const { budgets, loading: budgetsLoading } = useBudgets();
+
+  const loading = txLoading || budgetsLoading;
 
   // Color arrays for Pie Chart slices
   const COLORS = ['#EF4444', '#F59E0B', '#3B82F6', '#8B5CF6', '#EC4899', '#10B981', '#14B8A6', '#6366F1', '#6B7280'];
@@ -119,6 +125,14 @@ export default function AnalyticsPage() {
 
   const topSpendingCategory = categoryData[0]?.name || 'N/A';
 
+  if (loading) {
+    return (
+      <div className="min-h-[60vh] flex items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-pf-primary" />
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
 
@@ -133,7 +147,7 @@ export default function AnalyticsPage() {
       {/* Top statistics callout widgets */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {/* Total Income */}
-        <div className="p-5 bg-white dark:bg-jm-navy border border-slate-100 dark:border-jm-dark-blue rounded-2xl shadow-sm">
+        <div className="p-5 bg-white glass-card border border-slate-100 dark:border-jm-dark-blue rounded-2xl shadow-sm">
           <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Cumulative Income</p>
           <div className="flex items-center justify-between mt-2">
             <h3 className="text-2xl font-extrabold text-slate-800 dark:text-white tracking-tight">{formatVal(stats.totalIncome)}</h3>
@@ -144,7 +158,7 @@ export default function AnalyticsPage() {
         </div>
 
         {/* Total Expenses */}
-        <div className="p-5 bg-white dark:bg-jm-navy border border-slate-100 dark:border-jm-dark-blue rounded-2xl shadow-sm">
+        <div className="p-5 bg-white glass-card border border-slate-100 dark:border-jm-dark-blue rounded-2xl shadow-sm">
           <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Cumulative Expenses</p>
           <div className="flex items-center justify-between mt-2">
             <h3 className="text-2xl font-extrabold text-slate-800 dark:text-white tracking-tight">{formatVal(stats.totalExpense)}</h3>
@@ -155,7 +169,7 @@ export default function AnalyticsPage() {
         </div>
 
         {/* Savings Rate */}
-        <div className="p-5 bg-white dark:bg-jm-navy border border-slate-100 dark:border-jm-dark-blue rounded-2xl shadow-sm">
+        <div className="p-5 bg-white glass-card border border-slate-100 dark:border-jm-dark-blue rounded-2xl shadow-sm">
           <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Savings Rate</p>
           <div className="flex items-center justify-between mt-2">
             <h3 className="text-2xl font-extrabold text-slate-800 dark:text-white tracking-tight">{stats.savingsRate.toFixed(1)}%</h3>
@@ -166,7 +180,7 @@ export default function AnalyticsPage() {
         </div>
 
         {/* Most Expensive Category */}
-        <div className="p-5 bg-white dark:bg-jm-navy border border-slate-100 dark:border-jm-dark-blue rounded-2xl shadow-sm">
+        <div className="p-5 bg-white glass-card border border-slate-100 dark:border-jm-dark-blue rounded-2xl shadow-sm">
           <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Top Spending Area</p>
           <div className="flex items-center justify-between mt-2">
             <h3 className="text-xl font-extrabold text-slate-800 dark:text-white tracking-tight truncate max-w-[150px]">{topSpendingCategory}</h3>
@@ -181,7 +195,7 @@ export default function AnalyticsPage() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
         {/* Income vs Expenses Chart (2 cols wide) */}
-        <div className="lg:col-span-2 p-5 bg-white dark:bg-jm-navy border border-slate-100 dark:border-jm-dark-blue rounded-2xl shadow-sm flex flex-col">
+        <div className="lg:col-span-2 p-5 bg-white glass-card border border-slate-100 dark:border-jm-dark-blue rounded-2xl shadow-sm flex flex-col">
           <div className="mb-6">
             <h3 className="text-base font-bold text-slate-800 dark:text-white">Income vs Expenses Trend</h3>
             <p className="text-xs text-slate-400 mt-0.5">Comparison of inflows and outflows over the past 6 months</p>
@@ -218,7 +232,7 @@ export default function AnalyticsPage() {
         </div>
 
         {/* Category breakdown (1 col wide) */}
-        <div className="p-5 bg-white dark:bg-jm-navy border border-slate-100 dark:border-jm-dark-blue rounded-2xl shadow-sm flex flex-col justify-between">
+        <div className="p-5 bg-white glass-card border border-slate-100 dark:border-jm-dark-blue rounded-2xl shadow-sm flex flex-col justify-between">
           <div>
             <h3 className="text-base font-bold text-slate-800 dark:text-white">Spending by Category</h3>
             <p className="text-xs text-slate-400 mt-0.5 mb-4">Proportionate breakdown of expense categories</p>
@@ -267,7 +281,7 @@ export default function AnalyticsPage() {
       </div>
 
       {/* Budget Limit vs Spent Utilization horizontal bars */}
-      <div className="p-5 bg-white dark:bg-jm-navy border border-slate-100 dark:border-jm-dark-blue rounded-2xl shadow-sm">
+      <div className="p-5 bg-white glass-card border border-slate-100 dark:border-jm-dark-blue rounded-2xl shadow-sm">
         <div className="mb-6">
           <h3 className="text-base font-bold text-slate-800 dark:text-white">Budget Allocation Analysis</h3>
           <p className="text-xs text-slate-400 mt-0.5">Assessing budget limits against month-to-date spending</p>
@@ -283,8 +297,8 @@ export default function AnalyticsPage() {
                 <div className="flex justify-between items-center text-sm font-semibold">
                   <span className="text-slate-800 dark:text-white">{b.category}</span>
                   <span className={`text-xs px-2 py-0.5 rounded-md ${isOver
-                      ? 'bg-rose-50 dark:bg-rose-950/20 text-rose-500 font-bold'
-                      : 'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400'
+                    ? 'bg-rose-50 dark:bg-rose-950/20 text-rose-500 font-bold'
+                    : 'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400'
                     }`}>
                     {isOver ? 'Limit Exceeded' : `${ratio.toFixed(0)}% Utilized`}
                   </span>
