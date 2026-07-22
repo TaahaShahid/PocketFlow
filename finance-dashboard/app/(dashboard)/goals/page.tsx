@@ -396,7 +396,7 @@ export default function GoalsPage() {
               Allocate savings to: <span className="font-bold text-on-surface">{activeGoal.name}</span>
             </p>
 
-            <form onSubmit={handleContributeSubmit} className="space-y-4">
+            <form onSubmit={handleContributeSubmit} className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/55 backdrop-blur-sm animate-fade-in">
               {/* Contribution Input */}
               <div>
                 <label className="block text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-1.5">Contribution Amount ($)</label>

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { LogOut } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { usePathname } from 'next/navigation';
@@ -11,9 +11,15 @@ import {
   Bell,
   Search,
   Menu,
+  CheckCircle2,
+  AlertTriangle,
+  ArrowDownLeft,
   ChevronDown
 } from 'lucide-react';
 import { useTheme } from './ThemeProvider';
+import Link from "next/link";
+import { useNotifications } from "@/context/NotificationContext";
+import { formatRelativeTime } from "@/utils/formatRelativeTime";
 
 
 
@@ -28,6 +34,35 @@ export default function Header({ onMenuClick }: HeaderProps) {
   const { user } = useAuth();
   const { logout } = useAuth();
   const [showProfileMenu, setShowProfileMenu] = useState(false);
+  const [showNotifications, setShowNotifications] = useState(false);
+
+  const notificationRef = useRef<HTMLDivElement>(null);
+
+  const {
+    notifications,
+    unreadCount,
+    removeNotification,
+    clearNotifications,
+  } = useNotifications();
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (
+        notificationRef.current &&
+        !notificationRef.current.contains(event.target as Node)
+      ) {
+        setShowNotifications(false);
+      }
+    }
+
+    document.addEventListener("mousedown", handleClickOutside);
+
+    return () =>
+      document.removeEventListener(
+        "mousedown",
+        handleClickOutside
+      );
+  }, []);
 
   // Derive page name from route path
   const getPageTitle = () => {
@@ -83,7 +118,7 @@ export default function Header({ onMenuClick }: HeaderProps) {
       <div className="flex items-center gap-2 sm:gap-4">
 
         {/* Search Bar - hidden on tiny screens */}
-        <div className="relative hidden md:block max-w-xs w-60">
+        {/* <div className="relative hidden md:block max-w-xs w-60">
           <span className="absolute inset-y-0 left-3 flex items-center pointer-events-none text-on-surface-variant">
             <Search className="h-4.5 w-4.5" />
           </span>
@@ -92,10 +127,10 @@ export default function Header({ onMenuClick }: HeaderProps) {
             placeholder="Search transactions..."
             className="w-full h-10 pl-10 pr-4 text-sm font-medium border border-white/5 bg-surface-container-lowest rounded-xl text-on-surface placeholder-on-surface-variant focus:outline-none focus:ring-2 focus:ring-pf-primary focus:border-transparent transition-all"
           />
-        </div>
+        </div> */}
 
         {/* Theme Toggle Button */}
-        <button
+        {/* <button
           onClick={toggleTheme}
           className="p-2.5 rounded-xl hover:bg-white/5 text-on-surface-variant border border-white/10 shadow-sm transition-all"
           aria-label="Toggle Theme"
@@ -105,26 +140,150 @@ export default function Header({ onMenuClick }: HeaderProps) {
           ) : (
             <Moon className="h-5 w-5 text-pf-primary" />
           )}
-        </button>
+        </button> */}
 
-        {/* Notifications Icon */}
-        <div className="relative">
+        {/* Notifications */}
+        <div className="relative" ref={notificationRef}>
           <button
-            className="p-2.5 rounded-xl hover:bg-white/5 text-on-surface-variant border border-white/10 shadow-sm transition-all"
-            aria-label="View notifications"
+            onClick={() => {
+              const opening = !showNotifications;
+
+              setShowNotifications(opening);
+
+              if (opening) {
+                clearNotifications()
+              }
+            }}
+            className="relative p-2.5 rounded-xl hover:bg-white/5 text-on-surface-variant border border-white/10 shadow-sm transition-all"
+            aria-label="Notifications"
           >
-            <Bell className="h-5 w-5" />
-            <span className="absolute top-1 right-1 w-2 h-2 bg-error rounded-full animate-pulse" />
+            <Bell className="h-6 w-6 shrink-0" />
+
+            {unreadCount > 0 && (
+              <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] rounded-full bg-red-500 text-white text-[10px] flex items-center justify-center font-bold px-1">
+                {unreadCount > 9 ? "9+" : unreadCount}
+              </span>
+            )}
           </button>
+
+          {showNotifications && (
+            <div className="absolute right-0 mt-3 w-96 bg-surface-container border border-white/10 rounded-2xl shadow-2xl overflow-hidden z-50">
+
+              <div className="flex items-center justify-between px-5 py-4 border-b border-white/10 bg-surface-container">
+                <h3 className="font-semibold text-on-surface">
+                  Notifications
+                </h3>
+
+                <button
+                  onClick={clearNotifications}
+                  className="text-xs text-pf-primary hover:underline"
+                >
+                  Mark all as read
+                </button>
+              </div>
+
+              <div className="max-h-[420px] overflow-y-auto">
+
+                {notifications.length === 0 ? (
+                  <div className="py-12 text-center text-on-surface-variant text-sm">
+                    <div className="py-12 flex flex-col items-center">
+                      <Bell className="w-10 h-10 text-on-surface-variant opacity-50 mb-3" />
+
+                      <p className="font-medium text-on-surface">
+                        You're all caught up
+                      </p>
+
+                      <p className="text-xs text-on-surface-variant mt-1">
+                        New activity will appear here.
+                      </p>
+                    </div>
+                  </div>
+                ) : (
+                  notifications.map((notification) => (
+                    <div
+                      key={notification.id}
+                      className={`
+                        group
+                        flex
+                        gap-4
+                        px-5
+                        py-4
+                        mx-2
+                        my-2
+                        rounded-xl
+                        transition-all
+                        cursor-pointer
+                        hover:bg-white/5
+                        border-l-4
+                        ${notification.type === "success"
+                          ? "border-green-500"
+                          : notification.type === "warning"
+                            ? "border-yellow-500"
+                            : "border-blue-500"
+                        }
+`}
+                    >
+                      <div className="mt-1">
+
+                        {notification.type === "success" && (
+                          <CheckCircle2 className="h-5 w-5 text-green-500" />
+                        )}
+
+                        {notification.type === "warning" && (
+                          <AlertTriangle className="h-5 w-5 text-yellow-500" />
+                        )}
+
+                        {notification.type === "info" && (
+                          <ArrowDownLeft className="h-5 w-5 text-blue-500" />
+                        )}
+                      </div>
+
+                      <div className="flex-1">
+
+                        <div className="font-semibold text-sm text-on-surface">
+                          {notification.title}
+                        </div>
+
+                        <div className="text-sm text-on-surface-variant mt-1 leading-relaxed">
+                          {notification.message}
+                        </div>
+
+                        {notification.amount !== undefined && (
+                          <div
+                            className={`mt-2 text-sm font-semibold ${notification.type === "success"
+                              ? "text-green-500"
+                              : "text-red-400"
+                              }`}
+                          >
+                            {notification.type === "success"
+                              ? "+"
+                              : "-"}
+                            {notification.amount.toLocaleString()}
+                          </div>
+                        )}
+
+                        <div className="mt-2 text-[11px] text-on-surface-variant">
+                          {formatRelativeTime(notification.timestamp)}
+                        </div>
+
+                      </div>
+                    </div>
+                  ))
+                )}
+
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Settings button */}
-        <button
+        <Link
+          href="/settings"
           className="p-2.5 rounded-xl hover:bg-white/5 text-on-surface-variant border border-white/10 shadow-sm transition-all"
           aria-label="Settings"
         >
           <Settings className="h-5 w-5" />
-        </button>
+        </Link>
 
         <div className="w-[1px] h-8 bg-white/10 mx-1 hidden sm:block" />
 

@@ -10,11 +10,11 @@ import {
 import { useAuth } from "./AuthContext";
 import { Wallet } from "@/types";
 import {
-    getWallets,
-    createWallet,
-    updateWallet,
-    deleteWallet,
-} from "@/lib/firestore";
+    getWalletsApi,
+    createWalletApi,
+    updateWalletApi,
+    deleteWalletApi,
+} from "@/lib/api/wallet";
 
 interface WalletContextType {
     wallets: Wallet[];
@@ -49,7 +49,7 @@ export function WalletProvider({
     const refreshWallets = async () => {
         if (!user) return;
 
-        const data = await getWallets(user.uid);
+        const data = await getWalletsApi();
 
         setWallets(data);
     };
@@ -69,7 +69,7 @@ export function WalletProvider({
     ) => {
         if (!user) return;
 
-        await createWallet(user.uid, wallet);
+        await createWalletApi(wallet);
 
         await refreshWallets();
     };
@@ -80,7 +80,7 @@ export function WalletProvider({
     ) => {
         if (!user) return;
 
-        await updateWallet(user.uid, id, wallet);
+        await updateWalletApi(id, wallet);
 
         await refreshWallets();
     };
@@ -88,7 +88,7 @@ export function WalletProvider({
     const removeWallet = async (id: string) => {
         if (!user) return;
 
-        await deleteWallet(user.uid, id);
+        await deleteWalletApi(id);
 
         await refreshWallets();
     };

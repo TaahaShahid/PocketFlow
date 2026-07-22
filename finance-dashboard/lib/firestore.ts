@@ -28,6 +28,16 @@ export const initializeUser = async (
             currency: "USD",
             theme: "dark",
             createdAt: Date.now(),
+
+            settings: {
+                currency: "USD",
+                notifications: {
+                    budgetAlerts: true,
+                    goalAlerts: true,
+                    monthlySummary: true,
+                    transactionAlerts: true,
+                },
+            },
         });
 
         // Seed data
@@ -62,7 +72,7 @@ export const initializeUser = async (
         ];
 
         for (let i = 0; i < seedCards.length; i++) {
-            await setDoc(doc(db, "users", uid, "wallets", `card-${i+1}`), seedCards[i]);
+            await setDoc(doc(db, "users", uid, "wallets", `card-${i + 1}`), seedCards[i]);
         }
 
         const seedGoals: Omit<Goal, "id">[] = [
@@ -93,7 +103,7 @@ export const initializeUser = async (
         ];
 
         for (let i = 0; i < seedGoals.length; i++) {
-            await setDoc(doc(db, "users", uid, "goals", `goal-${i+1}`), seedGoals[i]);
+            await setDoc(doc(db, "users", uid, "goals", `goal-${i + 1}`), seedGoals[i]);
         }
 
         const seedBudgets: Omit<Budget, "id">[] = [
@@ -106,7 +116,7 @@ export const initializeUser = async (
         ];
 
         for (let i = 0; i < seedBudgets.length; i++) {
-            await setDoc(doc(db, "users", uid, "budgets", `b-${i+1}`), seedBudgets[i]);
+            await setDoc(doc(db, "users", uid, "budgets", `b-${i + 1}`), seedBudgets[i]);
         }
 
         const now = Date.now();
@@ -270,7 +280,7 @@ export const initializeUser = async (
         ];
 
         for (let i = 0; i < seedTransactions.length; i++) {
-            await setDoc(doc(db, "users", uid, "transactions", `t-${i+1}`), seedTransactions[i]);
+            await setDoc(doc(db, "users", uid, "transactions", `t-${i + 1}`), seedTransactions[i]);
         }
     }
 };
@@ -590,4 +600,61 @@ export const deleteBudget = async (
     await deleteDoc(
         doc(db, "users", uid, "budgets", budgetId)
     );
+};
+
+export const updateDisplayName = async (
+    uid: string,
+    displayName: string
+) => {
+    const userRef = doc(db, "users", uid);
+
+    await updateDoc(userRef, {
+        displayName,
+    });
+};
+
+export const updateCurrency = async (
+    uid: string,
+    currency: string
+) => {
+    const userRef = doc(db, "users", uid);
+
+    await updateDoc(userRef, {
+        currency,
+    });
+};
+
+export const updateNotificationSettings = async (
+    uid: string,
+    notifications: {
+        budgetAlerts: boolean;
+        goalAlerts: boolean;
+        monthlySummary: boolean;
+        transactionAlerts: boolean;
+    }
+) => {
+    const userRef = doc(db, "users", uid);
+
+    await updateDoc(userRef, {
+        budgetAlerts: notifications.budgetAlerts,
+        goalAlerts: notifications.goalAlerts,
+        monthlySummary: notifications.monthlySummary,
+        transactionAlerts: notifications.transactionAlerts,
+    });
+};
+
+export const updateUserProfile = async (
+    uid: string,
+    updates: {
+        displayName?: string;
+        currency?: string;
+        budgetAlerts?: boolean;
+        goalAlerts?: boolean;
+        monthlySummary?: boolean;
+        transactionAlerts?: boolean;
+    }
+) => {
+    const userRef = doc(db, "users", uid);
+
+    await updateDoc(userRef, updates);
 };

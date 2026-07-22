@@ -47,7 +47,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
       >
         {/* Sidebar Header with Brand Logo */}
         <div className="flex items-center justify-between h-20 px-6 border-b border-white/10">
-          <Link href="/" className="flex items-center gap-3 group" onClick={onClose}>
+          <Link href="/dashboard" className="flex items-center gap-3 group" onClick={onClose}>
             {/* Geometric Brand Logo Symbol */}
             <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-pf-primary text-on-primary shadow-md shadow-pf-primary/20 transition-all duration-300 group-hover:scale-105">
               <span className="text-xl font-bold font-sans">J</span>

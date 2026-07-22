@@ -9,16 +9,24 @@ import {
     onAuthStateChanged,
     createUserWithEmailAndPassword,
     signInWithEmailAndPassword,
-    updateProfile,
+
+    updateProfile as updateFirebaseProfile,
 } from "firebase/auth";
 import { auth } from "@/lib/firebase";
-import { initializeUser, getUserData } from "@/lib/firestore";
+import { initializeUser, getUserData, updateUserProfile } from "@/lib/firestore";
 
 interface UserProfile {
     displayName: string;
     email: string;
     currency: string;
     theme: string;
+
+    createdAt: Date | null;
+
+    budgetAlerts: boolean;
+    goalAlerts: boolean;
+    monthlySummary: boolean;
+    transactionAlerts: boolean;
 }
 
 interface AuthContextType {
@@ -35,6 +43,19 @@ interface AuthContextType {
 
     signInWithGoogle: () => Promise<void>;
     logout: () => Promise<void>;
+
+    refreshProfile: () => Promise<void>;
+
+    saveProfile: (
+        updates: {
+            displayName?: string;
+            currency?: string;
+            budgetAlerts?: boolean;
+            goalAlerts?: boolean;
+            monthlySummary?: boolean;
+            transactionAlerts?: boolean;
+        }
+    ) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType>({
@@ -47,6 +68,10 @@ const AuthContext = createContext<AuthContextType>({
 
     signInWithGoogle: async () => { },
     logout: async () => { },
+
+    refreshProfile: async () => { },
+
+    saveProfile: async () => { },
 });
 
 export const AuthProvider = ({
@@ -58,8 +83,58 @@ export const AuthProvider = ({
     const [profile, setProfile] = useState<UserProfile | null>(null);
     const [loading, setLoading] = useState(true);
 
+    const refreshProfile = async () => {
+        const currentUser = auth.currentUser;
+
+        if (!currentUser) {
+            setProfile(null);
+            return;
+        }
+
+        const data = await getUserData(currentUser.uid);
+
+        if (!data) return;
+
+        setProfile({
+            displayName: data.displayName ?? "",
+            email: data.email ?? "",
+            currency: data.currency ?? "USD",
+            theme: data.theme ?? "dark",
+
+            createdAt: data.createdAt?.toDate?.() ?? null,
+
+            budgetAlerts: data.budgetAlerts ?? true,
+            goalAlerts: data.goalAlerts ?? true,
+            monthlySummary: data.monthlySummary ?? true,
+            transactionAlerts: data.transactionAlerts ?? true,
+        });
+    };
 
 
+    const saveProfile = async (
+        updates: {
+            displayName?: string;
+            currency?: string;
+            budgetAlerts?: boolean;
+            goalAlerts?: boolean;
+            monthlySummary?: boolean;
+            transactionAlerts?: boolean;
+        }
+    ) => {
+        const currentUser = auth.currentUser;
+
+        if (!currentUser) return;
+
+        if (updates.displayName) {
+            await updateFirebaseProfile(currentUser, {
+                displayName: updates.displayName,
+            });
+        }
+
+        await updateUserProfile(currentUser.uid, updates);
+
+        await refreshProfile();
+    };
 
     useEffect(() => {
         const unsubscribe = onAuthStateChanged(auth, async (user) => {
@@ -73,16 +148,18 @@ export const AuthProvider = ({
                         user.displayName
                     );
 
-                    const data = await getUserData(user.uid);
+                    await refreshProfile();
 
-                    if (data) {
-                        setProfile({
-                            displayName: data.displayName ?? "",
-                            email: data.email ?? "",
-                            currency: data.currency ?? "USD",
-                            theme: data.theme ?? "dark",
-                        });
-                    }
+                    // const data = await getUserData(user.uid);
+
+                    // if (data) {
+                    //     setProfile({
+                    //         displayName: data.displayName ?? "",
+                    //         email: data.email ?? "",
+                    //         currency: data.currency ?? "USD",
+                    //         theme: data.theme ?? "dark",
+                    //     });
+                    // }
                 } else {
                     setProfile(null);
                 }
@@ -91,6 +168,7 @@ export const AuthProvider = ({
             } finally {
                 setLoading(false);
             }
+
         });
 
         return () => unsubscribe();
@@ -109,7 +187,7 @@ export const AuthProvider = ({
         );
 
         if (name.trim()) {
-            await updateProfile(credential.user, {
+            await updateFirebaseProfile(credential.user, {
                 displayName: name,
             });
         }
@@ -146,6 +224,9 @@ export const AuthProvider = ({
 
                 signInWithGoogle,
                 logout,
+
+                refreshProfile,
+                saveProfile,
             }}
         >
             {children}

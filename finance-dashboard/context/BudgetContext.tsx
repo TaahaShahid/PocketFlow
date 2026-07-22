@@ -10,12 +10,31 @@ import {
 import { useAuth } from "./AuthContext";
 import { useTransactions } from "./TransactionContext";
 import { Budget } from "@/types";
-import { getBudgets } from "@/lib/firestore";
+import {
+    getBudgetsApi,
+    createBudgetApi,
+    updateBudgetApi,
+    deleteBudgetApi,
+} from "@/lib/api/budget";
 
 interface BudgetContextType {
     budgets: Budget[];
     loading: boolean;
+
     refreshBudgets: () => Promise<void>;
+
+    addBudget: (
+        budget: Omit<Budget, "id" | "spent" | "remaining">
+    ) => Promise<void>;
+
+    editBudget: (
+        id: string,
+        budget: Partial<Budget>
+    ) => Promise<void>;
+
+    removeBudget: (
+        id: string
+    ) => Promise<void>;
 }
 
 const BudgetContext = createContext<BudgetContextType>(
@@ -35,7 +54,7 @@ export function BudgetProvider({
 
     const refreshBudgets = async () => {
         if (!user) return;
-        const data = await getBudgets(user.uid);
+        const data = await getBudgetsApi();
         setRawBudgets(data);
     };
 
@@ -49,6 +68,37 @@ export function BudgetProvider({
         setLoading(true);
         refreshBudgets().finally(() => setLoading(false));
     }, [user]);
+
+    const addBudget = async (
+        budget: Omit<Budget, "id" | "spent" | "remaining">
+    ) => {
+        if (!user) return;
+
+        await createBudgetApi(budget);
+
+        await refreshBudgets();
+    };
+
+    const editBudget = async (
+        id: string,
+        budget: Partial<Budget>
+    ) => {
+        if (!user) return;
+
+        await updateBudgetApi(id, budget);
+
+        await refreshBudgets();
+    };
+
+    const removeBudget = async (
+        id: string
+    ) => {
+        if (!user) return;
+
+        await deleteBudgetApi(id);
+
+        await refreshBudgets();
+    };
 
     // Compute budgets spent and remaining client-side
     const budgets = useMemo(() => {
@@ -86,6 +136,9 @@ export function BudgetProvider({
                 budgets,
                 loading,
                 refreshBudgets,
+                addBudget,
+                editBudget,
+                removeBudget,
             }}
         >
             {children}

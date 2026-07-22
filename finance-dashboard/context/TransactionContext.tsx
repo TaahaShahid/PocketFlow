@@ -10,11 +10,11 @@ import { useAuth } from "./AuthContext";
 import { useWallets } from "./WalletContext";
 import { Transaction } from "@/types";
 import {
-    getTransactions,
-    createTransaction as createTxFirestore,
-    updateTransaction as updateTxFirestore,
-    deleteTransaction as deleteTxFirestore,
-} from "@/lib/firestore";
+    getTransactionsApi,
+    createTransactionApi,
+    updateTransactionApi,
+    deleteTransactionApi,
+} from "@/lib/api/transaction";
 
 interface TransactionContextType {
     transactions: Transaction[];
@@ -45,7 +45,7 @@ export function TransactionProvider({
 
     const refreshTransactions = async () => {
         if (!user) return;
-        const data = await getTransactions(user.uid);
+        const data = await getTransactionsApi();
         setTransactions(data);
     };
 
@@ -64,7 +64,7 @@ export function TransactionProvider({
         transaction: Omit<Transaction, "id" | "createdAt">
     ) => {
         if (!user) return;
-        await createTxFirestore(user.uid, transaction);
+        await createTransactionApi(transaction);
         await Promise.all([refreshTransactions(), refreshWallets()]);
     };
 
@@ -73,13 +73,13 @@ export function TransactionProvider({
         updates: Partial<Omit<Transaction, "id" | "createdAt">>
     ) => {
         if (!user) return;
-        await updateTxFirestore(user.uid, id, updates);
+        await updateTransactionApi(id, updates);
         await Promise.all([refreshTransactions(), refreshWallets()]);
     };
 
     const deleteTransaction = async (id: string) => {
         if (!user) return;
-        await deleteTxFirestore(user.uid, id);
+        await deleteTransactionApi(id);
         await Promise.all([refreshTransactions(), refreshWallets()]);
     };
 

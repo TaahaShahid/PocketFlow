@@ -11,12 +11,12 @@ import { useWallets } from "./WalletContext";
 import { useTransactions } from "./TransactionContext";
 import { Goal } from "@/types";
 import {
-    getGoals,
-    createGoal as createGoalFirestore,
-    updateGoal as updateGoalFirestore,
-    deleteGoal as deleteGoalFirestore,
-    contributeToGoal as contributeToGoalFirestore,
-} from "@/lib/firestore";
+    getGoalsApi,
+    createGoalApi,
+    updateGoalApi,
+    deleteGoalApi,
+    contributeToGoalApi,
+} from "@/lib/api/goal";
 
 interface GoalContextType {
     goals: Goal[];
@@ -28,7 +28,11 @@ interface GoalContextType {
         updates: Partial<Omit<Goal, "id" | "createdAt">>
     ) => Promise<void>;
     deleteGoal: (id: string) => Promise<void>;
-    contributeToGoal: (id: string, amount: number) => Promise<void>;
+    contributeToGoal: (
+        goalId: string,
+
+        amount: number
+    ) => Promise<void>;
 }
 
 const GoalContext = createContext<GoalContextType>(
@@ -49,7 +53,7 @@ export function GoalProvider({
 
     const refreshGoals = async () => {
         if (!user) return;
-        const data = await getGoals(user.uid);
+        const data = await getGoalsApi();
         setGoals(data);
     };
 
@@ -68,7 +72,7 @@ export function GoalProvider({
         goal: Omit<Goal, "id" | "createdAt" | "status">
     ) => {
         if (!user) return;
-        await createGoalFirestore(user.uid, goal);
+        await createGoalApi(goal);
         await refreshGoals();
     };
 
@@ -77,19 +81,29 @@ export function GoalProvider({
         updates: Partial<Omit<Goal, "id" | "createdAt">>
     ) => {
         if (!user) return;
-        await updateGoalFirestore(user.uid, id, updates);
+        await updateGoalApi(id, updates);
         await refreshGoals();
     };
 
     const deleteGoal = async (id: string) => {
         if (!user) return;
-        await deleteGoalFirestore(user.uid, id);
+        await deleteGoalApi(id);
         await refreshGoals();
     };
 
-    const contributeToGoal = async (id: string, amount: number) => {
+    const contributeToGoal = async (
+        goalId: string,
+
+        amount: number
+    ) => {
         if (!user) return;
-        await contributeToGoalFirestore(user.uid, id, amount);
+
+        await contributeToGoalApi(
+            goalId,
+
+            amount
+        );
+
         await Promise.all([
             refreshGoals(),
             refreshWallets(),

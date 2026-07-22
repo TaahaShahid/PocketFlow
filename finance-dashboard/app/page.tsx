@@ -1,9 +1,12 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+// import { useAuth } from "@/lib/auth";
 
 export default function Home() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+
+  // const { user, loading } = useAuth();
 
   // WebGL animated background shader
   useEffect(() => {
