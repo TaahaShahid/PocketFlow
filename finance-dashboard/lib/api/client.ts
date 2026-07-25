@@ -2,7 +2,7 @@ import axios from "axios";
 import { auth } from "@/lib/firebase";
 
 export const api = axios.create({
-    baseURL: "http://localhost:8000",
+    baseURL: "/api",
 });
 
 api.interceptors.request.use(async (config) => {
