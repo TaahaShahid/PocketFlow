@@ -1,16 +1,22 @@
-import firebase_admin
+import base64
+import json
 
+import firebase_admin
 from firebase_admin import credentials
 from firebase_admin import firestore
 
-from pathlib import Path
+from app.core.config import settings
 
-BASE_DIR = Path(__file__).resolve().parent.parent
 
-cred = credentials.Certificate(
-    BASE_DIR / "credentials" / "firebase-admin.json"
+cred_dict = json.loads(
+    base64.b64decode(
+        settings.FIREBASE_SERVICE_ACCOUNT_B64
+    ).decode("utf-8")
 )
 
-firebase_admin.initialize_app(cred)
+cred = credentials.Certificate(cred_dict)
+
+if not firebase_admin._apps:
+    firebase_admin.initialize_app(cred)
 
 db = firestore.client()

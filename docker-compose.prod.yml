@@ -8,8 +8,12 @@ services:
 
     restart: unless-stopped
 
+    env_file:
+      - .env
+
     environment:
       PYTHONUNBUFFERED: "1"
+      FIREBASE_SERVICE_ACCOUNT_B64: ${FIREBASE_SERVICE_ACCOUNT_B64}
 
   frontend:
     build:
