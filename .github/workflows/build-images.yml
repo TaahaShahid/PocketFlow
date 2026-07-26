@@ -28,3 +28,23 @@ jobs:
       - name: Login to Amazon ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build Backend Image
+        run: |
+          docker build \
+            -t pocketflow-backend \
+            ./finance-backend
+
+      - name: Tag Backend Image
+        run: |
+          docker tag pocketflow-backend:latest \
+          831959027398.dkr.ecr.us-east-1.amazonaws.com/pocketflow-backend:latest
+
+          docker tag pocketflow-backend:latest \
+          831959027398.dkr.ecr.us-east-1.amazonaws.com/pocketflow-backend:${{ github.sha }}
+
+      - name: Push Backend Image
+        run: |
+          docker push 831959027398.dkr.ecr.us-east-1.amazonaws.com/pocketflow-backend:latest
+
+          docker push 831959027398.dkr.ecr.us-east-1.amazonaws.com/pocketflow-backend:${{ github.sha }}
