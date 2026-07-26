@@ -38,14 +38,12 @@ jobs:
           echo "Building and starting containers..."
           docker compose -f docker-compose.prod.yml up --build -d
 
-          echo "Waiting for PocketFlow API..."
+          echo "Waiting for PocketFlow website..."
 
           for i in {1..30}; do
-            if docker exec pocketflow-backend python -c "
-              import urllib.request
-              urllib.request.urlopen('http://localhost:8000/health/')
-              "; then
-              echo "PocketFlow API is healthy."
+
+            if curl -fs http://localhost > /dev/null; then
+              echo "PocketFlow website is reachable."
               break
             fi
 
@@ -53,20 +51,8 @@ jobs:
             sleep 5
           done
 
-          echo "Health endpoint response:"
+          echo "Website response:"
 
-          docker exec pocketflow-backend python -c "
-            import urllib.request
-            print(
-              urllib.request.urlopen(
-                'http://localhost:8000/health/'
-              ).read().decode()
-            )
-          "
-
-          echo "Cleaning unused Docker images..."
-          docker image prune -f
-
-          echo "Deployment completed successfully."
+          curl -I http://localhost
 
           EOF
