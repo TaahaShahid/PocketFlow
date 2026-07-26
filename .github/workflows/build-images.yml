@@ -48,3 +48,23 @@ jobs:
           docker push 831959027398.dkr.ecr.us-east-1.amazonaws.com/pocketflow-backend:latest
 
           docker push 831959027398.dkr.ecr.us-east-1.amazonaws.com/pocketflow-backend:${{ github.sha }}
+
+      - name: Build Frontend Image
+        run: |
+          docker build \
+            -t pocketflow-frontend \
+            ./finance-dashboard
+
+      - name: Tag Frontend Image
+        run: |
+          docker tag pocketflow-frontend:latest \
+          831959027398.dkr.ecr.us-east-1.amazonaws.com/pocketflow-frontend:latest
+
+          docker tag pocketflow-frontend:latest \
+          831959027398.dkr.ecr.us-east-1.amazonaws.com/pocketflow-frontend:${{ github.sha }}
+
+      - name: Push Frontend Image
+        run: |
+          docker push 831959027398.dkr.ecr.us-east-1.amazonaws.com/pocketflow-frontend:latest
+
+          docker push 831959027398.dkr.ecr.us-east-1.amazonaws.com/pocketflow-frontend:${{ github.sha }}  
