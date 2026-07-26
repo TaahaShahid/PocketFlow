@@ -23,16 +23,39 @@ jobs:
       - name: Deploy to EC2
         run: |
           ssh -i ~/.ssh/id_ed25519 \
-              ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} << 'EOF'
+            ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} << 'EOF'
+
+          set -e
 
           cd ~/PocketFlow
 
+          echo "Pulling latest code..."
           git pull origin main
 
+          echo "Stopping existing containers..."
           docker compose -f docker-compose.prod.yml down
 
+          echo "Building and starting containers..."
           docker compose -f docker-compose.prod.yml up --build -d
 
+          echo "Waiting for PocketFlow API..."
+
+          for i in {1..30}; do
+            if curl -fs http://localhost:8000/health/ > /dev/null; then
+              echo "PocketFlow API is healthy."
+              break
+            fi
+
+            echo "Waiting... ($i/30)"
+            sleep 5
+          done
+
+          echo "Health endpoint response:"
+          curl -fs http://localhost:8000/health/
+
+          echo "Cleaning unused Docker images..."
           docker image prune -f
+
+          echo "Deployment completed successfully."
 
           EOF
