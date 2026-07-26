@@ -41,7 +41,10 @@ jobs:
           echo "Waiting for PocketFlow API..."
 
           for i in {1..30}; do
-            if curl -fs http://localhost:8000/health/ > /dev/null; then
+            if docker exec pocketflow-backend python -c "
+              import urllib.request
+              urllib.request.urlopen('http://localhost:8000/health/')
+              "; then
               echo "PocketFlow API is healthy."
               break
             fi
@@ -51,7 +54,15 @@ jobs:
           done
 
           echo "Health endpoint response:"
-          curl -fs http://localhost:8000/health/
+
+          docker exec pocketflow-backend python -c "
+            import urllib.request
+            print(
+              urllib.request.urlopen(
+                'http://localhost:8000/health/'
+              ).read().decode()
+            )
+          "
 
           echo "Cleaning unused Docker images..."
           docker image prune -f
