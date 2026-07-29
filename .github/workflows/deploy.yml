@@ -20,30 +20,48 @@ jobs:
           chmod 600 ~/.ssh/id_ed25519
           echo "${{ secrets.EC2_KNOWN_HOSTS }}" > ~/.ssh/known_hosts
 
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+
       - name: Deploy to EC2
         run: |
           ssh -i ~/.ssh/id_ed25519 \
-            ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} << 'EOF'
+            ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} << EOF
 
           set -e
+
+          export AWS_ACCESS_KEY_ID="${{ secrets.AWS_ACCESS_KEY_ID }}"
+          export AWS_SECRET_ACCESS_KEY="${{ secrets.AWS_SECRET_ACCESS_KEY }}"
+          export AWS_DEFAULT_REGION="us-east-1"
 
           cd ~/PocketFlow
 
           echo "Pulling latest code..."
           git pull origin main
 
+          echo "Logging into Amazon ECR..."
+          aws ecr get-login-password --region us-east-1 | docker login \
+            --username AWS \
+            --password-stdin 831959027398.dkr.ecr.us-east-1.amazonaws.com
+
           echo "Stopping existing containers..."
           docker compose -f docker-compose.prod.yml down
 
-          echo "Building and starting containers..."
-          docker compose -f docker-compose.prod.yml up --build -d
+          echo "Pulling latest images..."
+          docker compose -f docker-compose.prod.yml pull
 
-          echo "Waiting for PocketFlow website..."
+          echo "Starting services..."
+          docker compose -f docker-compose.prod.yml up -d
+
+          echo "Waiting for PocketFlow..."
 
           for i in {1..30}; do
-
             if curl -fs http://localhost > /dev/null; then
-              echo "PocketFlow website is reachable."
+              echo "PocketFlow is online."
               break
             fi
 
@@ -51,8 +69,8 @@ jobs:
             sleep 5
           done
 
-          echo "Website response:"
-
           curl -I http://localhost
+
+          docker image prune -f
 
           EOF
