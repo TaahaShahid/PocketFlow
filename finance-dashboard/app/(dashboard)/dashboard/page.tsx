@@ -556,7 +556,7 @@ export default function Dashboard() {
             {/* Upper Panel: Welcome and CTA */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
-                    <h2 className="text-xl font-bold text-on-surface">PocketFlow Financial Command Center</h2>
+                    <h2 className="text-xl font-bold text-on-surface">PocketFlow Financial Command Center - YESSS SIRRRRR</h2>
                     <p className="text-sm text-outline mt-1">
                         Real-time analytics and transaction management system.
                     </p>
