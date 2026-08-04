@@ -1,0 +1,29 @@
+services:
+
+  backend:
+    image: 831959027398.dkr.ecr.us-east-1.amazonaws.com/pocketflow-backend:latest
+
+    container_name: pocketflow-backend
+
+    restart: unless-stopped
+
+    env_file:
+      - .env
+
+    environment:
+      PYTHONUNBUFFERED: "1"
+      FIREBASE_SERVICE_ACCOUNT_B64: ${FIREBASE_SERVICE_ACCOUNT_B64}
+
+  nginx:
+    build:
+      context: ./nginx
+
+    container_name: pocketflow-nginx
+
+    depends_on:
+      - backend
+
+    ports:
+      - "80:80"
+
+    restart: unless-stopped
