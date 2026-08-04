@@ -2,7 +2,9 @@ import axios from "axios";
 import { auth } from "@/lib/firebase";
 
 export const api = axios.create({
-    baseURL: process.env.NEXT_PUBLIC_API_URL
+    baseURL:
+        process.env.NEXT_PUBLIC_API_URL ||
+        "http://localhost:8000/api",
 });
 
 api.interceptors.request.use(async (config) => {
@@ -10,7 +12,6 @@ api.interceptors.request.use(async (config) => {
 
     if (user) {
         const token = await user.getIdToken();
-
         config.headers.Authorization = `Bearer ${token}`;
     }
 
