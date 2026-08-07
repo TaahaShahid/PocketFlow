@@ -5,9 +5,12 @@ resource "aws_vpc" "this" {
   enable_dns_hostnames = true
   enable_dns_support   = true
 
-  tags = {
-    Name = "${var.project_name}-${var.environment}-vpc"
-  }
+  tags = merge(
+    var.common_tags,
+    {
+      Name = "${var.project_name}-vpc"
+    }
+  )
 
 }
 
@@ -21,9 +24,12 @@ resource "aws_subnet" "public" {
 
   map_public_ip_on_launch = true
 
-  tags = {
-    Name = "${var.project_name}-${var.environment}-public-subnet"
-  }
+  tags = merge(
+    var.common_tags,
+    {
+      Name = "${var.project_name}-public-subnet"
+    }
+  )
 
 }
 
@@ -31,9 +37,12 @@ resource "aws_internet_gateway" "this" {
 
   vpc_id = aws_vpc.this.id
 
-  tags = {
-    Name = "${var.project_name}-${var.environment}-igw"
-  }
+  tags = merge(
+    var.common_tags,
+    {
+      Name = "${var.project_name}-igw"
+    }
+  )
 
 }
 
@@ -49,9 +58,12 @@ resource "aws_route_table" "public" {
 
   }
 
-  tags = {
-    Name = "${var.project_name}-${var.environment}-public-rt"
-  }
+  tags = merge(
+    var.common_tags,
+    {
+      Name = "${var.project_name}-public-rt"
+    }
+  )
 
 }
 
