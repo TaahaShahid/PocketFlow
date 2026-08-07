@@ -75,6 +75,10 @@ jobs:
 
           git pull origin main
 
+          cat > .env <<EOF
+          FIREBASE_SERVICE_ACCOUNT_B64=${{ secrets.FIREBASE_SERVICE_ACCOUNT_B64 }}
+          EOF
+
           aws ecr get-login-password --region us-east-1 | \
           docker login \
             --username AWS \
