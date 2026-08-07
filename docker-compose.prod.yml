@@ -1,7 +1,7 @@
 services:
 
   backend:
-    image: 831959027398.dkr.ecr.us-east-1.amazonaws.com/pocketflow-backend:latest
+    image: 831959027398.dkr.ecr.us-east-1.amazonaws.com/pocketflow-production-backend:latest
 
     container_name: pocketflow-backend
 

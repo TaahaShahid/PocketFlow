@@ -8,8 +8,7 @@ on:
 env:
   AWS_REGION: us-east-1
   AWS_ACCOUNT_ID: 831959027398
-  BACKEND_REPOSITORY: pocketflow-backend
-  
+  BACKEND_REPOSITORY: pocketflow-production-backend
 
 jobs:
   build-and-push:
@@ -29,16 +28,11 @@ jobs:
           aws-region: ${{ env.AWS_REGION }}
 
       - name: Login to Amazon ECR
-        id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
-
-      ##################################################
-      # Backend
-      ##################################################
 
       - name: Build Backend Image
         run: |
-          docker build --pull --no-cache \
+          docker build \
             -t $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$BACKEND_REPOSITORY:latest \
             ./finance-backend
 
@@ -49,7 +43,6 @@ jobs:
 
   deploy:
     needs: build-and-push
-
     runs-on: ubuntu-latest
 
     steps:
@@ -63,29 +56,31 @@ jobs:
       - name: Deploy to EC2
         run: |
           ssh -i ~/.ssh/id_ed25519 \
-          ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} << EOF
+            ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} << 'EOF'
 
           set -e
-
-          export AWS_ACCESS_KEY_ID="${{ secrets.AWS_ACCESS_KEY_ID }}"
-          export AWS_SECRET_ACCESS_KEY="${{ secrets.AWS_SECRET_ACCESS_KEY }}"
-          export AWS_DEFAULT_REGION="us-east-1"
 
           cd ~/PocketFlow
 
           git pull origin main
 
-          cat > .env <<EOF
+          cat > .env <<ENVFILE
           FIREBASE_SERVICE_ACCOUNT_B64=${{ secrets.FIREBASE_SERVICE_ACCOUNT_B64 }}
-          EOF
+          AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION=us-east-1
+          ENVFILE
 
-          aws ecr get-login-password --region us-east-1 | \
-          docker login \
+          export AWS_ACCESS_KEY_ID="${{ secrets.AWS_ACCESS_KEY_ID }}"
+          export AWS_SECRET_ACCESS_KEY="${{ secrets.AWS_SECRET_ACCESS_KEY }}"
+          export AWS_DEFAULT_REGION="us-east-1"
+
+          aws ecr get-login-password --region us-east-1 | docker login \
             --username AWS \
             --password-stdin \
             831959027398.dkr.ecr.us-east-1.amazonaws.com
 
-          docker compose -f docker-compose.prod.yml down
+          docker compose -f docker-compose.prod.yml down || true
 
           docker compose -f docker-compose.prod.yml pull
 
