@@ -13,6 +13,7 @@ app = FastAPI(
     title=settings.PROJECT_NAME,
     version=settings.API_VERSION,
     description="Backend API for PocketFlow",
+    redirect_slashes=False,
 )
 
 @app.get("/")

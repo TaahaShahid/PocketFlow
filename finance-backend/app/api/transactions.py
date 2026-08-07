@@ -10,7 +10,7 @@ from app.services.transaction_service import TransactionService
 router = APIRouter()
 
 
-@router.get("/")
+@router.get("")
 def get_transactions(
     current_user=Depends(get_current_user),
 ):
@@ -19,7 +19,7 @@ def get_transactions(
     )
 
 
-@router.post("/")
+@router.post("")
 def create_transaction(
     request: CreateTransactionRequest,
     current_user=Depends(get_current_user),

@@ -7,7 +7,7 @@ from app.services.wallet_service import WalletService
 router = APIRouter()
 
 
-@router.get("/")
+@router.get("")
 def get_wallets(
     current_user=Depends(get_current_user),
 ):
@@ -16,7 +16,7 @@ def get_wallets(
     )
 
 
-@router.post("/")
+@router.post("")
 def create_wallet(
     wallet: WalletCreate,
     current_user=Depends(get_current_user),

@@ -11,7 +11,7 @@ from app.schemas.contribution import GoalContributionRequest
 router = APIRouter()
 
 
-@router.get("/")
+@router.get("")
 def get_goals(
     current_user=Depends(get_current_user),
 ):
@@ -20,7 +20,7 @@ def get_goals(
     )
 
 
-@router.post("/")
+@router.post("")
 def create_goal(
     request: CreateGoalRequest,
     current_user=Depends(get_current_user),

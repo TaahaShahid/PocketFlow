@@ -13,7 +13,7 @@ from app.services.budget_service import BudgetService
 router = APIRouter()
 
 
-@router.get("/")
+@router.get("")
 def get_budgets(
     current_user=Depends(get_current_user),
 ):
@@ -22,7 +22,7 @@ def get_budgets(
     )
 
 
-@router.post("/")
+@router.post("")
 def create_budget(
     request: CreateBudgetRequest,
     current_user=Depends(get_current_user),
