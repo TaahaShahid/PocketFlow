@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { useFinanceStore } from '../../../hooks/useFinanceStore';
 import { useGoals } from '@/context/GoalContext';
 import { Goal } from '../../../types';
-import { Plus, PiggyBank, Calendar, Trash2, CheckCircle2, ChevronRight, DollarSign, AlertTriangle, Loader2 } from 'lucide-react';
+import { Plus, PiggyBank, Trash2, CheckCircle2, DollarSign, Loader2 } from 'lucide-react';
 
 export default function GoalsPage() {
   const { goals, addGoal, deleteGoal, contributeToGoal, loading } = useGoals();
@@ -23,6 +23,8 @@ export default function GoalsPage() {
   const [contribution, setContribution] = useState('');
 
   const [errors, setErrors] = useState<Record<string, string>>({});
+
+  const [currentTime] = useState(() => new Date().getTime());
 
   if (loading) {
     return (
@@ -146,7 +148,7 @@ export default function GoalsPage() {
         {goals.map((g) => {
           const ratio = g.targetAmount > 0 ? (g.currentAmount / g.targetAmount) * 100 : 0;
           const isCompleted = g.status === 'completed';
-          const daysLeft = Math.max(0, Math.ceil((g.deadline - Date.now()) / (24 * 60 * 60 * 1000)));
+          const daysLeft = currentTime > 0 ? Math.max(0, Math.ceil((g.deadline - currentTime) / (24 * 60 * 60 * 1000))) : 0;
 
           return (
             <div
@@ -167,7 +169,10 @@ export default function GoalsPage() {
                       <h3 className="text-sm font-bold text-on-surface leading-tight">
                         {g.name}
                       </h3>
-                      <p className="text-[10px] font-bold text-on-surface-variant uppercase mt-0.5 tracking-wider">
+                      <p 
+                        suppressHydrationWarning={true}
+                        className="text-[10px] font-bold text-on-surface-variant uppercase mt-0.5 tracking-wider"
+                      >
                         {isCompleted ? 'COMPLETED' : `${daysLeft} days remaining`}
                       </p>
                     </div>
@@ -208,7 +213,7 @@ export default function GoalsPage() {
                   </div>
                   <div className="flex justify-between text-[11px] font-bold text-on-surface-variant">
                     <span>{ratio.toFixed(0)}% Saved</span>
-                    <span>Target {new Date(g.deadline).toLocaleDateString(undefined, { month: 'short', year: 'numeric' })}</span>
+                    <span suppressHydrationWarning={true}>Target {new Date(g.deadline).toLocaleDateString(undefined, { month: 'short', year: 'numeric' })}</span>
                   </div>
                 </div>
 

@@ -49,8 +49,8 @@ export default function LoginPage() {
             await login(email, password);
 
             router.push("/dashboard");
-        } catch (err: any) {
-            setError(err.message);
+        } catch (err) {
+            setError(err instanceof Error ? err.message : String(err));
         } finally {
             setIsSubmitting(false);
         }
@@ -63,8 +63,8 @@ export default function LoginPage() {
             await signInWithGoogle();
 
             router.push("/dashboard");
-        } catch (err: any) {
-            setError(err.message);
+        } catch (err) {
+            setError(err instanceof Error ? err.message : String(err));
         } finally {
             setIsSubmitting(false);
         }
@@ -202,7 +202,7 @@ export default function LoginPage() {
 
                     <p className="text-center text-sm text-slate-400 mt-8">
 
-                        Don't have an account?{" "}
+                        Don&apos;t have an account?{" "}
 
                         <Link
                             href="/signup"

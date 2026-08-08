@@ -2,6 +2,7 @@
 
 import {
     createContext,
+    useCallback,
     useContext,
     useEffect,
     useMemo,
@@ -52,21 +53,38 @@ export function BudgetProvider({
     const [rawBudgets, setRawBudgets] = useState<Budget[]>([]);
     const [loading, setLoading] = useState(true);
 
-    const refreshBudgets = async () => {
-        if (!user) return;
-        const data = await getBudgetsApi();
-        setRawBudgets(data);
-    };
-
-    useEffect(() => {
+    // Adjust state during render when user changes
+    const [prevUser, setPrevUser] = useState(user);
+    if (user !== prevUser) {
+        setPrevUser(user);
         if (!user) {
             setRawBudgets([]);
             setLoading(false);
-            return;
+        } else {
+            setLoading(true);
         }
+    }
 
-        setLoading(true);
-        refreshBudgets().finally(() => setLoading(false));
+    const refreshBudgets = useCallback(async () => {
+        if (!user) return;
+        const data = await getBudgetsApi();
+        setRawBudgets(data);
+    }, [user]);
+
+    useEffect(() => {
+        if (!user) return;
+
+        let active = true;
+        getBudgetsApi().then((data) => {
+            if (active) {
+                setRawBudgets(data);
+                setLoading(false);
+            }
+        });
+
+        return () => {
+            active = false;
+        };
     }, [user]);
 
     const addBudget = async (

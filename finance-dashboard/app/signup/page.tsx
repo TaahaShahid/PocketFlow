@@ -68,8 +68,8 @@ export default function SignupPage() {
             await signup(name, email, password);
 
             router.push("/dashboard");
-        } catch (err: any) {
-            setError(err.message);
+        } catch (err) {
+            setError(err instanceof Error ? err.message : String(err));
         } finally {
             setIsSubmitting(false);
         }
@@ -82,8 +82,8 @@ export default function SignupPage() {
             await signInWithGoogle();
 
             router.push("/dashboard");
-        } catch (err: any) {
-            setError(err.message);
+        } catch (err) {
+            setError(err instanceof Error ? err.message : String(err));
         } finally {
             setIsSubmitting(false);
         }

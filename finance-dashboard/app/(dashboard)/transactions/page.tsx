@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useMemo } from 'react';
 import { createPortal } from 'react-dom';
 import { useFinanceStore, CATEGORIES } from '../../../hooks/useFinanceStore';
 import { useTransactions } from '@/context/TransactionContext';
@@ -21,7 +21,6 @@ import {
   AlertTriangle,
   Download,
   Sparkles,
-  TrendingUp,
   X,
   Utensils,
   ShoppingBag,
@@ -88,8 +87,7 @@ export default function TransactionsPage() {
   // Modals are rendered into a portal (see below) so they escape any ancestor
   // with backdrop-filter/transform, which would otherwise break `fixed` positioning.
   // `mounted` guards against calling document.body during SSR.
-  const [mounted, setMounted] = useState(false);
-  useEffect(() => { setMounted(true); }, []);
+
 
   // Form Fields State (shared between add and edit)
   const [formData, setFormData] = useState({
@@ -210,52 +208,46 @@ export default function TransactionsPage() {
   };
 
   // 1. Process Filtering & Searching
-  const filteredTransactions = useMemo(() => {
-    let result = [...transactions];
+  let filteredTransactions = [...transactions];
 
-    // Search query matching
-    if (searchQuery.trim()) {
-      const q = searchQuery.toLowerCase();
-      result = result.filter(
-        (t) =>
-          t.recipientName.toLowerCase().includes(q) ||
-          (t.notes && t.notes.toLowerCase().includes(q)) ||
-          t.category.toLowerCase().includes(q)
-      );
-    }
+  // Search query matching
+  if (searchQuery.trim()) {
+    const q = searchQuery.toLowerCase();
+    filteredTransactions = filteredTransactions.filter(
+      (t) =>
+        t.recipientName.toLowerCase().includes(q) ||
+        (t.notes && t.notes.toLowerCase().includes(q)) ||
+        t.category.toLowerCase().includes(q)
+    );
+  }
 
-    // Type filter
-    if (typeFilter !== 'all') {
-      result = result.filter((t) => t.type === typeFilter);
-    }
+  // Type filter
+  if (typeFilter !== 'all') {
+    filteredTransactions = filteredTransactions.filter((t) => t.type === typeFilter);
+  }
 
-    // Category filter
-    if (categoryFilter !== 'all') {
-      result = result.filter((t) => t.category === categoryFilter);
-    }
+  // Category filter
+  if (categoryFilter !== 'all') {
+    filteredTransactions = filteredTransactions.filter((t) => t.category === categoryFilter);
+  }
 
-    // Wallet filter
-    if (walletFilter !== 'all') {
-      result = result.filter((t) => t.walletId === walletFilter);
-    }
+  // Wallet filter
+  if (walletFilter !== 'all') {
+    filteredTransactions = filteredTransactions.filter((t) => t.walletId === walletFilter);
+  }
 
-    // Sort mappings
-    result.sort((a, b) => {
-      if (sortBy === 'date-desc') return b.date - a.date;
-      if (sortBy === 'date-asc') return a.date - b.date;
-      if (sortBy === 'amount-desc') return b.amount - a.amount;
-      if (sortBy === 'amount-asc') return a.amount - b.amount;
-      return 0;
-    });
-
-    return result;
-  }, [transactions, searchQuery, typeFilter, categoryFilter, walletFilter, sortBy]);
+  // Sort mappings
+  filteredTransactions.sort((a, b) => {
+    if (sortBy === 'date-desc') return b.date - a.date;
+    if (sortBy === 'date-asc') return a.date - b.date;
+    if (sortBy === 'amount-desc') return b.amount - a.amount;
+    if (sortBy === 'amount-asc') return a.amount - b.amount;
+    return 0;
+  });
 
   // 2. Pagination Calculations
-  const paginatedTransactions = useMemo(() => {
-    const offset = (currentPage - 1) * itemsPerPage;
-    return filteredTransactions.slice(offset, offset + itemsPerPage);
-  }, [filteredTransactions, currentPage]);
+  const offset = (currentPage - 1) * itemsPerPage;
+  const paginatedTransactions = filteredTransactions.slice(offset, offset + itemsPerPage);
 
   const totalPages = Math.max(1, Math.ceil(filteredTransactions.length / itemsPerPage));
 
@@ -500,7 +492,7 @@ export default function TransactionsPage() {
           <ArrowUpDown className="h-4 w-4 text-on-surface-variant shrink-0" />
           <select
             value={sortBy}
-            onChange={(e) => setSortBy(e.target.value as any)}
+            onChange={(e) => setSortBy(e.target.value as 'date-desc' | 'date-asc' | 'amount-desc' | 'amount-asc')}
             className="bg-transparent border-none text-sm text-on-surface focus:outline-none focus:ring-0 cursor-pointer"
           >
             <option className="bg-surface-container" value="date-desc">Newest First</option>
@@ -781,7 +773,7 @@ export default function TransactionsPage() {
       {/* Add & Edit Modal Dialog — rendered in a portal, and using an explicit inline
           width instead of max-w-lg (the Tailwind class wasn't being applied here,
           same root cause fixed on the dashboard's modal). */}
-      {mounted && (isAddOpen || isEditOpen) && createPortal(
+      {(isAddOpen || isEditOpen) && typeof document !== 'undefined' && createPortal(
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/55 backdrop-blur-sm animate-fade-in">
           <div
             className="bg-jm-navy rounded-2xl shadow-2xl border border-jm-dark-blue p-6 relative"
@@ -938,7 +930,7 @@ export default function TransactionsPage() {
       )}
 
       {/* Delete Confirmation Dialog — also portaled for the same reason */}
-      {mounted && deleteConfirmId && createPortal(
+      {deleteConfirmId && typeof document !== 'undefined' && createPortal(
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/55 backdrop-blur-sm animate-fade-in">
           <div
             className="bg-jm-navy rounded-2xl shadow-2xl border border-jm-dark-blue p-6 relative"

@@ -2,6 +2,7 @@
 
 import {
     createContext,
+    useCallback,
     useContext,
     useEffect,
     useState,
@@ -51,21 +52,38 @@ export function GoalProvider({
     const [goals, setGoals] = useState<Goal[]>([]);
     const [loading, setLoading] = useState(true);
 
-    const refreshGoals = async () => {
-        if (!user) return;
-        const data = await getGoalsApi();
-        setGoals(data);
-    };
-
-    useEffect(() => {
+    // Adjust state during render when user changes
+    const [prevUser, setPrevUser] = useState(user);
+    if (user !== prevUser) {
+        setPrevUser(user);
         if (!user) {
             setGoals([]);
             setLoading(false);
-            return;
+        } else {
+            setLoading(true);
         }
+    }
 
-        setLoading(true);
-        refreshGoals().finally(() => setLoading(false));
+    const refreshGoals = useCallback(async () => {
+        if (!user) return;
+        const data = await getGoalsApi();
+        setGoals(data);
+    }, [user]);
+
+    useEffect(() => {
+        if (!user) return;
+
+        let active = true;
+        getGoalsApi().then((data) => {
+            if (active) {
+                setGoals(data);
+                setLoading(false);
+            }
+        });
+
+        return () => {
+            active = false;
+        };
     }, [user]);
 
     const addGoal = async (

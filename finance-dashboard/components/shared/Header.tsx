@@ -5,18 +5,14 @@ import { LogOut } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { usePathname } from 'next/navigation';
 import {
-  Sun,
-  Moon,
   Settings,
   Bell,
-  Search,
   Menu,
   CheckCircle2,
   AlertTriangle,
   ArrowDownLeft,
   ChevronDown
 } from 'lucide-react';
-import { useTheme } from './ThemeProvider';
 import Link from "next/link";
 import { useNotifications } from "@/context/NotificationContext";
 import { formatRelativeTime } from "@/utils/formatRelativeTime";
@@ -29,7 +25,6 @@ interface HeaderProps {
 
 export default function Header({ onMenuClick }: HeaderProps) {
   const pathname = usePathname();
-  const { theme, toggleTheme } = useTheme();
   const { profile } = useAuth();
   const { user } = useAuth();
   const { logout } = useAuth();
@@ -41,7 +36,6 @@ export default function Header({ onMenuClick }: HeaderProps) {
   const {
     notifications,
     unreadCount,
-    removeNotification,
     clearNotifications,
   } = useNotifications();
 
@@ -190,7 +184,7 @@ export default function Header({ onMenuClick }: HeaderProps) {
                       <Bell className="w-10 h-10 text-on-surface-variant opacity-50 mb-3" />
 
                       <p className="font-medium text-on-surface">
-                        You're all caught up
+                        You&apos;re all caught up
                       </p>
 
                       <p className="text-xs text-on-surface-variant mt-1">

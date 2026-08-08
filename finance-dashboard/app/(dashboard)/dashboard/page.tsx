@@ -1,8 +1,9 @@
 'use client';
 
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo } from 'react';
 
 import { useFinanceStore, CATEGORIES } from '../../../hooks/useFinanceStore';
+import { Card } from '../../../types';
 import { useWallets } from '@/context/WalletContext';
 import { useTransactions } from '@/context/TransactionContext';
 import { useGoals } from '@/context/GoalContext';
@@ -50,7 +51,7 @@ function AddTransactionModal({ isOpen, onClose }: { isOpen: boolean, onClose: ()
     const [category, setCategory] = useState('');
     const [walletId, setWalletId] = useState('');
     const [recipient, setRecipient] = useState('');
-    const [notes, setNotes] = useState('');
+    const notes = '';
     const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
     const [errors, setErrors] = useState<Record<string, string>>({});
 
@@ -221,7 +222,7 @@ function AddTransactionModal({ isOpen, onClose }: { isOpen: boolean, onClose: ()
                             >
                                 <option value="">Select Category</option>
 
-                                {currentCategories.map((c: any) => (
+                                {currentCategories.map((c: { name: string }) => (
                                     <option key={c.name} value={c.name}>
                                         {c.name}
                                     </option>
@@ -252,7 +253,7 @@ function AddTransactionModal({ isOpen, onClose }: { isOpen: boolean, onClose: ()
                             >
                                 <option value="">Select Wallet</option>
 
-                                {cards.map((c: any) => (
+                                {cards.map((c: Card) => (
                                     <option key={c.id} value={c.id}>
                                         {c.nickname} (${c.balance.toFixed(2)})
                                     </option>
@@ -325,7 +326,6 @@ export default function Dashboard() {
     const { wallets: cards, loading: walletsLoading } = useWallets();
     const { goals, loading: goalsLoading } = useGoals();
     const { budgets, loading: budgetsLoading } = useBudgets();
-    const { addToast } = useFinanceStore();
 
     const loading = txLoading || walletsLoading || goalsLoading || budgetsLoading;
 
@@ -422,7 +422,7 @@ export default function Dashboard() {
                 const txDate = new Date(t.date);
                 const dayOfMonth = txDate.getDate();
 
-                let weekIndex = Math.min(3, Math.floor((dayOfMonth - 1) / 7));
+                const weekIndex = Math.min(3, Math.floor((dayOfMonth - 1) / 7));
                 const isFixed = t.category === 'Salary'; // Salary is Fixed, others Variable
 
                 if (isFixed) {
@@ -439,7 +439,7 @@ export default function Dashboard() {
         const monthDataMap: Record<string, { label: string; Fixed: number; Variable: number; order: number }> = {};
 
         // Seed map with expected months
-        let iter = new Date(startDate);
+        const iter = new Date(startDate);
         let order = 0;
         while (iter <= now) {
             const label = `${months[iter.getMonth()]} ${iter.getFullYear().toString().substring(2)}`;
@@ -668,14 +668,14 @@ export default function Dashboard() {
                                     tickLine={false}
                                     axisLine={false}
                                     // Change 'val' to 'any' or 'number | string'
-                                    tickFormatter={(val: any) => typeof val === 'number' ? `$${val}` : val}
+                                    tickFormatter={(val: number | string | unknown) => typeof val === 'number' ? `$${val}` : String(val)}
                                     tick={{ fill: '#8c909f', fontSize: 11 }}
                                 />
                                 <Tooltip
                                     contentStyle={chartTooltipStyle}
                                     // Use 'any' for the value to match Recharts internal TooltipPayload definition
-                                    formatter={(val: any) => [
-                                        typeof val === 'number' ? formatVal(val) : val,
+                                    formatter={(val: unknown) => [
+                                        typeof val === 'number' ? formatVal(val) : String(val),
                                         'Balance' // Adding the name (label) here is often required for better rendering
                                     ]}
                                 />

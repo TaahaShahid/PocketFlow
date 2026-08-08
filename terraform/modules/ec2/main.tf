@@ -40,7 +40,7 @@ resource "aws_instance" "backend" {
 
   iam_instance_profile = var.instance_profile_name
 
-  associate_public_ip_address = false
+  associate_public_ip_address = true
   user_data = file("${path.root}/scripts/ec2_user_data.sh")
 
   tags = merge(

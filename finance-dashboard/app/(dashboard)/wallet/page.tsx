@@ -16,14 +16,6 @@ export default function WalletPage() {
   const [editingCard, setEditingCard] = useState<Card | null>(null);
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
 
-  if (loading) {
-    return (
-      <div className="min-h-[60vh] flex items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-pf-primary" />
-      </div>
-    );
-  }
-
   // Form state
   const [formData, setFormData] = useState({
     cardNumber: '',
@@ -34,6 +26,14 @@ export default function WalletPage() {
     balance: ''
   });
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
+
+  if (loading) {
+    return (
+      <div className="min-h-[60vh] flex items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-pf-primary" />
+      </div>
+    );
+  }
 
   const handleOpenAdd = () => {
     setFormData({

@@ -12,27 +12,23 @@ interface ThemeContextType {
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [theme, setTheme] = useState<Theme>('dark');
-  const [mounted, setMounted] = useState(false);
+  const [theme, setTheme] = useState<Theme>(() => {
+    if (typeof window !== 'undefined') {
+      return (localStorage.getItem('jm-theme') as Theme) || 'dark';
+    }
+    return 'dark';
+  });
 
   useEffect(() => {
-    // Load from localStorage or default to dark
-    const savedTheme = localStorage.getItem('jm-theme') as Theme | null;
-    if (savedTheme) {
-      setTheme(savedTheme);
-      document.documentElement.classList.toggle('dark', savedTheme === 'dark');
-    } else {
-      setTheme('dark');
-      document.documentElement.classList.add('dark');
-    }
-    setMounted(true);
-  }, []);
+    document.documentElement.classList.toggle('dark', theme === 'dark');
+  }, [theme]);
 
   const toggleTheme = () => {
-    const nextTheme = theme === 'light' ? 'dark' : 'light';
-    setTheme(nextTheme);
-    localStorage.setItem('jm-theme', nextTheme);
-    document.documentElement.classList.toggle('dark', nextTheme === 'dark');
+    setTheme(prev => {
+      const next = prev === 'light' ? 'dark' : 'light';
+      localStorage.setItem('jm-theme', next);
+      return next;
+    });
   };
 
   return (

@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useMemo } from 'react';
-import { useFinanceStore, CATEGORIES } from '../../../hooks/useFinanceStore';
 import { useTransactions } from '@/context/TransactionContext';
 import { useBudgets } from '@/context/BudgetContext';
 import { Loader2 } from 'lucide-react';
@@ -16,18 +15,13 @@ import {
   YAxis,
   CartesianGrid,
   Tooltip,
-  Legend,
-  LineChart,
-  Line
+  Legend
 } from 'recharts';
 import {
   TrendingUp,
   TrendingDown,
   PieChart as PieIcon,
-  BarChart3,
-  TrendingUp as TrendingUpIcon,
-  Percent,
-  Calendar
+  Percent
 } from 'lucide-react';
 
 export default function AnalyticsPage() {
@@ -253,7 +247,7 @@ export default function AnalyticsPage() {
                       <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                     ))}
                   </Pie>
-                  <Tooltip formatter={(value: any) => `$${Number(value).toFixed(2)}`} />
+                  <Tooltip formatter={(value: unknown) => `$${Number(value as number | string).toFixed(2)}`} />
                 </PieChart>
               </ResponsiveContainer>
             </div>

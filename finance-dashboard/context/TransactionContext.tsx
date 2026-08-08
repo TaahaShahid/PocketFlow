@@ -2,6 +2,7 @@
 
 import {
     createContext,
+    useCallback,
     useContext,
     useEffect,
     useState,
@@ -43,21 +44,38 @@ export function TransactionProvider({
     const [transactions, setTransactions] = useState<Transaction[]>([]);
     const [loading, setLoading] = useState(true);
 
-    const refreshTransactions = async () => {
-        if (!user) return;
-        const data = await getTransactionsApi();
-        setTransactions(data);
-    };
-
-    useEffect(() => {
+    // Adjust state during render when user changes
+    const [prevUser, setPrevUser] = useState(user);
+    if (user !== prevUser) {
+        setPrevUser(user);
         if (!user) {
             setTransactions([]);
             setLoading(false);
-            return;
+        } else {
+            setLoading(true);
         }
+    }
 
-        setLoading(true);
-        refreshTransactions().finally(() => setLoading(false));
+    const refreshTransactions = useCallback(async () => {
+        if (!user) return;
+        const data = await getTransactionsApi();
+        setTransactions(data);
+    }, [user]);
+
+    useEffect(() => {
+        if (!user) return;
+
+        let active = true;
+        getTransactionsApi().then((data) => {
+            if (active) {
+                setTransactions(data);
+                setLoading(false);
+            }
+        });
+
+        return () => {
+            active = false;
+        };
     }, [user]);
 
     const addTransaction = async (

@@ -2,6 +2,7 @@
 
 import {
     createContext,
+    useCallback,
     useContext,
     useEffect,
     useState,
@@ -46,22 +47,38 @@ export function WalletProvider({
     const [wallets, setWallets] = useState<Wallet[]>([]);
     const [loading, setLoading] = useState(true);
 
-    const refreshWallets = async () => {
-        if (!user) return;
-
-        const data = await getWalletsApi();
-
-        setWallets(data);
-    };
-
-    useEffect(() => {
+    // Adjust state during render when user changes
+    const [prevUser, setPrevUser] = useState(user);
+    if (user !== prevUser) {
+        setPrevUser(user);
         if (!user) {
             setWallets([]);
             setLoading(false);
-            return;
+        } else {
+            setLoading(true);
         }
+    }
 
-        refreshWallets().finally(() => setLoading(false));
+    const refreshWallets = useCallback(async () => {
+        if (!user) return;
+        const data = await getWalletsApi();
+        setWallets(data);
+    }, [user]);
+
+    useEffect(() => {
+        if (!user) return;
+
+        let active = true;
+        getWalletsApi().then((data) => {
+            if (active) {
+                setWallets(data);
+                setLoading(false);
+            }
+        });
+
+        return () => {
+            active = false;
+        };
     }, [user]);
 
     const addWallet = async (

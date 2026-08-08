@@ -1,0 +1,87 @@
+name: PocketFlow CI
+
+on:
+  pull_request:
+    branches:
+      - main
+
+  push:
+    branches:
+      - main
+
+jobs:
+  frontend:
+    name: Frontend Checks
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: finance-dashboard
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: finance-dashboard/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: TypeScript Check
+        run: npx tsc --noEmit
+
+      - name: Production Build
+        run: npm run build
+
+  backend:
+    name: Backend Checks
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: finance-backend
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Python Compile Check
+        run: python -m compileall app
+
+      - name: Run Backend Tests
+        run: pytest tests/
+        env:
+          PYTHONPATH: .
+
+  docker:
+    name: Backend Docker Build
+    runs-on: ubuntu-latest
+
+    needs:
+      - backend
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Build Backend Docker Image
+        run: |
+          docker build \
+            -t pocketflow-backend:ci \
+            ./finance-backend

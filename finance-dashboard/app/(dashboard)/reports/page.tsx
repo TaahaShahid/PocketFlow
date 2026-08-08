@@ -4,7 +4,7 @@ import React, { useState, useMemo } from 'react';
 import { useFinanceStore } from '../../../hooks/useFinanceStore';
 import { useTransactions } from '@/context/TransactionContext';
 import { useAuth } from '@/context/AuthContext';
-import { Download, Printer, Calendar, FileText, CheckCircle, Loader2 } from 'lucide-react';
+import { Download, Printer, Calendar, CheckCircle, Loader2 } from 'lucide-react';
 
 export default function ReportsPage() {
   const { transactions, loading: txLoading } = useTransactions();
@@ -15,8 +15,14 @@ export default function ReportsPage() {
 
   // Filters State
   const [period, setPeriod] = useState<'this-month' | 'last-month' | 'this-year' | 'custom'>('this-month');
-  const [startDate, setStartDate] = useState(new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]);
-  const [endDate, setEndDate] = useState(new Date().toISOString().split('T')[0]);
+  const [startDate, setStartDate] = useState(() => {
+    const today = new Date();
+    const thirtyDaysAgo = new Date(today.getTime() - 30 * 24 * 60 * 60 * 1000);
+    return thirtyDaysAgo.toISOString().split('T')[0];
+  });
+  const [endDate, setEndDate] = useState(() => {
+    return new Date().toISOString().split('T')[0];
+  });
 
   // Derived Date Range Timestamp
   const dateRange = useMemo(() => {
@@ -25,7 +31,7 @@ export default function ReportsPage() {
     const currentMonth = now.getMonth();
 
     let start = 0;
-    let end = Date.now();
+    let end = new Date().getTime();
 
     if (period === 'this-month') {
       start = new Date(currentYear, currentMonth, 1).getTime();
@@ -195,7 +201,7 @@ export default function ReportsPage() {
           <label className="text-xs font-bold text-on-surface-variant uppercase tracking-wider">Report Frame</label>
           <select
             value={period}
-            onChange={(e) => setPeriod(e.target.value as any)}
+            onChange={(e) => setPeriod(e.target.value as 'this-month' | 'last-month' | 'this-year' | 'custom')}
             className="w-full h-11 px-3.5 border border-white/10 bg-slate-900 rounded-xl text-sm font-semibold text-on-surface focus:outline-none focus:ring-2 focus:ring-pf-primary"
           >
             <option value="this-month">This Month</option>
@@ -214,6 +220,7 @@ export default function ReportsPage() {
                 type="date"
                 value={startDate}
                 onChange={(e) => setStartDate(e.target.value)}
+                suppressHydrationWarning={true}
                 className="h-11 px-3.5 border border-white/10 bg-slate-900 rounded-xl text-sm font-semibold text-on-surface focus:outline-none focus:ring-2 focus:ring-pf-primary"
               />
             </div>
@@ -223,6 +230,7 @@ export default function ReportsPage() {
                 type="date"
                 value={endDate}
                 onChange={(e) => setEndDate(e.target.value)}
+                suppressHydrationWarning={true}
                 className="h-11 px-3.5 border border-white/10 bg-slate-900 rounded-xl text-sm font-semibold text-on-surface focus:outline-none focus:ring-2 focus:ring-pf-primary"
               />
             </div>

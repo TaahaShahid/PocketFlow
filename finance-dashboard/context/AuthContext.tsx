@@ -15,7 +15,7 @@ import {
 import { auth } from "@/lib/firebase";
 import { initializeUser, getUserData, updateUserProfile } from "@/lib/firestore";
 
-interface UserProfile {
+export interface UserProfile {
     displayName: string;
     email: string;
     currency: string;

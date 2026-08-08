@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useMemo } from "react";
 import {
     User,
     DollarSign,
@@ -17,7 +17,6 @@ import {
     AlertTriangle,
 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
-import { useFinanceStore } from "../../../hooks/useFinanceStore";
 import { sendPasswordResetEmail } from "firebase/auth";
 // NOTE: adjust this import path to wherever your initialized Firebase `auth`
 // instance is exported from (e.g. your firebase config/init file).
@@ -87,16 +86,18 @@ export default function SettingsPage() {
     // Danger zone confirmation
     const [deleteConfirmText, setDeleteConfirmText] = useState("");
 
-    useEffect(() => {
-        if (!profile) return;
-
-        setDisplayName(profile.displayName);
-        setCurrency(profile.currency);
-        setBudgetAlerts(Boolean(profile.budgetAlerts));
-        setGoalAlerts(Boolean(profile.goalAlerts));
-        setMonthlySummary(Boolean(profile.monthlySummary));
-        setTransactionAlerts(Boolean(profile.transactionAlerts));
-    }, [profile]);
+    const [prevProfile, setPrevProfile] = useState(profile);
+    if (profile !== prevProfile) {
+        setPrevProfile(profile);
+        if (profile) {
+            setDisplayName(profile.displayName);
+            setCurrency(profile.currency);
+            setBudgetAlerts(Boolean(profile.budgetAlerts));
+            setGoalAlerts(Boolean(profile.goalAlerts));
+            setMonthlySummary(Boolean(profile.monthlySummary));
+            setTransactionAlerts(Boolean(profile.transactionAlerts));
+        }
+    }
 
     const handleSave = async () => {
         try {
@@ -157,9 +158,9 @@ export default function SettingsPage() {
 
     // NOTE: assumes `profile` has `email` and `createdAt` fields — adjust the
     // property names below if your actual Profile type names them differently.
-    const profileEmail = (profile as any)?.email ?? "";
-    const memberSince = (profile as any)?.createdAt
-        ? new Date((profile as any).createdAt).toLocaleDateString(undefined, { month: "long", year: "numeric" })
+    const profileEmail = profile?.email ?? "";
+    const memberSince = profile?.createdAt
+        ? new Date(profile.createdAt).toLocaleDateString(undefined, { month: "long", year: "numeric" })
         : "—";
 
     // --- Real exports, reusing the same CSV technique as the Transactions/Reports pages ---
