@@ -119,6 +119,16 @@ Deployment pipeline:
 
 ---
 
+## Operations
+
+### Connect to a Production ASG Instance
+
+```bash
+./terraform/scripts/connect-to-asg.sh
+```
+
+---
+
 # Environment Variables
 
 ## Frontend
