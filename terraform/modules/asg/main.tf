@@ -53,9 +53,9 @@ resource "aws_autoscaling_group" "this" {
   name_prefix         = "${var.project_name}-asg-"
   vpc_zone_identifier = var.public_subnet_ids
 
-  min_size                  = 1
+  min_size                  = var.pocketflow_enabled ? 1 : 0
   max_size                  = 2
-  desired_capacity          = 1
+  desired_capacity          = var.pocketflow_enabled ? 1 : 0
   health_check_type         = "ELB"
   health_check_grace_period = 300
 
@@ -68,7 +68,6 @@ resource "aws_autoscaling_group" "this" {
 
   lifecycle {
     create_before_destroy = true
-    ignore_changes        = [desired_capacity]
   }
 
   dynamic "tag" {

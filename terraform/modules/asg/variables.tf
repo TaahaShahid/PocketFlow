@@ -37,3 +37,8 @@ variable "common_tags" {
   description = "Common tags applied to all resources"
   type        = map(string)
 }
+
+variable "pocketflow_enabled" {
+  description = "Flag to enable/disable compute capacity"
+  type        = bool
+}

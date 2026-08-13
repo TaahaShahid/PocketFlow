@@ -127,6 +127,20 @@ Deployment pipeline:
 ./terraform/scripts/connect-to-asg.sh
 ```
 
+### Turn Production ON / OFF
+
+To save AWS compute costs when the platform is not in use, you can scale the compute layer down to `0` instances. All permanent infrastructure (ALB, VPC, Target Group, SSM parameters, and ECR repositories) remains completely intact.
+
+#### Turn OFF:
+```bash
+./terraform/scripts/pocketflow-off.sh
+```
+
+#### Turn ON:
+```bash
+./terraform/scripts/pocketflow-on.sh
+```
+
 ---
 
 # Environment Variables

@@ -83,4 +83,5 @@ module "asg" {
   target_group_arns     = [module.alb.target_group_arn]
   key_name              = var.key_name
   common_tags           = local.common_tags
+  pocketflow_enabled    = var.pocketflow_enabled
 }

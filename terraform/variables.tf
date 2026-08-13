@@ -30,3 +30,9 @@ variable "key_name" {
   description = "Existing EC2 Key Pair"
   type        = string
 }
+
+variable "pocketflow_enabled" {
+  description = "Enable or disable the PocketFlow production compute layer (ASG)"
+  type        = bool
+  default     = true
+}
