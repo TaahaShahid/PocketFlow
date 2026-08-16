@@ -11,7 +11,9 @@ import {
   Target,
   PieChart,
   FileText,
-  X
+  X,
+  ChevronLeft,
+  ChevronRight
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/context/AuthContext';
@@ -19,9 +21,11 @@ import { useAuth } from '@/context/AuthContext';
 interface SidebarProps {
   isOpen: boolean;
   onClose: () => void;
+  isCollapsed?: boolean;
+  onToggleCollapse?: () => void;
 }
 
-export default function Sidebar({ isOpen, onClose }: SidebarProps) {
+export default function Sidebar({ isOpen, onClose, isCollapsed = false, onToggleCollapse }: SidebarProps) {
   const pathname = usePathname();
   const { user, profile } = useAuth();
 
@@ -63,32 +67,38 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
       {/* Sidebar Container */}
       <aside
         className={cn(
-          "fixed top-0 bottom-0 left-0 z-50 flex flex-col w-64 border-r border-border bg-card/65 backdrop-blur-2xl transition-transform duration-300 ease-in-out lg:translate-x-0",
-          isOpen ? "translate-x-0" : "-translate-x-full"
+          "fixed top-0 bottom-0 left-0 z-50 flex flex-col border-r border-white/10 bg-surface/65 backdrop-blur-xl shadow-xl transition-all duration-300 ease-in-out lg:translate-x-0",
+          isOpen ? "translate-x-0" : "-translate-x-full",
+          isCollapsed ? "lg:w-20" : "lg:w-64"
         )}
       >
         {/* Sidebar Header with Brand Logo */}
-        <div className="flex items-center justify-between h-20 px-6 border-b border-border">
+        <div className={cn(
+          "flex items-center justify-between h-20 border-b border-white/10 px-6 transition-all duration-300",
+          isCollapsed ? "lg:px-4 lg:justify-center" : ""
+        )}>
           <Link href="/dashboard" className="flex items-center gap-3 group" onClick={onClose}>
-            {/* Premium Logo Symbol */}
-            <div className="relative flex items-center justify-center w-10 h-10 rounded-xl bg-primary text-primary-foreground shadow-lg shadow-primary/20 transition-all duration-300 group-hover:scale-105 group-hover:shadow-primary/30">
+            {/* Reverted Logo Symbol to original style using original colors */}
+            <div className="relative flex items-center justify-center w-10 h-10 rounded-xl bg-pf-primary text-on-primary shadow-md shadow-pf-primary/20 transition-all duration-300 group-hover:scale-105 group-hover:shadow-pf-primary/30">
               <span className="text-xl font-bold font-sans tracking-tight">P</span>
               <span className="absolute bottom-0.5 right-1.5 text-[9px] font-bold opacity-75">F</span>
             </div>
-            <div className="flex flex-col">
-              <span className="text-base font-bold tracking-tight text-foreground leading-none">
-                PocketFlow
-              </span>
-              <span className="text-[10px] font-semibold text-primary mt-1 tracking-wider uppercase">
-                Finance Hub
-              </span>
-            </div>
+            {!isCollapsed && (
+              <div className="flex flex-col animate-fade-in">
+                <span className="text-base font-bold tracking-tight text-on-surface leading-none">
+                  PocketFlow
+                </span>
+                <span className="text-[10px] font-semibold text-pf-primary mt-1 tracking-wider uppercase">
+                  Finance Hub
+                </span>
+              </div>
+            )}
           </Link>
 
           {/* Close button for Mobile drawer */}
           <button
             onClick={onClose}
-            className="p-1.5 rounded-lg hover:bg-muted/10 lg:hidden text-muted-foreground hover:text-foreground transition-colors"
+            className="p-1.5 rounded-lg hover:bg-white/5 lg:hidden text-on-surface-variant hover:text-on-surface transition-colors"
           >
             <X className="h-5 w-5" />
           </button>
@@ -108,15 +118,17 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
                 className={cn(
                   "relative flex items-center gap-3.5 px-4 py-3 rounded-xl text-sm font-semibold transition-colors group",
                   isActive
-                    ? "text-primary"
-                    : "text-muted-foreground hover:bg-muted/5 hover:text-foreground"
+                    ? "text-pf-primary"
+                    : "text-on-surface-variant hover:bg-white/5 hover:text-on-surface",
+                  isCollapsed ? "lg:px-0 lg:justify-center" : ""
                 )}
+                title={isCollapsed ? item.name : undefined}
               >
-                {/* Active link sliding background indicator */}
+                {/* Active link sliding background indicator - reverted to original colors */}
                 {isActive && (
                   <motion.div
                     layoutId="activeSidebarTab"
-                    className="absolute inset-0 bg-primary/10 rounded-xl -z-10 border border-primary/15"
+                    className="absolute inset-0 bg-pf-primary/10 rounded-xl -z-10 border border-pf-primary/15"
                     transition={{ type: 'spring', damping: 25, stiffness: 220 }}
                   />
                 )}
@@ -124,29 +136,47 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
                 <Icon
                   className={cn(
                     "h-5 w-5 flex-shrink-0 transition-transform duration-200 group-hover:scale-105",
-                    isActive ? "text-primary" : "text-muted-foreground group-hover:text-foreground"
+                    isActive ? "text-pf-primary" : "text-on-surface-variant group-hover:text-on-surface"
                   )}
                 />
-                <span>{item.name}</span>
+                {!isCollapsed && <span className="animate-fade-in">{item.name}</span>}
               </Link>
             );
           })}
         </nav>
 
+        {/* Collapse Button - only visible on desktop layout */}
+        {onToggleCollapse && (
+          <div className="hidden lg:block px-4 py-2 border-t border-white/5">
+            <button
+              onClick={onToggleCollapse}
+              className="w-full flex items-center justify-center p-2 rounded-xl text-on-surface-variant hover:text-on-surface hover:bg-white/5 transition-colors"
+              title={isCollapsed ? "Expand Sidebar" : "Collapse Sidebar"}
+            >
+              {isCollapsed ? <ChevronRight className="h-5 w-5" /> : <ChevronLeft className="h-5 w-5" />}
+            </button>
+          </div>
+        )}
+
         {/* Sidebar Footer Account Details */}
-        <div className="p-6 border-t border-border">
+        <div className={cn(
+          "p-6 border-t border-white/10 transition-all duration-300",
+          isCollapsed ? "lg:p-4 lg:flex lg:justify-center" : ""
+        )}>
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center text-primary font-bold text-sm border border-primary/20 shadow-inner">
+            <div className="w-10 h-10 rounded-full bg-pf-primary/20 flex items-center justify-center text-pf-primary font-bold text-sm border border-pf-primary/20 shadow-inner shrink-0">
               {getInitials()}
             </div>
-            <div className="flex flex-col min-w-0">
-              <span className="text-xs font-bold text-foreground truncate">
-                {profile?.displayName || "PocketFlow User"}
-              </span>
-              <span className="text-[10px] text-muted-foreground truncate">
-                {user?.email || "user@pocketflow.com"}
-              </span>
-            </div>
+            {!isCollapsed && (
+              <div className="flex flex-col min-w-0 animate-fade-in">
+                <span className="text-xs font-bold text-on-surface truncate">
+                  {profile?.displayName || "PocketFlow User"}
+                </span>
+                <span className="text-[10px] text-on-surface-variant truncate">
+                  {user?.email || "user@pocketflow.com"}
+                </span>
+              </div>
+            )}
           </div>
         </div>
       </aside>

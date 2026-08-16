@@ -58,13 +58,6 @@
   --color-on-secondary-container: #adb4ce;
   --color-on-primary: #002e6a;
 
-  --spacing-base: 4px;
-  --spacing-xs: 8px;
-  --spacing-sm: 16px;
-  --spacing-md: 24px;
-  --spacing-lg: 40px;
-  --spacing-xl: 64px;
-  --spacing-gutter: 24px;
 
   --font-body-md: "Inter", sans-serif;
   --font-title-lg: "Inter", sans-serif;
