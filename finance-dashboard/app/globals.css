@@ -58,6 +58,12 @@
   --color-on-secondary-container: #adb4ce;
   --color-on-primary: #002e6a;
 
+  --color-card-border: var(--card-border);
+  --shadow-card-shadow: var(--card-shadow);
+  --shadow-header-shadow: var(--header-shadow);
+  --shadow-sidebar-shadow: var(--sidebar-shadow);
+
+
 
   --font-body-md: "Inter", sans-serif;
   --font-title-lg: "Inter", sans-serif;
@@ -134,6 +140,17 @@
   --on-surface-variant: #64748B;
   --outline: rgba(0, 0, 0, 0.15);
   --outline-variant: rgba(0, 0, 0, 0.08);
+
+  --card-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
+  --header-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.03), 0 2px 4px -1px rgba(0, 0, 0, 0.02);
+  --sidebar-shadow: 4px 0 10px -3px rgba(0, 0, 0, 0.03);
+  --card-border: rgba(0, 0, 0, 0.06);
+
+  --card-glass-bg: rgba(255, 255, 255, 0.75);
+  --card-glass-border: rgba(0, 0, 0, 0.08);
+  --card-glass-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -4px rgba(0, 0, 0, 0.05);
+  --card-glass-border-hover: rgba(0, 0, 0, 0.12);
+  --card-glass-shadow-hover: 0 20px 25px -5px rgba(0, 0, 0, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.08);
 }
 
 .dark {
@@ -177,6 +194,17 @@
   --on-surface-variant: #c2c6d6;
   --outline: #8c909f;
   --outline-variant: #424754;
+
+  --card-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  --header-shadow: none;
+  --sidebar-shadow: none;
+  --card-border: rgba(255, 255, 255, 0.05);
+
+  --card-glass-bg: rgba(15, 23, 42, 0.6);
+  --card-glass-border: rgba(255, 255, 255, 0.1);
+  --card-glass-shadow: none;
+  --card-glass-border-hover: rgba(255, 255, 255, 0.2);
+  --card-glass-shadow-hover: 0 0 30px rgba(173, 198, 255, 0.1);
 }
 
 /* Base styles styling elements explicitly according to Brand Guidelines */
@@ -264,15 +292,16 @@ body {
 }
 
 .glass-card {
-  background: rgba(15, 23, 42, 0.6);
+  background: var(--card-glass-bg);
   backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid var(--card-glass-border);
   transition: all 0.3s ease;
+  box-shadow: var(--card-glass-shadow);
 }
 
 .glass-card:hover {
-  border-color: rgba(255, 255, 255, 0.2);
-  box-shadow: 0 0 30px rgba(173, 198, 255, 0.1);
+  border-color: var(--card-glass-border-hover);
+  box-shadow: var(--card-glass-shadow-hover);
 }
 
 .blue-gradient-text {

@@ -284,7 +284,7 @@ export default function SettingsPage() {
                 <>
                     {/* Account Information */}
                     <div className={`${cardBase} p-6 shadow-sm`}>
-                        <div className="flex items-center justify-between pb-5 border-b border-white/10">
+                        <div className="flex items-center justify-between pb-5 border-b border-border">
                             <div className="flex items-center gap-3">
                                 <div className="p-2.5 bg-pf-primary/10 rounded-xl text-pf-primary">
                                     <User className="h-5 w-5" />
@@ -323,7 +323,7 @@ export default function SettingsPage() {
                                         value={displayName}
                                         disabled={!isEditingName}
                                         onChange={(e) => setDisplayName(e.target.value)}
-                                        className="w-full h-11 pl-11 pr-11 border border-white/10 rounded-xl text-sm bg-slate-900 text-on-surface placeholder:text-on-surface-variant focus:outline-none focus:ring-2 focus:ring-pf-primary focus:border-transparent disabled:opacity-60 disabled:cursor-not-allowed"
+                                        className="w-full h-11 pl-11 pr-11 border border-border rounded-xl text-sm bg-muted/20 text-on-surface placeholder:text-on-surface-variant focus:outline-none focus:ring-2 focus:ring-pf-primary focus:border-transparent disabled:opacity-60 disabled:cursor-not-allowed"
                                     />
                                     <span className="absolute inset-y-0 right-3.5 flex items-center text-on-surface-variant">
                                         <Pencil className="h-4 w-4" />
@@ -344,7 +344,7 @@ export default function SettingsPage() {
                                         type="email"
                                         value={profileEmail}
                                         disabled
-                                        className="w-full h-11 pl-11 pr-11 border border-white/10 rounded-xl text-sm bg-slate-900 text-on-surface-variant opacity-70 cursor-not-allowed"
+                                        className="w-full h-11 pl-11 pr-11 border border-border rounded-xl text-sm bg-muted/20 text-on-surface-variant opacity-70 cursor-not-allowed"
                                     />
                                     <span className="absolute inset-y-0 right-3.5 flex items-center text-on-surface-variant">
                                         <Lock className="h-4 w-4" />
@@ -363,7 +363,7 @@ export default function SettingsPage() {
 
                     {/* Currency Preferences */}
                     <div className={`${cardBase} p-6 shadow-sm`}>
-                        <div className="flex items-center gap-3 pb-5 border-b border-white/10">
+                        <div className="flex items-center gap-3 pb-5 border-b border-border">
                             <div className="p-2.5 bg-pf-primary/10 rounded-xl text-pf-primary">
                                 <DollarSign className="h-5 w-5" />
                             </div>
@@ -378,10 +378,10 @@ export default function SettingsPage() {
                                 <select
                                     value={currency}
                                     onChange={(e) => setCurrency(e.target.value)}
-                                    className="w-full h-11 px-3.5 border border-white/10 rounded-xl text-sm bg-slate-900 text-on-surface focus:outline-none focus:ring-2 focus:ring-pf-primary focus:border-transparent cursor-pointer"
+                                    className="w-full h-11 px-3.5 border border-border rounded-xl text-sm bg-muted/20 text-on-surface focus:outline-none focus:ring-2 focus:ring-pf-primary focus:border-transparent cursor-pointer"
                                 >
                                     {CURRENCIES.map((c) => (
-                                        <option key={c.code} value={c.code} className="bg-slate-900">
+                                        <option key={c.code} value={c.code} className="bg-card text-foreground">
                                             {c.label}
                                         </option>
                                     ))}
@@ -391,7 +391,7 @@ export default function SettingsPage() {
                             {/* Real preview using actual wallet/transaction data */}
                             <div>
                                 <p className="text-xs font-semibold text-on-surface-variant uppercase tracking-wider mb-2">Preview</p>
-                                <div className="rounded-xl border border-white/10 bg-white/5 divide-y divide-white/10">
+                                <div className="rounded-xl border border-border bg-muted/25 divide-y divide-border">
                                     <div className="flex items-center justify-between px-4 py-3 text-sm">
                                         <span className="text-on-surface-variant">Wallet Balance</span>
                                         <span className="font-bold text-on-surface">{formatCurrency(preview.walletBalance)}</span>
@@ -411,7 +411,7 @@ export default function SettingsPage() {
 
                     {/* Notifications */}
                     <div className={`${cardBase} p-6 shadow-sm`}>
-                        <div className="flex items-center gap-3 pb-5 border-b border-white/10">
+                        <div className="flex items-center gap-3 pb-5 border-b border-border">
                             <div className="p-2.5 bg-pf-primary/10 rounded-xl text-pf-primary">
                                 <Bell className="h-5 w-5" />
                             </div>
@@ -421,7 +421,7 @@ export default function SettingsPage() {
                             Changes here are saved together with your profile — click <span className="font-semibold text-on-surface">Save</span> above to apply them.
                         </p>
 
-                        <div className="pt-4 divide-y divide-white/10">
+                        <div className="pt-4 divide-y divide-border">
                             {[
                                 { label: "Budget Alerts", desc: "Notify when a budget limit is nearly reached", value: budgetAlerts, set: setBudgetAlerts },
                                 { label: "Goal Completion Alerts", desc: "Notify when a savings goal is achieved", value: goalAlerts, set: setGoalAlerts },
@@ -437,7 +437,7 @@ export default function SettingsPage() {
                                         role="switch"
                                         aria-checked={item.value}
                                         onClick={() => item.set((v) => !v)}
-                                        className={`relative w-11 h-6 rounded-full transition-colors shrink-0 ${item.value ? "bg-pf-primary" : "bg-white/10"
+                                        className={`relative w-11 h-6 rounded-full transition-colors shrink-0 ${item.value ? "bg-pf-primary" : "bg-muted/50"
                                             }`}
                                     >
                                         <span
@@ -452,7 +452,7 @@ export default function SettingsPage() {
 
                     {/* Security */}
                     <div className={`${cardBase} p-6 shadow-sm`}>
-                        <div className="flex items-center gap-3 pb-5 border-b border-white/10">
+                        <div className="flex items-center gap-3 pb-5 border-b border-border">
                             <div className="p-2.5 bg-pf-primary/10 rounded-xl text-pf-primary">
                                 <Shield className="h-5 w-5" />
                             </div>
@@ -470,7 +470,7 @@ export default function SettingsPage() {
                             </div>
                             <button
                                 onClick={handlePasswordReset}
-                                className="px-4 py-2.5 text-sm font-semibold text-on-surface bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl transition-colors"
+                                className="px-4 py-2.5 text-sm font-semibold text-on-surface bg-muted/30 hover:bg-muted/50 border border-border rounded-xl transition-colors"
                             >
                                 Send Password Reset Email
                             </button>
@@ -479,7 +479,7 @@ export default function SettingsPage() {
 
                     {/* Data Management */}
                     <div className={`${cardBase} p-6 shadow-sm`}>
-                        <div className="flex items-center gap-3 pb-5 border-b border-white/10">
+                        <div className="flex items-center gap-3 pb-5 border-b border-border">
                             <div className="p-2.5 bg-pf-primary/10 rounded-xl text-pf-primary">
                                 <FolderDown className="h-5 w-5" />
                             </div>
@@ -489,21 +489,21 @@ export default function SettingsPage() {
                         <div className="pt-6 flex flex-wrap gap-3">
                             <button
                                 onClick={handleExportTransactions}
-                                className="flex items-center gap-2 px-4 py-2.5 text-sm font-semibold text-on-surface bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl transition-colors"
+                                className="flex items-center gap-2 px-4 py-2.5 text-sm font-semibold text-on-surface bg-muted/30 hover:bg-muted/50 border border-border rounded-xl transition-colors"
                             >
                                 <Download className="h-4 w-4" />
                                 <span>Export Transactions</span>
                             </button>
                             <button
                                 onClick={handleExportWallets}
-                                className="flex items-center gap-2 px-4 py-2.5 text-sm font-semibold text-on-surface bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl transition-colors"
+                                className="flex items-center gap-2 px-4 py-2.5 text-sm font-semibold text-on-surface bg-muted/30 hover:bg-muted/50 border border-border rounded-xl transition-colors"
                             >
                                 <Download className="h-4 w-4" />
                                 <span>Export Wallets</span>
                             </button>
                             <button
                                 onClick={handleExportGoals}
-                                className="flex items-center gap-2 px-4 py-2.5 text-sm font-semibold text-on-surface bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl transition-colors"
+                                className="flex items-center gap-2 px-4 py-2.5 text-sm font-semibold text-on-surface bg-muted/30 hover:bg-muted/50 border border-border rounded-xl transition-colors"
                             >
                                 <Download className="h-4 w-4" />
                                 <span>Export Goals</span>
@@ -540,7 +540,7 @@ export default function SettingsPage() {
                                     placeholder="DELETE"
                                     value={deleteConfirmText}
                                     onChange={(e) => setDeleteConfirmText(e.target.value)}
-                                    className="w-full h-11 px-3.5 border border-error/30 rounded-xl text-sm bg-slate-900 text-on-surface placeholder:text-on-surface-variant/50 focus:outline-none focus:ring-2 focus:ring-error focus:border-transparent"
+                                    className="w-full h-11 px-3.5 border border-error/30 rounded-xl text-sm bg-muted/20 text-on-surface placeholder:text-on-surface-variant/50 focus:outline-none focus:ring-2 focus:ring-error focus:border-transparent"
                                 />
                             </div>
 

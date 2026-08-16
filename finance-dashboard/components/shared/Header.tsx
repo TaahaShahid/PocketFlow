@@ -94,7 +94,7 @@ export default function Header({ onMenuClick, isCollapsed = false }: HeaderProps
   };
 
   return (
-    <header className="sticky top-0 z-30 flex items-center justify-between h-20 px-6 lg:px-8 border-b border-white/10 bg-surface/60 backdrop-blur-xl transition-all duration-300">
+    <header className="sticky top-0 z-30 flex items-center justify-between h-20 px-6 lg:px-8 border-b border-border/30 bg-surface/60 backdrop-blur-xl shadow-header-shadow transition-all duration-300">
       {/* Page Title & Mobile Toggle */}
       <div className="flex items-center gap-4">
         <button
@@ -127,7 +127,7 @@ export default function Header({ onMenuClick, isCollapsed = false }: HeaderProps
                 clearNotifications();
               }
             }}
-            className="relative p-2.5 rounded-xl hover:bg-white/5 text-on-surface-variant hover:text-on-surface border border-white/10 shadow-sm transition-all"
+            className="relative p-2.5 rounded-xl hover:bg-white/5 text-on-surface-variant hover:text-on-surface border border-border/40 shadow-sm transition-all"
             aria-label="Notifications"
           >
             <Bell className="h-5 w-5 shrink-0" />
@@ -140,8 +140,8 @@ export default function Header({ onMenuClick, isCollapsed = false }: HeaderProps
           </button>
 
           {showNotifications && (
-            <div className="absolute right-0 mt-3 w-96 bg-surface/95 backdrop-blur-2xl border border-white/10 rounded-2xl shadow-2xl overflow-hidden z-50 animate-in fade-in slide-in-from-top-2 duration-200">
-              <div className="flex items-center justify-between px-5 py-4 border-b border-white/10">
+            <div className="absolute right-0 mt-3 w-96 bg-card/95 backdrop-blur-2xl border border-border/40 rounded-2xl shadow-2xl overflow-hidden z-50 animate-in fade-in slide-in-from-top-2 duration-200">
+              <div className="flex items-center justify-between px-5 py-4 border-b border-border/40">
                 <h3 className="font-semibold text-on-surface">
                   Notifications
                 </h3>
@@ -224,7 +224,7 @@ export default function Header({ onMenuClick, isCollapsed = false }: HeaderProps
         {/* Theme Toggle Button */}
         <button
           onClick={toggleTheme}
-          className="p-2.5 rounded-xl hover:bg-white/5 text-on-surface-variant hover:text-on-surface border border-white/10 shadow-sm transition-all cursor-pointer animate-fade-in"
+          className="p-2.5 rounded-xl hover:bg-white/5 text-on-surface-variant hover:text-on-surface border border-border/40 shadow-sm transition-all cursor-pointer animate-fade-in"
           title={theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
           aria-label="Toggle Theme"
         >
@@ -234,19 +234,19 @@ export default function Header({ onMenuClick, isCollapsed = false }: HeaderProps
         {/* Settings button */}
         <Link
           href="/settings"
-          className="p-2.5 rounded-xl hover:bg-white/5 text-on-surface-variant hover:text-on-surface border border-white/10 shadow-sm transition-all"
+          className="p-2.5 rounded-xl hover:bg-white/5 text-on-surface-variant hover:text-on-surface border border-border/40 shadow-sm transition-all"
           aria-label="Settings"
         >
           <Settings className="h-5 w-5" />
         </Link>
 
-        <div className="w-[1px] h-6 bg-white/10 mx-1 hidden sm:block" />
+        <div className="w-[1px] h-6 bg-border/30 mx-1 hidden sm:block" />
 
         {/* User Profile avatar dropdown */}
         <div className="relative" ref={profileMenuRef}>
           <button
             onClick={() => setShowProfileMenu(!showProfileMenu)}
-            className="flex items-center gap-2 p-1 rounded-xl hover:bg-white/5 transition-all border border-transparent hover:border-white/10"
+            className="flex items-center gap-2 p-1 rounded-xl hover:bg-white/5 transition-all border border-transparent hover:border-border/40"
           >
             {user?.photoURL ? (
               <img
@@ -263,8 +263,8 @@ export default function Header({ onMenuClick, isCollapsed = false }: HeaderProps
           </button>
 
           {showProfileMenu && (
-            <div className="absolute right-0 mt-3 z-40 w-56 bg-surface/95 backdrop-blur-2xl border border-white/10 rounded-2xl shadow-2xl p-2 animate-in fade-in slide-in-from-top-2 duration-200">
-              <div className="px-3 py-2.5 border-b border-white/10 mb-1.5">
+            <div className="absolute right-0 mt-3 z-40 w-56 bg-card/95 backdrop-blur-2xl border border-border/40 rounded-2xl shadow-2xl p-2 animate-in fade-in slide-in-from-top-2 duration-200">
+              <div className="px-3 py-2.5 border-b border-border/40 mb-1.5">
                 <p className="text-sm font-bold text-on-surface truncate">{profile?.displayName || "PocketFlow User"}</p>
                 <p className="text-[11px] text-on-surface-variant truncate mt-0.5">{profile?.email || user?.email}</p>
               </div>
@@ -276,7 +276,7 @@ export default function Header({ onMenuClick, isCollapsed = false }: HeaderProps
                 {profile?.currency || "USD"} ($)
               </div>
 
-              <div className="my-1 border-t border-white/10" />
+              <div className="my-1 border-t border-border/40" />
 
               <button
                 onClick={handleLogout}

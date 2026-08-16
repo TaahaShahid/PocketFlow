@@ -67,14 +67,14 @@ export default function Sidebar({ isOpen, onClose, isCollapsed = false, onToggle
       {/* Sidebar Container */}
       <aside
         className={cn(
-          "fixed top-0 bottom-0 left-0 z-50 flex flex-col border-r border-white/10 bg-surface/65 backdrop-blur-xl shadow-xl transition-all duration-300 ease-in-out lg:translate-x-0",
+          "fixed top-0 bottom-0 left-0 z-50 flex flex-col border-r border-border/30 bg-surface/65 backdrop-blur-xl shadow-sidebar-shadow transition-all duration-300 ease-in-out lg:translate-x-0",
           isOpen ? "translate-x-0" : "-translate-x-full",
           isCollapsed ? "lg:w-20" : "lg:w-64"
         )}
       >
         {/* Sidebar Header with Brand Logo or Toggle Icon */}
         <div className={cn(
-          "flex items-center justify-between h-20 border-b border-white/10 px-6 transition-all duration-300",
+          "flex items-center justify-between h-20 border-b border-border/30 px-6 transition-all duration-300",
           isCollapsed ? "lg:px-0 lg:justify-center" : ""
         )}>
           {isCollapsed ? (
@@ -177,7 +177,7 @@ export default function Sidebar({ isOpen, onClose, isCollapsed = false, onToggle
 
         {/* Sidebar Footer Account Details */}
         <div className={cn(
-          "p-6 border-t border-white/10 transition-all duration-300",
+          "p-6 border-t border-border/30 transition-all duration-300",
           isCollapsed ? "lg:p-4 lg:flex lg:justify-center" : ""
         )}>
           <div className="flex items-center gap-3">
