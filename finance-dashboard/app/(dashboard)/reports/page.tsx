@@ -4,6 +4,8 @@ import React, { useState, useMemo } from 'react';
 import { useFinanceStore } from '../../../hooks/useFinanceStore';
 import { useTransactions } from '@/context/TransactionContext';
 import { useAuth } from '@/context/AuthContext';
+import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
 import { Download, Printer, Calendar, CheckCircle, Loader2 } from 'lucide-react';
 
 export default function ReportsPage() {
@@ -42,7 +44,6 @@ export default function ReportsPage() {
       start = new Date(currentYear, 0, 1).getTime();
     } else if (period === 'custom') {
       start = new Date(startDate).getTime();
-      // include the full end day
       const eDate = new Date(endDate);
       eDate.setHours(23, 59, 59, 999);
       end = eDate.getTime();
@@ -96,11 +97,9 @@ export default function ReportsPage() {
       return;
     }
 
-    // CSV headers
     let csvContent = 'data:text/csv;charset=utf-8,';
     csvContent += 'Transaction ID,Type,Recipient/Payee,Category,Amount,Date,Notes\n';
 
-    // Populate rows
     filteredTransactions.forEach((tx) => {
       const formattedDate = new Date(tx.date).toLocaleDateString().replace(/,/g, '');
       const notesSafe = tx.notes ? tx.notes.replace(/"/g, '""').replace(/,/g, ';') : '';
@@ -113,7 +112,7 @@ export default function ReportsPage() {
     const link = document.createElement('a');
     link.setAttribute('href', encodedUri);
 
-    const fileName = `JM_Solutionss_Report_${period}_${new Date().toISOString().split('T')[0]}.csv`;
+    const fileName = `PocketFlow_Statement_${period}_${new Date().toISOString().split('T')[0]}.csv`;
     link.setAttribute('download', fileName);
 
     document.body.appendChild(link);
@@ -135,14 +134,13 @@ export default function ReportsPage() {
   if (loading) {
     return (
       <div className="min-h-[60vh] flex items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-pf-primary" />
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
       </div>
     );
   }
 
   return (
-    <div className="space-y-6">
-
+    <div className="space-y-6 pb-20">
       {/* Printable CSS rules to hide Sidebar and Header during browser print */}
       <style jsx global>{`
         @media print {
@@ -166,48 +164,48 @@ export default function ReportsPage() {
         }
       `}</style>
 
-      {/* Header and top menu controls */}
+      {/* Header Controls */}
       <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4 no-print">
         <div>
-          <h2 className="text-xl font-bold text-on-surface">Export Financial Reports</h2>
-          <p className="text-sm text-on-surface-variant mt-1">
+          <h2 className="text-xl font-bold tracking-tight text-foreground">Export Financial Reports</h2>
+          <p className="text-sm text-muted-foreground mt-0.5">
             Generate printable statements and download spreadsheets of transaction history.
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
-          <button
+          <Button
             onClick={handleExportCSV}
-            className="flex items-center justify-center gap-2 h-11 px-4 text-sm font-semibold text-on-surface-variant glass-card hover:bg-white/5 rounded-xl shadow-sm transition-all cursor-pointer"
+            variant="outline"
+            className="rounded-xl border-border hover:bg-muted/10"
           >
             <Download className="h-4 w-4" />
             <span>Download CSV</span>
-          </button>
+          </Button>
 
-          <button
+          <Button
             onClick={handlePrint}
-            className="flex items-center justify-center gap-2 h-11 px-5 text-sm font-semibold text-on-primary bg-pf-primary hover:bg-pf-primary-container rounded-xl shadow-md transition-all cursor-pointer"
+            className="rounded-xl shadow-lg shadow-primary/10"
           >
             <Printer className="h-4 w-4" />
             <span>Print Report</span>
-          </button>
+          </Button>
         </div>
       </div>
 
-      {/* Filter Options bar */}
-      <div className="p-4 rounded-2xl glass-card shadow-sm flex flex-col md:flex-row md:items-end gap-4 no-print">
-
+      {/* Filters bar */}
+      <div className="p-4 rounded-3xl border border-border bg-card/45 backdrop-blur-xl shadow-2xl flex flex-col md:flex-row md:items-end gap-4 no-print">
         {/* Time Period select */}
         <div className="space-y-1.5 flex-1">
-          <label className="text-xs font-bold text-on-surface-variant uppercase tracking-wider">Report Frame</label>
+          <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Report Frame</label>
           <select
             value={period}
             onChange={(e) => setPeriod(e.target.value as 'this-month' | 'last-month' | 'this-year' | 'custom')}
-            className="w-full h-11 px-3.5 border border-white/10 bg-slate-900 rounded-xl text-sm font-semibold text-on-surface focus:outline-none focus:ring-2 focus:ring-pf-primary"
+            className="w-full h-10 px-3 border border-border bg-muted/10 rounded-xl text-sm font-semibold text-foreground focus:outline-none focus:ring-2 focus:ring-primary/45 focus:border-transparent transition-all cursor-pointer"
           >
-            <option value="this-month">This Month</option>
-            <option value="last-month">Last Month</option>
-            <option value="this-year">This Year</option>
-            <option value="custom">Custom Date Range</option>
+            <option value="this-month" className="bg-card">This Month</option>
+            <option value="last-month" className="bg-card">Last Month</option>
+            <option value="this-year" className="bg-card">This Year</option>
+            <option value="custom" className="bg-card">Custom Date Range</option>
           </select>
         </div>
 
@@ -215,23 +213,21 @@ export default function ReportsPage() {
         {period === 'custom' && (
           <>
             <div className="space-y-1.5">
-              <label className="text-xs font-bold text-on-surface-variant uppercase tracking-wider">From Date</label>
+              <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider">From Date</label>
               <input
                 type="date"
                 value={startDate}
                 onChange={(e) => setStartDate(e.target.value)}
-                suppressHydrationWarning={true}
-                className="h-11 px-3.5 border border-white/10 bg-slate-900 rounded-xl text-sm font-semibold text-on-surface focus:outline-none focus:ring-2 focus:ring-pf-primary"
+                className="h-10 px-3 border border-border bg-muted/10 rounded-xl text-sm font-semibold text-foreground focus:outline-none focus:ring-2 focus:ring-primary/45 focus:border-transparent transition-all"
               />
             </div>
             <div className="space-y-1.5">
-              <label className="text-xs font-bold text-on-surface-variant uppercase tracking-wider">To Date</label>
+              <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider">To Date</label>
               <input
                 type="date"
                 value={endDate}
                 onChange={(e) => setEndDate(e.target.value)}
-                suppressHydrationWarning={true}
-                className="h-11 px-3.5 border border-white/10 bg-slate-900 rounded-xl text-sm font-semibold text-on-surface focus:outline-none focus:ring-2 focus:ring-pf-primary"
+                className="h-10 px-3 border border-border bg-muted/10 rounded-xl text-sm font-semibold text-foreground focus:outline-none focus:ring-2 focus:ring-primary/45 focus:border-transparent transition-all"
               />
             </div>
           </>
@@ -239,53 +235,52 @@ export default function ReportsPage() {
       </div>
 
       {/* Printable Report Panel */}
-      <div className="glass-card rounded-2xl shadow-sm p-8 print-full space-y-8 max-w-4xl mx-auto">
-
+      <div className="border border-border bg-card/45 backdrop-blur-xl shadow-2xl rounded-3xl p-8 print-full space-y-8 max-w-4xl mx-auto">
         {/* Statement Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-white/10 pb-6 gap-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-border pb-6 gap-4">
           <div className="flex items-center gap-3">
-            <div className="flex items-center justify-center w-11 h-11 rounded-xl bg-pf-primary text-on-primary shadow-md">
-              <span className="text-2xl font-bold font-sans">J</span>
-              <span className="text-xs font-bold font-sans self-end mb-1 ml-0.5 text-on-primary/70">M</span>
+            <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-primary text-primary-foreground shadow-md">
+              <span className="text-xl font-bold font-sans">P</span>
+              <span className="text-xs font-bold font-sans self-end mb-1 ml-0.5 text-primary-foreground/70">F</span>
             </div>
             <div>
-              <h2 className="text-lg font-bold tracking-tight text-on-surface uppercase leading-none">
-                JM Solutionss
+              <h2 className="text-base font-bold tracking-tight text-foreground uppercase leading-none">
+                PocketFlow
               </h2>
-              <span className="text-[10px] font-bold text-pf-primary tracking-wider uppercase">
-                Corporate Finance Division
+              <span className="text-[9px] font-bold text-primary tracking-widest uppercase">
+                Personal Finance Hub
               </span>
             </div>
           </div>
 
-          <div className="text-right sm:text-right font-medium">
-            <h3 className="text-base font-bold text-on-surface">FINANCIAL STATEMENT</h3>
-            <p className="text-xs text-on-surface-variant mt-1 flex items-center justify-end gap-1.5">
-              <Calendar className="h-3.5 w-3.5" />
+          <div className="text-left sm:text-right font-medium">
+            <h3 className="text-sm font-bold text-foreground uppercase tracking-wider">Financial Statement</h3>
+            <p className="text-xs text-muted-foreground mt-1 flex items-center sm:justify-end gap-1.5 font-semibold">
+              <Calendar className="h-3.5 w-3.5 text-primary" />
               <span>{formatDateRangeLabel()}</span>
             </p>
           </div>
         </div>
 
         {/* Report metadata block */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-sm py-2">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-sm py-2 border-b border-border/40 pb-6">
           <div>
-            <p className="text-xs font-bold text-on-surface-variant uppercase tracking-wider">Statement Subject</p>
-            <p className="font-bold text-on-surface mt-1">{profile?.displayName || "User"}</p>
+            <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Statement Subject</p>
+            <p className="font-bold text-foreground mt-1">{profile?.displayName || "PocketFlow User"}</p>
           </div>
           <div>
-            <p className="text-xs font-bold text-on-surface-variant uppercase tracking-wider">Email Profile</p>
-            <p className="font-semibold text-on-surface mt-1">{profile?.email}</p>
+            <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Email Profile</p>
+            <p className="font-semibold text-foreground mt-1">{profile?.email || "user@pocketflow.com"}</p>
           </div>
           <div>
-            <p className="text-xs font-bold text-on-surface-variant uppercase tracking-wider">Report Generated</p>
-            <p className="font-semibold text-on-surface-variant mt-1">
+            <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Report Generated</p>
+            <p className="font-semibold text-muted-foreground mt-1">
               {new Date().toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' })}
             </p>
           </div>
           <div>
-            <p className="text-xs font-bold text-on-surface-variant uppercase tracking-wider">Status</p>
-            <p className="font-bold text-green-400 mt-1 flex items-center gap-1">
+            <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Status</p>
+            <p className="font-bold text-emerald-500 mt-1 flex items-center gap-1">
               <CheckCircle className="h-3.5 w-3.5" />
               <span>Audited & Signed</span>
             </p>
@@ -294,66 +289,66 @@ export default function ReportsPage() {
 
         {/* Aggregate Financial Metrics */}
         <div>
-          <h4 className="text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-3">Timeframe Aggregates</h4>
+          <h4 className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-3">Timeframe Aggregates</h4>
 
-          <div className="grid grid-cols-2 md:grid-cols-4 border border-white/10 rounded-2xl overflow-hidden divide-x divide-y md:divide-y-0 divide-white/10 text-center">
-            <div className="p-4 bg-white/5">
-              <p className="text-[10px] font-semibold text-on-surface-variant uppercase">Total Inflows</p>
-              <h5 className="text-lg font-bold text-green-400 mt-1">${summary.income.toFixed(2)}</h5>
+          <div className="grid grid-cols-2 md:grid-cols-4 border border-border rounded-2xl overflow-hidden divide-x divide-y md:divide-y-0 divide-border text-center">
+            <div className="p-4 bg-muted/5">
+              <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Total Inflows</p>
+              <h5 className="text-lg font-extrabold text-emerald-500 mt-1">${summary.income.toFixed(2)}</h5>
             </div>
-            <div className="p-4 bg-white/5">
-              <p className="text-[10px] font-semibold text-on-surface-variant uppercase">Total Outflows</p>
-              <h5 className="text-lg font-bold text-on-surface mt-1">${summary.expense.toFixed(2)}</h5>
+            <div className="p-4 bg-muted/5">
+              <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Total Outflows</p>
+              <h5 className="text-lg font-extrabold text-foreground mt-1">${summary.expense.toFixed(2)}</h5>
             </div>
-            <div className="p-4 bg-white/5">
-              <p className="text-[10px] font-semibold text-on-surface-variant uppercase">Net Savings</p>
-              <h5 className={`text-lg font-bold mt-1 ${summary.netSavings >= 0 ? 'text-green-400' : 'text-error'}`}>
+            <div className="p-4 bg-muted/5">
+              <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Net Savings</p>
+              <h5 className={`text-lg font-extrabold mt-1 ${summary.netSavings >= 0 ? 'text-emerald-500' : 'text-destructive'}`}>
                 ${summary.netSavings.toFixed(2)}
               </h5>
             </div>
-            <div className="p-4 bg-white/5">
-              <p className="text-[10px] font-semibold text-on-surface-variant uppercase">Savings Efficiency</p>
-              <h5 className="text-lg font-bold text-violet-400 mt-1">{summary.savingsRate.toFixed(1)}%</h5>
+            <div className="p-4 bg-muted/5">
+              <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Savings Efficiency</p>
+              <h5 className="text-lg font-extrabold text-violet-400 mt-1">{summary.savingsRate.toFixed(1)}%</h5>
             </div>
           </div>
         </div>
 
         {/* Category Breakdown Table */}
         <div className="space-y-3">
-          <h4 className="text-xs font-bold text-on-surface-variant uppercase tracking-wider">Spending & Income Breakdown by Category</h4>
+          <h4 className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Category breakdown</h4>
 
-          <div className="border border-white/10 rounded-2xl overflow-hidden">
+          <div className="border border-border rounded-2xl overflow-hidden">
             <table className="w-full text-left border-collapse text-sm">
               <thead>
-                <tr className="bg-white/5 border-b border-white/10 text-on-surface-variant font-bold uppercase text-[10px]">
+                <tr className="bg-muted/10 border-b border-border text-muted-foreground font-bold uppercase text-[9px] tracking-wider">
                   <th className="py-3 px-5">Category</th>
                   <th className="py-3 px-5">Flow Type</th>
                   <th className="py-3 px-5 text-right">Sum Total</th>
                   <th className="py-3 px-5 text-right">Share</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-white/10">
+              <tbody className="divide-y divide-border/40">
                 {summary.categories.map((c) => {
                   const share = c.type === 'income'
                     ? (summary.income > 0 ? (c.amount / summary.income) * 100 : 0)
                     : (summary.expense > 0 ? (c.amount / summary.expense) * 100 : 0);
 
                   return (
-                    <tr key={c.name} className="text-on-surface-variant font-medium">
-                      <td className="py-3 px-5 font-bold text-on-surface">{c.name}</td>
-                      <td className="py-3 px-5 uppercase text-xs font-bold">
-                        <span className={c.type === 'income' ? 'text-green-400' : 'text-error'}>
+                    <tr key={c.name} className="text-muted-foreground font-medium hover:bg-muted/5 transition-colors">
+                      <td className="py-3 px-5 font-bold text-foreground">{c.name}</td>
+                      <td className="py-3 px-5 uppercase text-[10px] font-bold">
+                        <span className={c.type === 'income' ? 'text-emerald-500' : 'text-destructive'}>
                           {c.type}
                         </span>
                       </td>
-                      <td className="py-3 px-5 text-right font-bold text-on-surface">${c.amount.toFixed(2)}</td>
-                      <td className="py-3 px-5 text-right text-on-surface-variant font-semibold">{share.toFixed(1)}%</td>
+                      <td className="py-3 px-5 text-right font-bold text-foreground">${c.amount.toFixed(2)}</td>
+                      <td className="py-3 px-5 text-right text-muted-foreground font-semibold">{share.toFixed(1)}%</td>
                     </tr>
                   );
                 })}
                 {summary.categories.length === 0 && (
                   <tr>
-                    <td colSpan={4} className="text-center py-8 text-on-surface-variant font-medium">
+                    <td colSpan={4} className="text-center py-8 text-muted-foreground font-semibold">
                       No matching records found for this timeframe.
                     </td>
                   </tr>
@@ -364,13 +359,11 @@ export default function ReportsPage() {
         </div>
 
         {/* Footer Audit disclosure */}
-        <div className="flex flex-col sm:flex-row justify-between items-center text-[10px] text-on-surface-variant font-medium border-t border-white/10 pt-6 gap-2">
-          <span>Official Statement Audit Signature Code: JM-F-{(dateRange.start % 100000).toString(16).toUpperCase()}</span>
-          <span>© {new Date().getFullYear()} JM Solutionss. All rights reserved.</span>
+        <div className="flex flex-col sm:flex-row justify-between items-center text-[10px] text-muted-foreground font-bold border-t border-border pt-6 gap-2">
+          <span>Official Statement Audit Signature Code: PF-F-{(dateRange.start % 100000).toString(16).toUpperCase()}</span>
+          <span>© {new Date().getFullYear()} PocketFlow. All rights reserved.</span>
         </div>
-
       </div>
-
     </div>
   );
 }

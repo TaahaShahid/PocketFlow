@@ -1,44 +1,17 @@
 'use client';
 
 import React, { useState, useMemo } from 'react';
-
+import { motion, AnimatePresence } from 'framer-motion';
 import { useFinanceStore, CATEGORIES } from '../../../hooks/useFinanceStore';
-import { Card } from '../../../types';
+import { Card as WalletCard } from '../../../types';
 import { useWallets } from '@/context/WalletContext';
 import { useTransactions } from '@/context/TransactionContext';
 import { useGoals } from '@/context/GoalContext';
 import { useBudgets } from '@/context/BudgetContext';
-import { Loader2 } from 'lucide-react';
-import {
-    ArrowUpRight,
-    ArrowDownRight,
-    Wallet as WalletIcon,
-    Plus,
-    PiggyBank,
-    DollarSign,
-    TrendingUp,
-    TrendingDown,
-    ChevronRight,
-    Activity,
-    Utensils,
-    ShoppingBag,
-    Car,
-    Film,
-    CreditCard,
-    type LucideIcon
-} from 'lucide-react';
-import {
-    BarChart,
-    Bar,
-    AreaChart,
-    Area,
-    XAxis,
-    YAxis,
-    CartesianGrid,
-    Tooltip,
-    Legend,
-    ResponsiveContainer
-} from 'recharts';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import { Loader2, ArrowUpRight, ArrowDownRight, Wallet as WalletIcon, Plus, PiggyBank, DollarSign, TrendingUp, TrendingDown, ChevronRight, Activity, Utensils, ShoppingBag, Car, Film, CreditCard, X, Calendar, User, Tag, Layers, LucideIcon } from 'lucide-react';
+import { BarChart, Bar, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import Link from 'next/link';
 
 // Quick Custom Transaction Modal for instant data input
@@ -54,8 +27,6 @@ function AddTransactionModal({ isOpen, onClose }: { isOpen: boolean, onClose: ()
     const notes = '';
     const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
     const [errors, setErrors] = useState<Record<string, string>>({});
-
-    if (!isOpen) return null;
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
@@ -104,224 +75,197 @@ function AddTransactionModal({ isOpen, onClose }: { isOpen: boolean, onClose: ()
     const currentCategories = type === 'income' ? CATEGORIES.income : CATEGORIES.expense;
 
     return (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/55 backdrop-blur-sm animate-fade-in">
+        <AnimatePresence>
+            {isOpen && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+                    {/* Backdrop mask */}
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        onClick={onClose}
+                        className="fixed inset-0 bg-black/40 backdrop-blur-sm"
+                    />
 
-            {/* Explicit width and max-width. Remove any flex/grid constraints from parents. */}
-            <div
-                className="bg-jm-navy rounded-2xl shadow-2xl border border-jm-dark-blue p-6 relative"
-                style={{
-                    width: "640px",
-                    maxWidth: "95vw",
-                    maxHeight: "90vh",
-                }}
-            >
-
-                {/* Header */}
-                <h2 className="text-xl font-bold text-white mb-6 shrink-0">
-                    Add Transaction
-                </h2>
-
-                {/* Scrollable Body: flex-1 and overflow-y-auto ensures inputs don't get squashed */}
-                <div className="overflow-y-auto max-h-[70vh] pr-2">
-                    <form onSubmit={handleSubmit} className="space-y-5">
-
-                        {/* Type Selector */}
-                        <div>
-                            <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">Type</label>
-                            <div className="grid grid-cols-2 gap-3">
-                                <button
-                                    type="button"
-                                    onClick={() => { setType('expense'); setCategory(''); }}
-                                    className={`py-2 px-4 rounded-xl text-sm font-semibold transition-all ${type === 'expense'
-                                        ? 'bg-rose-500 text-white shadow-md shadow-rose-500/20'
-                                        : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
-                                        }`}
-                                >
-                                    Expense
-                                </button>
-                                <button
-                                    type="button"
-                                    onClick={() => { setType('income'); setCategory(''); }}
-                                    className={`py-2 px-4 rounded-xl text-sm font-semibold transition-all ${type === 'income'
-                                        ? 'bg-emerald-500 text-white shadow-md shadow-emerald-500/20'
-                                        : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
-                                        }`}
-                                >
-                                    Income
-                                </button>
-                            </div>
+                    {/* Modal container */}
+                    <motion.div
+                        initial={{ opacity: 0, scale: 0.95, y: 10 }}
+                        animate={{ opacity: 1, scale: 1, y: 0 }}
+                        exit={{ opacity: 0, scale: 0.95, y: 10 }}
+                        className="bg-card/95 border border-border text-foreground rounded-3xl shadow-2xl p-6 relative w-full max-w-lg overflow-hidden z-10"
+                    >
+                        {/* Header */}
+                        <div className="flex items-center justify-between mb-6">
+                            <h2 className="text-xl font-bold tracking-tight">Add Transaction</h2>
+                            <button
+                                onClick={onClose}
+                                className="p-1 rounded-lg hover:bg-muted/10 text-muted-foreground hover:text-foreground transition-colors"
+                            >
+                                <X className="h-5 w-5" />
+                            </button>
                         </div>
 
-                        {/* Amount & Date */}
-                        <div className="grid grid-cols-2 gap-4">
+                        {/* Body */}
+                        <form onSubmit={handleSubmit} className="space-y-4">
+                            {/* Type Selector */}
                             <div>
-                                <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">
-                                    Amount ($)
+                                <label className="block text-xs font-bold text-muted-foreground uppercase tracking-wider mb-2">Type</label>
+                                <div className="grid grid-cols-2 gap-2 bg-muted/15 p-1 rounded-xl border border-border">
+                                    <button
+                                        type="button"
+                                        onClick={() => { setType('expense'); setCategory(''); }}
+                                        className={`py-2 px-4 rounded-lg text-sm font-semibold transition-all ${type === 'expense'
+                                            ? 'bg-destructive text-destructive-foreground shadow-sm'
+                                            : 'text-muted-foreground hover:text-foreground'
+                                            }`}
+                                    >
+                                        Expense
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => { setType('income'); setCategory(''); }}
+                                        className={`py-2 px-4 rounded-lg text-sm font-semibold transition-all ${type === 'income'
+                                            ? 'bg-green-500 text-white shadow-sm'
+                                            : 'text-muted-foreground hover:text-foreground'
+                                            }`}
+                                    >
+                                        Income
+                                    </button>
+                                </div>
+                            </div>
+
+                            {/* Amount & Date */}
+                            <div className="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label className="block text-xs font-bold text-muted-foreground uppercase tracking-wider mb-1.5 flex items-center gap-1">
+                                        <DollarSign className="w-3.5 h-3.5" /> Amount
+                                    </label>
+                                    <input
+                                        type="number"
+                                        step="0.01"
+                                        placeholder="0.00"
+                                        value={amount}
+                                        onChange={(e) => setAmount(e.target.value)}
+                                        className={`w-full h-10 px-3 border rounded-xl text-sm bg-muted/10 text-foreground border-border focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-transparent transition-all
+                                        ${errors.amount ? "border-rose-500 ring-2 ring-rose-500/20" : ""}`}
+                                    />
+                                    {errors.amount && (
+                                        <p className="text-rose-500 text-xs mt-1">{errors.amount}</p>
+                                    )}
+                                </div>
+
+                                <div>
+                                    <label className="block text-xs font-bold text-muted-foreground uppercase tracking-wider mb-1.5 flex items-center gap-1">
+                                        <Calendar className="w-3.5 h-3.5" /> Date
+                                    </label>
+                                    <input
+                                        type="date"
+                                        value={date}
+                                        onChange={(e) => setDate(e.target.value)}
+                                        className={`w-full h-10 px-3 border rounded-xl text-sm bg-muted/10 text-foreground border-border focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-transparent transition-all
+                                        ${errors.date ? "border-rose-500 ring-2 ring-rose-500/20" : ""}`}
+                                    />
+                                    {errors.date && (
+                                        <p className="text-rose-500 text-xs mt-1">{errors.date}</p>
+                                    )}
+                                </div>
+                            </div>
+
+                            {/* Category select */}
+                            <div>
+                                <label className="block text-xs font-bold text-muted-foreground uppercase tracking-wider mb-1.5 flex items-center gap-1">
+                                    <Tag className="w-3.5 h-3.5" /> Category
                                 </label>
-
-                                <input
-                                    type="number"
-                                    step="0.01"
-                                    placeholder="0.00"
-                                    value={amount}
-                                    onChange={(e) => setAmount(e.target.value)}
-                                    className={`w-full h-11 px-3.5 border rounded-xl text-sm bg-slate-50 dark:bg-slate-900
-                                    text-slate-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-jm-dark-blue
-                                    ${errors.amount
-                                            ? "border-rose-500 ring-2 ring-rose-500/20"
-                                            : "border-slate-200 dark:border-jm-dark-blue/80"
-                                        }`}
-                                />
-
-                                {errors.amount && (
-                                    <p className="text-rose-500 text-xs mt-1">
-                                        {errors.amount}
-                                    </p>
+                                <select
+                                    value={category}
+                                    onChange={(e) => setCategory(e.target.value)}
+                                    className={`w-full h-10 px-3 border rounded-xl text-sm bg-muted/10 text-foreground border-border focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-transparent transition-all
+                                    ${errors.category ? "border-rose-500 ring-2 ring-rose-500/20" : ""}`}
+                                >
+                                    <option value="" className="bg-card">Select Category</option>
+                                    {currentCategories.map((c: { name: string }) => (
+                                        <option key={c.name} value={c.name} className="bg-card">
+                                            {c.name}
+                                        </option>
+                                    ))}
+                                </select>
+                                {errors.category && (
+                                    <p className="text-rose-500 text-xs mt-1">{errors.category}</p>
                                 )}
                             </div>
+
+                            {/* Wallet / Account select */}
                             <div>
-                                <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">
-                                    Date
+                                <label className="block text-xs font-bold text-muted-foreground uppercase tracking-wider mb-1.5 flex items-center gap-1">
+                                    <Layers className="w-3.5 h-3.5" /> Account
                                 </label>
-
-                                <input
-                                    type="date"
-                                    value={date}
-                                    onChange={(e) => setDate(e.target.value)}
-                                    className={`w-full h-11 px-3.5 border rounded-xl text-sm bg-slate-50 dark:bg-slate-900
-                                    text-slate-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-jm-dark-blue
-                                    ${errors.date
-                                            ? "border-rose-500 ring-2 ring-rose-500/20"
-                                            : "border-slate-200 dark:border-jm-dark-blue/80"
-                                        }`}
-                                />
-
-                                {errors.date && (
-                                    <p className="text-rose-500 text-xs mt-1">
-                                        {errors.date}
-                                    </p>
+                                <select
+                                    value={walletId}
+                                    onChange={(e) => setWalletId(e.target.value)}
+                                    className={`w-full h-10 px-3 border rounded-xl text-sm bg-muted/10 text-foreground border-border focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-transparent transition-all
+                                    ${errors.walletId ? "border-rose-500 ring-2 ring-rose-500/20" : ""}`}
+                                >
+                                    <option value="" className="bg-card">Select Account</option>
+                                    {cards.map((c: WalletCard) => (
+                                        <option key={c.id} value={c.id} className="bg-card">
+                                            {c.nickname} (${c.balance.toFixed(2)})
+                                        </option>
+                                    ))}
+                                </select>
+                                {errors.walletId && (
+                                    <p className="text-rose-500 text-xs mt-1">{errors.walletId}</p>
                                 )}
                             </div>
-                        </div>
 
-                        {/* Selects */}
-                        <div>
-                            <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">
-                                Category
-                            </label>
+                            {/* Recipient */}
+                            <div>
+                                <label className="block text-xs font-bold text-muted-foreground uppercase tracking-wider mb-1.5 flex items-center gap-1">
+                                    <User className="w-3.5 h-3.5" /> Payee / Recipient
+                                </label>
+                                <input
+                                    type="text"
+                                    placeholder="e.g. Starbucks, Salary, Amazon"
+                                    value={recipient}
+                                    onChange={(e) => setRecipient(e.target.value)}
+                                    className={`w-full h-10 px-3.5 border rounded-xl text-sm bg-muted/10 text-foreground border-border focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-transparent transition-all
+                                    ${errors.recipient ? "border-rose-500 ring-2 ring-rose-500/20" : ""}`}
+                                />
+                                {errors.recipient && (
+                                    <p className="text-rose-500 text-xs mt-1">{errors.recipient}</p>
+                                )}
+                            </div>
 
-                            <select
-                                value={category}
-                                onChange={(e) => setCategory(e.target.value)}
-                                className={`w-full h-11 px-3 border rounded-xl text-sm bg-slate-50 dark:bg-slate-900
-                                text-slate-800 dark:text-white
-                                ${errors.category
-                                        ? "border-rose-500 ring-2 ring-rose-500/20"
-                                        : "border-slate-200 dark:border-jm-dark-blue/80"
-                                    }`}
-                            >
-                                <option value="">Select Category</option>
-
-                                {currentCategories.map((c: { name: string }) => (
-                                    <option key={c.name} value={c.name}>
-                                        {c.name}
-                                    </option>
-                                ))}
-                            </select>
-
-                            {errors.category && (
-                                <p className="text-rose-500 text-xs mt-1">
-                                    {errors.category}
-                                </p>
-                            )}
-                        </div>
-
-                        <div>
-                            <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">
-                                Wallet / Account
-                            </label>
-
-                            <select
-                                value={walletId}
-                                onChange={(e) => setWalletId(e.target.value)}
-                                className={`w-full h-11 px-3 border rounded-xl text-sm bg-slate-50 dark:bg-slate-900
-                                text-slate-800 dark:text-white
-                                ${errors.walletId
-                                        ? "border-rose-500 ring-2 ring-rose-500/20"
-                                        : "border-slate-200 dark:border-jm-dark-blue/80"
-                                    }`}
-                            >
-                                <option value="">Select Wallet</option>
-
-                                {cards.map((c: Card) => (
-                                    <option key={c.id} value={c.id}>
-                                        {c.nickname} (${c.balance.toFixed(2)})
-                                    </option>
-                                ))}
-                            </select>
-
-                            {errors.walletId && (
-                                <p className="text-rose-500 text-xs mt-1">
-                                    {errors.walletId}
-                                </p>
-                            )}
-                        </div>
-
-                        <div>
-                            <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">
-                                Recipient / Payee
-                            </label>
-
-                            <input
-                                type="text"
-                                placeholder="e.g. Starbucks, Salary, Amazon"
-                                value={recipient}
-                                onChange={(e) => setRecipient(e.target.value)}
-                                className={`w-full h-11 px-3.5 border rounded-xl text-sm bg-slate-50 dark:bg-slate-900
-                                text-slate-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-jm-dark-blue
-                                ${errors.recipient
-                                        ? "border-rose-500 ring-2 ring-rose-500/20"
-                                        : "border-slate-200 dark:border-jm-dark-blue/80"
-                                    }`}
-                            />
-
-
-                        </div>
-
-                        {/* Footer Actions (Sticky at bottom of modal if needed, or just end of scroll) */}
-                        <div className="flex justify-end gap-2 pt-4">
-                            <button type="button" onClick={onClose} className="px-4 py-2 text-sm font-semibold rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-400">Cancel</button>
-                            <button type="submit" className="px-5 py-2 text-sm font-semibold text-white bg-jm-dark-blue rounded-xl hover:bg-jm-light-blue shadow-md shadow-jm-dark-blue/20">Add Transaction</button>
-                        </div>
-
-                    </form>
+                            {/* Footer Actions */}
+                            <div className="flex justify-end gap-2 pt-4 border-t border-border">
+                                <Button type="button" variant="ghost" onClick={onClose} className="rounded-xl">Cancel</Button>
+                                <Button type="submit" className="rounded-xl shadow-md">Add Transaction</Button>
+                            </div>
+                        </form>
+                    </motion.div>
                 </div>
-            </div>
-        </div>
+            )}
+        </AnimatePresence>
     );
 }
 
-// Maps a transaction/spending category name to an icon + color pair, using the
-// Stitch design's color tokens. Falls back to a neutral pf-secondary treatment
-// for categories that don't match a known pattern.
+// Maps a transaction/spending category name to an icon + color pair, using
+// design color tokens.
 function getCategoryVisual(category: string): { Icon: LucideIcon; bg: string; text: string; border: string } {
     const c = category.toLowerCase();
-    if (/food|dining|restaurant|grocery/.test(c)) return { Icon: Utensils, bg: 'bg-pf-primary/10', text: 'text-pf-primary', border: 'border-pf-primary/10' };
-    if (/shop|retail|cloth/.test(c)) return { Icon: ShoppingBag, bg: 'bg-tertiary/10', text: 'text-tertiary', border: 'border-tertiary/10' };
-    if (/transport|gas|car|fuel|uber/.test(c)) return { Icon: Car, bg: 'bg-green-500/10', text: 'text-green-400', border: 'border-green-500/10' };
-    if (/entertain|movie|stream|game/.test(c)) return { Icon: Film, bg: 'bg-secondary-container/20', text: 'text-on-secondary-container', border: 'border-white/5' };
-    if (/salary|income|freelance|consult/.test(c)) return { Icon: DollarSign, bg: 'bg-green-500/10', text: 'text-green-400', border: 'border-green-500/10' };
-    return { Icon: CreditCard, bg: 'bg-pf-secondary/10', text: 'text-pf-secondary', border: 'border-white/5' };
+    if (/food|dining|restaurant|grocery/.test(c)) return { Icon: Utensils, bg: 'bg-primary/10', text: 'text-primary', border: 'border-primary/10' };
+    if (/shop|retail|cloth/.test(c)) return { Icon: ShoppingBag, bg: 'bg-rose-500/10', text: 'text-rose-500', border: 'border-rose-500/10' };
+    if (/transport|gas|car|fuel|uber/.test(c)) return { Icon: Car, bg: 'bg-emerald-500/10', text: 'text-emerald-500', border: 'border-emerald-500/10' };
+    if (/entertain|movie|stream|game/.test(c)) return { Icon: Film, bg: 'bg-indigo-500/10', text: 'text-indigo-500', border: 'border-indigo-500/10' };
+    if (/salary|income|freelance|consult/.test(c)) return { Icon: DollarSign, bg: 'bg-emerald-500/10', text: 'text-emerald-500', border: 'border-emerald-500/10' };
+    return { Icon: CreditCard, bg: 'bg-slate-500/10', text: 'text-slate-500', border: 'border-slate-500/10' };
 }
 
-// Shared card treatment matching the Stitch "glass" panels (see .glass-card in globals.css)
-const cardBase = 'glass-card rounded-[2rem]';
-const goalBarColors = ['bg-pf-primary', 'bg-green-400', 'bg-tertiary'];
-const goalTextColors = ['text-pf-primary', 'text-green-400', 'text-tertiary'];
-const chartTooltipStyle = { backgroundColor: '#1d2022', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 12, color: '#e0e3e5' };
+const cardBase = "rounded-3xl border border-border bg-card/45 backdrop-blur-xl shadow-2xl transition-all duration-300 hover:border-white/10";
+const goalBarColors = ['bg-primary', 'bg-emerald-500', 'bg-rose-500'];
+const goalTextColors = ['text-primary', 'text-emerald-500', 'text-rose-500'];
+const chartTooltipStyle = { backgroundColor: 'var(--card)', border: '1px solid var(--border)', borderRadius: 16, color: 'var(--foreground)' };
 
 export default function Dashboard() {
-
     const { transactions, loading: txLoading } = useTransactions();
     const { wallets: cards, loading: walletsLoading } = useWallets();
     const { goals, loading: goalsLoading } = useGoals();
@@ -333,7 +277,6 @@ export default function Dashboard() {
     const [isAddTxOpen, setIsAddTxOpen] = useState(false);
 
     // 1. Calculate Key Metrics
-    // We'll calculate totals for current month and previous month to show percentage changes
     const metrics = useMemo(() => {
         const now = new Date();
         const currentMonth = now.getMonth();
@@ -363,14 +306,11 @@ export default function Dashboard() {
         const curSavings = curIncome - curExpense;
         const prevSavings = prevIncome - prevExpense;
 
-        // Helper to calculate percentage change
         const getChange = (curr: number, prev: number) => {
             if (prev === 0) return curr > 0 ? 100 : 0;
             return ((curr - prev) / prev) * 100;
         };
 
-        // Calculate percentage change for total balance:
-        // (We will simulate it based on this month's savings versus current balance as a baseline)
         const balanceChange = getChange(totalBalance, totalBalance - curSavings);
         const incomeChange = getChange(curIncome, prevIncome);
         const expenseChange = getChange(curExpense, prevExpense);
@@ -408,7 +348,6 @@ export default function Dashboard() {
 
         const startTimestamp = startDate.getTime();
 
-        // If "This month", split by weeks
         if (chartPeriod === 'this-month') {
             const data = [
                 { label: 'Week 1', Fixed: 0, Variable: 0 },
@@ -423,7 +362,7 @@ export default function Dashboard() {
                 const dayOfMonth = txDate.getDate();
 
                 const weekIndex = Math.min(3, Math.floor((dayOfMonth - 1) / 7));
-                const isFixed = t.category === 'Salary'; // Salary is Fixed, others Variable
+                const isFixed = t.category === 'Salary';
 
                 if (isFixed) {
                     data[weekIndex].Fixed += t.amount;
@@ -434,11 +373,9 @@ export default function Dashboard() {
             return data;
         }
 
-        // For multi-month views, group by month
         const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
         const monthDataMap: Record<string, { label: string; Fixed: number; Variable: number; order: number }> = {};
 
-        // Seed map with expected months
         const iter = new Date(startDate);
         let order = 0;
         while (iter <= now) {
@@ -471,8 +408,7 @@ export default function Dashboard() {
         return transactions.slice(0, 5);
     }, [transactions]);
 
-    // 4. Spending Breakdown (this month's expenses grouped by category) — powers
-    // the bento-style "Spending Breakdown" panel with real data.
+    // 4. Spending Breakdown
     const spendingBreakdown = useMemo(() => {
         const now = new Date();
         const firstOfCurrentMonth = new Date(now.getFullYear(), now.getMonth(), 1).getTime();
@@ -491,11 +427,7 @@ export default function Dashboard() {
         };
     }, [transactions]);
 
-    // 5. Net Worth Over Time — reconstructed from real transaction history rather
-    // than a stored snapshot. We know today's actual total balance (sum of card
-    // balances), so for each of the last 6 months we work backwards, undoing every
-    // completed transaction that happened after that month's end to approximate
-    // what the balance was at that point in time.
+    // 5. Net Worth Over Time
     const netWorthData = useMemo(() => {
         const monthsToShow = 6;
         const now = new Date();
@@ -520,7 +452,6 @@ export default function Dashboard() {
         return points;
     }, [transactions, cards]);
 
-    // Format Helper
     const formatVal = (val: number) => {
         return new Intl.NumberFormat('en-US', {
             style: 'currency',
@@ -532,9 +463,9 @@ export default function Dashboard() {
     const renderTrend = (value: number) => {
         const isPositive = value >= 0;
         return (
-            <span className={`inline-flex items-center text-xs font-bold gap-0.5 px-2 py-1 rounded-lg ${isPositive
-                ? 'bg-green-500/15 text-green-400'
-                : 'bg-error/15 text-error'
+            <span className={`inline-flex items-center text-xs font-bold gap-0.5 px-2 py-0.5 rounded-lg ${isPositive
+                ? 'bg-emerald-500/15 text-emerald-500'
+                : 'bg-destructive/15 text-destructive'
                 }`}>
                 {isPositive ? <ArrowUpRight className="h-3 w-3" /> : <ArrowDownRight className="h-3 w-3" />}
                 {Math.abs(value).toFixed(1)}%
@@ -545,112 +476,102 @@ export default function Dashboard() {
     if (loading) {
         return (
             <div className="min-h-[60vh] flex items-center justify-center">
-                <Loader2 className="h-8 w-8 animate-spin text-pf-primary" />
+                <Loader2 className="h-8 w-8 animate-spin text-primary" />
             </div>
         );
     }
 
     return (
         <div className="space-y-6 animate-in fade-in duration-300 relative pb-20">
-
-            {/* Upper Panel: Welcome and CTA */}
+            {/* Header section */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
-                    <h2 className="text-xl font-bold text-on-surface">PocketFlow Financial Command Center</h2>
-                    <p className="text-sm text-outline mt-1">
+                    <h2 className="text-xl font-bold tracking-tight text-foreground">PocketFlow Financial Command Center</h2>
+                    <p className="text-sm text-muted-foreground mt-0.5">
                         Real-time analytics and transaction management system.
                     </p>
                 </div>
-                <button
+                <Button
                     onClick={() => setIsAddTxOpen(true)}
-                    className="flex items-center justify-center gap-2 h-11 px-5 text-sm font-semibold text-on-primary bg-pf-primary rounded-xl hover:bg-pf-primary-container transition-all shadow-md shadow-pf-primary/20 cursor-pointer self-start sm:self-auto"
+                    className="rounded-xl shadow-lg shadow-primary/10 self-start sm:self-auto"
                 >
-                    <Plus className="h-4.5 w-4.5" />
-                    <span>Add Transaction</span>
-                </button>
+                    <Plus className="h-4.5 w-4.5" /> Add Transaction
+                </Button>
             </div>
 
-            {/* 4 Key Metric Cards */}
+            {/* Metrics */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                {/* Card 1: Balance — highlighted "spotlight" card, mirrors Stitch's active-border-glow treatment */}
-                <div className={`${cardBase} p-5 flex flex-col justify-between min-h-36 ring-2 ring-pf-primary/40 shadow-lg shadow-pf-primary/10`}>
+                <div className={`${cardBase} p-5 flex flex-col justify-between min-h-36 border-primary/20 bg-primary/5 shadow-md shadow-primary/5`}>
                     <div className="flex items-center justify-between">
-                        <span className="text-sm font-semibold text-on-surface-variant">Total Balance</span>
-                        <div className="p-2 bg-pf-primary/10 rounded-xl text-pf-primary">
+                        <span className="text-sm font-semibold text-muted-foreground">Total Balance</span>
+                        <div className="p-2 bg-primary/10 rounded-xl text-primary">
                             <WalletIcon className="h-5 w-5" />
                         </div>
                     </div>
                     <div className="mt-3">
-                        <h3 className="text-2xl font-bold text-pf-primary tracking-tight">{formatVal(metrics.totalBalance)}</h3>
+                        <h3 className="text-2xl font-extrabold text-foreground tracking-tight">{formatVal(metrics.totalBalance)}</h3>
                         <div className="flex items-center gap-1.5 mt-2">
                             {renderTrend(metrics.balanceChange)}
-                            <span className="text-[11px] text-outline font-semibold uppercase">from last month</span>
+                            <span className="text-[10px] text-muted-foreground font-bold uppercase tracking-wider">from last month</span>
                         </div>
                     </div>
                 </div>
 
-                {/* Card 2: Income */}
                 <div className={`${cardBase} p-5 flex flex-col justify-between min-h-36`}>
                     <div className="flex items-center justify-between">
-                        <span className="text-sm font-semibold text-on-surface-variant">Monthly Income</span>
-                        <div className="p-2 bg-green-500/10 rounded-xl text-green-400">
+                        <span className="text-sm font-semibold text-muted-foreground">Monthly Income</span>
+                        <div className="p-2 bg-emerald-500/10 rounded-xl text-emerald-500">
                             <TrendingUp className="h-5 w-5" />
                         </div>
                     </div>
                     <div className="mt-3">
-                        <h3 className="text-2xl font-bold text-green-400 tracking-tight">{formatVal(metrics.income)}</h3>
+                        <h3 className="text-2xl font-extrabold text-foreground tracking-tight">{formatVal(metrics.income)}</h3>
                         <div className="flex items-center gap-1.5 mt-2">
                             {renderTrend(metrics.incomeChange)}
-                            <span className="text-[11px] text-outline font-semibold uppercase">from last month</span>
+                            <span className="text-[10px] text-muted-foreground font-bold uppercase tracking-wider">from last month</span>
                         </div>
                     </div>
                 </div>
 
-                {/* Card 3: Expense */}
                 <div className={`${cardBase} p-5 flex flex-col justify-between min-h-36`}>
                     <div className="flex items-center justify-between">
-                        <span className="text-sm font-semibold text-on-surface-variant">Monthly Expenses</span>
-                        <div className="p-2 bg-error/10 rounded-xl text-error">
+                        <span className="text-sm font-semibold text-muted-foreground">Monthly Expenses</span>
+                        <div className="p-2 bg-destructive/10 rounded-xl text-destructive">
                             <TrendingDown className="h-5 w-5" />
                         </div>
                     </div>
                     <div className="mt-3">
-                        <h3 className="text-2xl font-bold text-error tracking-tight">{formatVal(metrics.expense)}</h3>
+                        <h3 className="text-2xl font-extrabold text-foreground tracking-tight">{formatVal(metrics.expense)}</h3>
                         <div className="flex items-center gap-1.5 mt-2">
                             {renderTrend(metrics.expenseChange)}
-                            <span className="text-[11px] text-outline font-semibold uppercase">from last month</span>
+                            <span className="text-[10px] text-muted-foreground font-bold uppercase tracking-wider">from last month</span>
                         </div>
                     </div>
                 </div>
 
-                {/* Card 4: Savings */}
                 <div className={`${cardBase} p-5 flex flex-col justify-between min-h-36`}>
                     <div className="flex items-center justify-between">
-                        <span className="text-sm font-semibold text-on-surface-variant">Monthly Savings</span>
-                        <div className="p-2 bg-pf-primary/10 rounded-xl text-pf-primary">
+                        <span className="text-sm font-semibold text-muted-foreground">Monthly Savings</span>
+                        <div className="p-2 bg-primary/10 rounded-xl text-primary">
                             <PiggyBank className="h-5 w-5" />
                         </div>
                     </div>
                     <div className="mt-3">
-                        <h3 className="text-2xl font-bold text-pf-primary tracking-tight">{formatVal(metrics.savings)}</h3>
+                        <h3 className="text-2xl font-extrabold text-foreground tracking-tight">{formatVal(metrics.savings)}</h3>
                         <div className="flex items-center gap-1.5 mt-2">
                             {renderTrend(metrics.savingsChange)}
-                            <span className="text-[11px] text-outline font-semibold uppercase">from last month</span>
+                            <span className="text-[10px] text-muted-foreground font-bold uppercase tracking-wider">from last month</span>
                         </div>
                     </div>
                 </div>
             </div>
 
-            {/* Row 2: Net Worth Over Time & Savings Goals */}
+            {/* Net Worth & Savings Goals */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-
-                {/* Net Worth Chart (2 Columns wide) — real data, reconstructed from transaction history */}
                 <div className={`${cardBase} lg:col-span-2 p-5 flex flex-col relative overflow-hidden`}>
-                    <div className="flex justify-between items-center mb-6">
-                        <div>
-                            <h3 className="text-base font-bold text-on-surface">Net Worth Over Time</h3>
-                            <p className="text-xs text-outline mt-0.5">Reconstructed from your transaction history, last 6 months</p>
-                        </div>
+                    <div className="mb-6">
+                        <h3 className="text-base font-bold text-foreground">Net Worth Over Time</h3>
+                        <p className="text-xs text-muted-foreground mt-0.5">Reconstructed from your transaction history, last 6 months</p>
                     </div>
 
                     <div className="h-72 w-full">
@@ -658,47 +579,45 @@ export default function Dashboard() {
                             <AreaChart data={netWorthData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                                 <defs>
                                     <linearGradient id="netWorthGradient" x1="0" y1="0" x2="0" y2="1">
-                                        <stop offset="0%" stopColor="#adc6ff" stopOpacity={0.35} />
-                                        <stop offset="100%" stopColor="#adc6ff" stopOpacity={0} />
+                                        <stop offset="0%" stopColor="var(--primary)" stopOpacity={0.25} />
+                                        <stop offset="100%" stopColor="var(--primary)" stopOpacity={0} />
                                     </linearGradient>
                                 </defs>
-                                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(255,255,255,0.08)" />
+                                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(255,255,255,0.05)" />
                                 <XAxis dataKey="label" tickLine={false} axisLine={false} tick={{ fill: '#8c909f', fontSize: 11 }} />
                                 <YAxis
                                     tickLine={false}
                                     axisLine={false}
-                                    // Change 'val' to 'any' or 'number | string'
-                                    tickFormatter={(val: number | string | unknown) => typeof val === 'number' ? `$${val}` : String(val)}
+                                    tickFormatter={(val) => `$${val}`}
                                     tick={{ fill: '#8c909f', fontSize: 11 }}
                                 />
                                 <Tooltip
                                     contentStyle={chartTooltipStyle}
-                                    // Use 'any' for the value to match Recharts internal TooltipPayload definition
                                     formatter={(val: unknown) => [
                                         typeof val === 'number' ? formatVal(val) : String(val),
-                                        'Balance' // Adding the name (label) here is often required for better rendering
+                                        'Balance'
                                     ]}
                                 />
                                 <Area
                                     type="monotone"
                                     dataKey="value"
                                     name="Net Worth"
-                                    stroke="#adc6ff"
+                                    stroke="var(--primary)"
                                     strokeWidth={3}
                                     fill="url(#netWorthGradient)"
-                                    dot={{ r: 4, fill: '#adc6ff', strokeWidth: 0 }}
-                                    activeDot={{ r: 6, fill: '#adc6ff' }}
+                                    dot={{ r: 4, fill: "var(--primary)", strokeWidth: 0 }}
+                                    activeDot={{ r: 6, fill: "var(--primary)" }}
                                 />
                             </AreaChart>
                         </ResponsiveContainer>
                     </div>
                 </div>
 
-                {/* Savings Goals Card (1 Column wide) */}
+                {/* Savings Goals */}
                 <div className={`${cardBase} p-5 flex flex-col`}>
                     <div className="flex items-center justify-between mb-4">
-                        <h3 className="text-base font-bold text-on-surface">Savings Goals</h3>
-                        <Link href="/goals" className="text-xs font-semibold text-pf-primary hover:underline flex items-center">
+                        <h3 className="text-base font-bold text-foreground">Savings Goals</h3>
+                        <Link href="/goals" className="text-xs font-semibold text-primary hover:underline flex items-center">
                             <span>Details</span>
                             <ChevronRight className="h-3 w-3 ml-0.5" />
                         </Link>
@@ -711,25 +630,25 @@ export default function Dashboard() {
                             return (
                                 <div key={g.id}>
                                     <div className="flex justify-between items-center mb-1.5">
-                                        <span className="text-sm font-semibold text-on-surface-variant truncate max-w-[140px]">{g.name}</span>
+                                        <span className="text-sm font-semibold text-foreground truncate max-w-[140px]">{g.name}</span>
                                         <span className={`text-xs font-bold ${goalTextColors[i % goalTextColors.length]}`}>
                                             {Math.round(ratio)}%
                                         </span>
                                     </div>
-                                    <div className="w-full h-2 bg-surface-container-highest rounded-full overflow-hidden">
+                                    <div className="w-full h-2 bg-muted/20 rounded-full overflow-hidden">
                                         <div
                                             className={`h-full rounded-full transition-all duration-500 ${goalBarColors[i % goalBarColors.length]}`}
                                             style={{ width: `${Math.min(100, ratio)}%` }}
                                         />
                                     </div>
-                                    <p className="text-xs text-outline mt-1">
+                                    <p className="text-xs text-muted-foreground mt-1 font-medium">
                                         ${g.currentAmount.toLocaleString()} / ${g.targetAmount.toLocaleString()}
                                     </p>
                                 </div>
                             );
                         })}
                         {goals.length === 0 && (
-                            <div className="text-center py-8 text-sm text-outline font-medium">
+                            <div className="text-center py-8 text-sm text-muted-foreground font-medium">
                                 Create your first savings goal.
                             </div>
                         )}
@@ -737,54 +656,52 @@ export default function Dashboard() {
 
                     <Link
                         href="/goals"
-                        className="mt-4 w-full py-2 bg-pf-primary/10 border border-pf-primary/20 rounded-lg text-pf-primary text-sm font-semibold hover:bg-pf-primary/20 transition-all text-center block"
+                        className="mt-4 w-full py-2.5 bg-primary/10 border border-primary/20 rounded-xl text-primary text-sm font-semibold hover:bg-primary/20 transition-all text-center block"
                     >
                         Add New Goal
                     </Link>
                 </div>
-
             </div>
 
-            {/* Row 3: Spending Breakdown & Recent Transactions */}
+            {/* Spending Breakdown & Recent Transactions */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-
-                {/* Spending Breakdown (1 Column wide, real data from this month's expenses) */}
+                {/* Spending Breakdown */}
                 <div className={`${cardBase} p-5`}>
-                    <h3 className="text-base font-bold text-on-surface mb-4">Spending Breakdown</h3>
+                    <h3 className="text-base font-bold text-foreground mb-4">Spending Breakdown</h3>
                     <div className="grid grid-cols-2 gap-3">
                         {spendingBreakdown.top.map(({ category, amount }) => {
                             const { Icon, bg, text, border } = getCategoryVisual(category);
                             return (
-                                <div key={category} className={`${bg} p-3 rounded-xl flex flex-col gap-1.5 border ${border}`}>
-                                    <Icon className={`h-5 w-5 ${text}`} />
-                                    <span className="text-xs text-outline font-medium truncate">{category}</span>
-                                    <span className="text-base font-bold text-on-surface">${amount.toFixed(0)}</span>
+                                <div key={category} className={`${bg} p-3 rounded-2xl flex flex-col gap-1.5 border ${border}`}>
+                                    <Icon className={`h-4.5 w-4.5 ${text}`} />
+                                    <span className="text-xs text-muted-foreground font-medium truncate">{category}</span>
+                                    <span className="text-base font-bold text-foreground">${amount.toFixed(0)}</span>
                                 </div>
                             );
                         })}
                         {spendingBreakdown.top.length === 0 && (
-                            <div className="col-span-2 text-center py-8 text-sm text-outline font-medium">
+                            <div className="col-span-2 text-center py-8 text-sm text-muted-foreground font-medium">
                                 No spending recorded this month.
                             </div>
                         )}
                     </div>
 
                     {spendingBreakdown.top.length > 0 && (
-                        <div className="mt-4 p-4 bg-surface-container-highest/30 rounded-xl border border-white/5 flex items-center justify-between">
+                        <div className="mt-4 p-4 bg-muted/10 rounded-2xl border border-border flex items-center justify-between">
                             <div>
-                                <p className="text-xs text-outline font-medium">Most Active Category</p>
-                                <p className="text-sm font-bold text-on-surface">{spendingBreakdown.mostActive}</p>
+                                <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-wider">Most Active Category</p>
+                                <p className="text-sm font-bold text-foreground mt-0.5">{spendingBreakdown.mostActive}</p>
                             </div>
-                            <Activity className="h-8 w-8 text-pf-primary opacity-50" />
+                            <Activity className="h-7 w-7 text-primary opacity-60 animate-pulse" />
                         </div>
                     )}
                 </div>
 
-                {/* Recent Transactions Table (2 Columns wide) */}
+                {/* Recent Transactions */}
                 <div className={`${cardBase} lg:col-span-2 p-5 overflow-hidden`}>
                     <div className="flex justify-between items-center mb-4">
-                        <h3 className="text-base font-bold text-on-surface">Recent Transactions</h3>
-                        <Link href="/transactions" className="text-xs font-semibold text-pf-primary hover:underline flex items-center">
+                        <h3 className="text-base font-bold text-foreground">Recent Transactions</h3>
+                        <Link href="/transactions" className="text-xs font-semibold text-primary hover:underline flex items-center">
                             <span>See History</span>
                             <ChevronRight className="h-3 w-3 ml-0.5" />
                         </Link>
@@ -793,39 +710,39 @@ export default function Dashboard() {
                     <div className="overflow-x-auto">
                         <table className="w-full text-left border-collapse">
                             <thead>
-                                <tr className="text-xs font-semibold text-outline border-b border-outline-variant/10">
-                                    <th className="pb-2 px-1 font-semibold">Merchant</th>
-                                    <th className="pb-2 px-1 font-semibold">Date</th>
-                                    <th className="pb-2 px-1 font-semibold">Category</th>
-                                    <th className="pb-2 px-1 font-semibold text-right">Amount</th>
+                                <tr className="text-xs font-bold text-muted-foreground border-b border-border">
+                                    <th className="pb-2 px-1 uppercase tracking-wider">Merchant</th>
+                                    <th className="pb-2 px-1 uppercase tracking-wider">Date</th>
+                                    <th className="pb-2 px-1 uppercase tracking-wider">Category</th>
+                                    <th className="pb-2 px-1 text-right uppercase tracking-wider">Amount</th>
                                 </tr>
                             </thead>
-                            <tbody className="text-sm divide-y divide-outline-variant/10">
+                            <tbody className="text-sm divide-y divide-border/40">
                                 {recentTransactions.map((tx) => {
                                     const isIncome = tx.type === 'income';
                                     const card = cards.find(c => c.id === tx.walletId);
                                     const { Icon, bg, text } = getCategoryVisual(tx.category);
 
                                     return (
-                                        <tr key={tx.id} className="hover:bg-white/5 transition-colors">
+                                        <tr key={tx.id} className="hover:bg-muted/5 transition-colors">
                                             <td className="py-3 px-1 flex items-center gap-3">
                                                 <div className={`w-8 h-8 rounded-full ${bg} flex items-center justify-center flex-shrink-0`}>
                                                     <Icon className={`h-4 w-4 ${text}`} />
                                                 </div>
                                                 <div className="min-w-0">
-                                                    <p className="font-semibold text-on-surface truncate">{tx.recipientName}</p>
-                                                    <p className="text-[11px] text-outline truncate">{card?.nickname || 'Account'}</p>
+                                                    <p className="font-semibold text-foreground truncate">{tx.recipientName}</p>
+                                                    <p className="text-[10px] text-muted-foreground truncate">{card?.nickname || 'Account'}</p>
                                                 </div>
                                             </td>
-                                            <td className="py-3 px-1 text-on-surface-variant whitespace-nowrap">
+                                            <td className="py-3 px-1 text-muted-foreground whitespace-nowrap">
                                                 {new Date(tx.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
                                             </td>
                                             <td className="py-3 px-1">
-                                                <span className="px-2 py-1 rounded bg-surface-container text-xs font-medium text-on-surface-variant whitespace-nowrap">
+                                                <span className="px-2 py-0.5 rounded bg-muted/15 border border-border text-xs font-semibold text-muted-foreground whitespace-nowrap">
                                                     {tx.category}
                                                 </span>
                                             </td>
-                                            <td className={`py-3 px-1 text-right font-semibold whitespace-nowrap ${isIncome ? 'text-green-400' : 'text-error'}`}>
+                                            <td className={`py-3 px-1 text-right font-bold whitespace-nowrap ${isIncome ? 'text-emerald-500' : 'text-destructive'}`}>
                                                 {isIncome ? '+' : '-'}${tx.amount.toFixed(2)}
                                             </td>
                                         </tr>
@@ -834,25 +751,24 @@ export default function Dashboard() {
                             </tbody>
                         </table>
                         {recentTransactions.length === 0 && (
-                            <div className="text-center py-10 text-sm text-outline font-medium">
+                            <div className="text-center py-10 text-sm text-muted-foreground font-medium">
                                 No transactions yet.
                             </div>
                         )}
                     </div>
                 </div>
-
             </div>
 
-            {/* Row 4: Income Analysis — your existing real chart with period tabs, kept and recolored */}
+            {/* Income Analysis */}
             <div className={`${cardBase} p-5 flex flex-col`}>
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
                     <div>
-                        <h3 className="text-base font-bold text-on-surface">Income Analysis</h3>
-                        <p className="text-xs text-outline mt-0.5">Fixed vs Variable income split over time</p>
+                        <h3 className="text-base font-bold text-foreground">Income Analysis</h3>
+                        <p className="text-xs text-muted-foreground mt-0.5">Fixed vs Variable income split over time</p>
                     </div>
 
                     {/* Period Selector Tabs */}
-                    <div className="flex bg-surface-container border border-outline-variant/20 p-1 rounded-xl">
+                    <div className="flex bg-muted/10 border border-border p-1 rounded-xl">
                         {(['this-month', 'last-3', 'last-6', 'this-year'] as const).map((p) => {
                             const labelMap = {
                                 'this-month': 'This Month',
@@ -864,9 +780,9 @@ export default function Dashboard() {
                                 <button
                                     key={p}
                                     onClick={() => setChartPeriod(p)}
-                                    className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-all ${chartPeriod === p
-                                        ? 'bg-pf-primary text-on-primary shadow-sm'
-                                        : 'text-outline hover:text-on-surface-variant'
+                                    className={`px-3 py-1 text-xs font-bold rounded-lg transition-all ${chartPeriod === p
+                                        ? 'bg-primary text-primary-foreground shadow-sm'
+                                        : 'text-muted-foreground hover:text-foreground'
                                         }`}
                                 >
                                     {labelMap[p]}
@@ -882,7 +798,7 @@ export default function Dashboard() {
                             data={incomeChartData}
                             margin={{ top: 10, right: 10, left: -20, bottom: 0 }}
                         >
-                            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(255,255,255,0.08)" />
+                            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(255,255,255,0.05)" />
                             <XAxis
                                 dataKey="label"
                                 tickLine={false}
@@ -896,42 +812,40 @@ export default function Dashboard() {
                                 tick={{ fill: '#8c909f', fontSize: 11 }}
                             />
                             <Tooltip contentStyle={chartTooltipStyle} />
-                            <Legend iconType="circle" wrapperStyle={{ fontSize: 12, paddingTop: 10, color: '#c2c6d6' }} />
-                            {/* Fixed Income = pf-primary-container, Variable = pf-primary */}
-                            <Bar dataKey="Fixed" stackId="a" fill="#4d8eff" radius={[0, 0, 0, 0]} name="Fixed (Salary)" />
-                            <Bar dataKey="Variable" stackId="a" fill="#adc6ff" radius={[4, 4, 0, 0]} name="Variable (Consulting/Freelance)" />
+                            <Legend iconType="circle" wrapperStyle={{ fontSize: 12, paddingTop: 10, color: 'var(--muted-foreground)' }} />
+                            <Bar dataKey="Fixed" stackId="a" fill="var(--primary)" radius={[0, 0, 0, 0]} name="Fixed (Salary)" />
+                            <Bar dataKey="Variable" stackId="a" fill="var(--secondary)" radius={[4, 4, 0, 0]} name="Variable (Freelance/Consulting)" />
                         </BarChart>
                     </ResponsiveContainer>
                 </div>
             </div>
 
-            {/* Row 5: Budget Utilization — not part of the Stitch mockup, designed here in the same
-                glass-panel language so it doesn't look bolted on */}
+            {/* Budget Utilization */}
             <div className={`${cardBase} p-5`}>
                 <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-base font-bold text-on-surface">Budget Utilization</h3>
-                    <Link href="/analytics" className="text-xs font-semibold text-pf-primary hover:underline flex items-center">
+                    <h3 className="text-base font-bold text-foreground">Budget Utilization</h3>
+                    <Link href="/analytics" className="text-xs font-semibold text-primary hover:underline flex items-center">
                         <span>View All</span>
                         <ChevronRight className="h-3 w-3 ml-0.5" />
                     </Link>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                     {budgets.slice(0, 4).map((b) => {
                         const ratio = b.monthlyLimit > 0 ? (b.spent / b.monthlyLimit) * 100 : 0;
-                        let colorClass = 'bg-pf-primary';
-                        if (ratio >= 90) colorClass = 'bg-error';
-                        else if (ratio >= 75) colorClass = 'bg-tertiary';
+                        let colorClass = 'bg-primary';
+                        if (ratio >= 90) colorClass = 'bg-destructive';
+                        else if (ratio >= 75) colorClass = 'bg-amber-500';
 
                         return (
                             <div key={b.id} className="space-y-1.5">
-                                <div className="flex items-center justify-between text-xs font-semibold">
-                                    <span className="text-on-surface-variant">{b.category}</span>
-                                    <span className="text-outline">
-                                        ${b.spent.toFixed(0)} / <span className="text-on-surface-variant">${b.monthlyLimit}</span>
+                                <div className="flex items-center justify-between text-xs font-bold">
+                                    <span className="text-foreground">{b.category}</span>
+                                    <span className="text-muted-foreground">
+                                        ${b.spent.toFixed(0)} / <span className="text-foreground">${b.monthlyLimit}</span>
                                     </span>
                                 </div>
-                                <div className="w-full h-2 bg-surface-container-highest rounded-full overflow-hidden">
+                                <div className="w-full h-2 bg-muted/20 rounded-full overflow-hidden">
                                     <div
                                         className={`h-full rounded-full transition-all duration-500 ${colorClass}`}
                                         style={{ width: `${Math.min(100, ratio)}%` }}
@@ -941,28 +855,27 @@ export default function Dashboard() {
                         );
                     })}
                     {budgets.length === 0 && (
-                        <div className="col-span-full text-center py-8 text-sm text-outline font-medium">
+                        <div className="col-span-full text-center py-8 text-sm text-muted-foreground font-medium">
                             No budgets configured.
                         </div>
                     )}
                 </div>
             </div>
 
-            {/* Floating Action Button — opens the same Add Transaction modal as the header button */}
+            {/* Floating Action Button */}
             <button
                 onClick={() => setIsAddTxOpen(true)}
-                className="fixed bottom-8 right-8 w-14 h-14 rounded-full bg-pf-primary text-on-primary shadow-2xl shadow-pf-primary/30 flex items-center justify-center hover:scale-105 active:scale-95 hover:bg-pf-primary-container transition-all z-40"
+                className="fixed bottom-8 right-8 w-14 h-14 rounded-full bg-primary text-primary-foreground shadow-2xl shadow-primary/30 flex items-center justify-center hover:scale-105 active:scale-95 transition-all z-40"
                 aria-label="Add transaction"
             >
                 <Plus className="h-6 w-6" />
             </button>
 
-            {/* Add Transaction Modal component */}
+            {/* Add Transaction Modal */}
             <AddTransactionModal
                 isOpen={isAddTxOpen}
                 onClose={() => setIsAddTxOpen(false)}
             />
-
         </div>
     );
 }

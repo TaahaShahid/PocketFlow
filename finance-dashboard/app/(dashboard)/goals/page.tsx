@@ -1,10 +1,14 @@
 'use client';
 
 import React, { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useFinanceStore } from '../../../hooks/useFinanceStore';
 import { useGoals } from '@/context/GoalContext';
 import { Goal } from '../../../types';
-import { Plus, PiggyBank, Trash2, CheckCircle2, DollarSign, Loader2 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Plus, PiggyBank, Trash2, CheckCircle2, DollarSign, Loader2, X, Calendar, User, Tag } from 'lucide-react';
+
+const cardBase = 'rounded-3xl border border-border bg-card/45 backdrop-blur-xl shadow-2xl transition-all duration-300 hover:border-white/10';
 
 export default function GoalsPage() {
   const { goals, addGoal, deleteGoal, contributeToGoal, loading } = useGoals();
@@ -23,13 +27,12 @@ export default function GoalsPage() {
   const [contribution, setContribution] = useState('');
 
   const [errors, setErrors] = useState<Record<string, string>>({});
-
   const [currentTime] = useState(() => new Date().getTime());
 
   if (loading) {
     return (
       <div className="min-h-[60vh] flex items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-pf-primary" />
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
       </div>
     );
   }
@@ -124,23 +127,22 @@ export default function GoalsPage() {
   };
 
   return (
-    <div className="space-y-6">
-
+    <div className="space-y-6 pb-20">
       {/* Header Panel */}
       <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4">
         <div>
-          <h2 className="text-xl font-bold text-on-surface">Savings Goals</h2>
-          <p className="text-sm text-on-surface-variant mt-1">
+          <h2 className="text-xl font-bold tracking-tight text-foreground">Savings Goals</h2>
+          <p className="text-sm text-muted-foreground mt-0.5">
             Track money allocated for long-term targets and allocate contributions.
           </p>
         </div>
-        <button
+        <Button
           onClick={handleOpenAdd}
-          className="flex items-center justify-center gap-2 h-11 px-5 text-sm font-semibold text-on-primary bg-pf-primary rounded-xl hover:bg-pf-primary-container shadow-md cursor-pointer self-start sm:self-auto"
+          className="rounded-xl shadow-lg shadow-primary/10 self-start sm:self-auto"
         >
           <Plus className="h-4.5 w-4.5" />
           <span>Create Savings Goal</span>
-        </button>
+        </Button>
       </div>
 
       {/* Grid of Goals */}
@@ -153,25 +155,25 @@ export default function GoalsPage() {
           return (
             <div
               key={g.id}
-              className="p-6 glass-card rounded-2xl shadow-sm flex flex-col justify-between h-72 relative overflow-hidden"
+              className={`${cardBase} p-6 flex flex-col justify-between h-72`}
             >
               <div>
                 {/* Upper line: Title & Icon */}
                 <div className="flex items-start justify-between">
                   <div className="flex items-center gap-3">
-                    <div className={`p-3 rounded-xl ${isCompleted
-                      ? 'bg-green-500/10 text-green-400'
-                      : 'bg-pf-primary/10 text-pf-primary'
+                    <div className={`p-3 rounded-2xl ${isCompleted
+                      ? 'bg-emerald-500/10 text-emerald-500 border border-emerald-500/10'
+                      : 'bg-primary/10 text-primary border border-primary/10'
                       }`}>
                       <PiggyBank className="h-6 w-6" />
                     </div>
                     <div>
-                      <h3 className="text-sm font-bold text-on-surface leading-tight">
+                      <h3 className="text-sm font-bold text-foreground leading-tight">
                         {g.name}
                       </h3>
                       <p 
                         suppressHydrationWarning={true}
-                        className="text-[10px] font-bold text-on-surface-variant uppercase mt-0.5 tracking-wider"
+                        className="text-[9px] font-bold text-muted-foreground uppercase mt-1 tracking-widest"
                       >
                         {isCompleted ? 'COMPLETED' : `${daysLeft} days remaining`}
                       </p>
@@ -180,21 +182,21 @@ export default function GoalsPage() {
 
                   <button
                     onClick={() => handleDelete(g.id)}
-                    className="p-1.5 text-on-surface-variant hover:text-error rounded-lg hover:bg-white/5 transition-all"
+                    className="p-1.5 text-muted-foreground hover:text-destructive rounded-lg hover:bg-destructive/10 transition-colors"
                     title="Delete Goal"
                   >
-                    <Trash2 className="h-4 w-4" />
+                    <Trash2 className="h-4.5 w-4.5" />
                   </button>
                 </div>
 
                 {/* Balance display */}
                 <div className="mt-6">
-                  <span className="text-xs text-on-surface-variant font-semibold">Total Savings Accumulated</span>
+                  <span className="text-[10px] text-muted-foreground font-bold uppercase tracking-wider">Accumulated Savings</span>
                   <div className="flex items-baseline gap-1.5 mt-1">
-                    <span className="text-3xl font-extrabold text-on-surface tracking-tight">
+                    <span className="text-3xl font-extrabold text-foreground tracking-tight">
                       {formatCurrency(g.currentAmount)}
                     </span>
-                    <span className="text-sm text-on-surface-variant">
+                    <span className="text-xs text-muted-foreground font-medium">
                       / {formatCurrency(g.targetAmount)}
                     </span>
                   </div>
@@ -204,14 +206,14 @@ export default function GoalsPage() {
               {/* Progress bar and contribution */}
               <div className="space-y-4">
                 <div className="space-y-1">
-                  <div className="w-full h-2.5 bg-jm-dark-blue/20 rounded-full overflow-hidden">
+                  <div className="w-full h-2 bg-muted/20 rounded-full overflow-hidden">
                     <div
-                      className={`h-full rounded-full transition-all duration-500 ${isCompleted ? 'bg-green-400' : 'bg-pf-primary'
+                      className={`h-full rounded-full transition-all duration-500 ${isCompleted ? 'bg-emerald-500' : 'bg-primary'
                         }`}
                       style={{ width: `${Math.min(100, ratio)}%` }}
                     />
                   </div>
-                  <div className="flex justify-between text-[11px] font-bold text-on-surface-variant">
+                  <div className="flex justify-between text-[10px] font-bold text-muted-foreground">
                     <span>{ratio.toFixed(0)}% Saved</span>
                     <span suppressHydrationWarning={true}>Target {new Date(g.deadline).toLocaleDateString(undefined, { month: 'short', year: 'numeric' })}</span>
                   </div>
@@ -219,14 +221,15 @@ export default function GoalsPage() {
 
                 {/* Contribute Button */}
                 {!isCompleted ? (
-                  <button
+                  <Button
                     onClick={() => handleOpenContribute(g)}
-                    className="w-full py-2.5 rounded-xl border-2 border-pf-primary hover:bg-pf-primary/10 font-semibold text-xs text-pf-primary text-center transition-all"
+                    variant="outline"
+                    className="w-full h-9 rounded-xl border-primary/30 hover:bg-primary/10 text-primary text-xs"
                   >
                     Contribute Funds
-                  </button>
+                  </Button>
                 ) : (
-                  <div className="flex items-center justify-center gap-1.5 py-2.5 bg-green-500/10 text-green-400 text-xs font-bold rounded-xl border border-green-500/10">
+                  <div className="flex items-center justify-center gap-1.5 py-2 bg-emerald-500/10 text-emerald-500 text-xs font-bold rounded-xl border border-emerald-500/15">
                     <CheckCircle2 className="h-4.5 w-4.5" />
                     <span>Goal Completed</span>
                   </div>
@@ -238,215 +241,223 @@ export default function GoalsPage() {
 
         {/* Empty State */}
         {goals.length === 0 && (
-          <div className="col-span-full text-center py-16 glass-card rounded-2xl p-6 shadow-sm">
-            <div className="w-16 h-16 bg-slate-900 rounded-2xl flex items-center justify-center mx-auto mb-4 text-on-surface-variant">
+          <div className="col-span-full text-center py-16 border border-border bg-card/45 rounded-3xl p-6 shadow-2xl">
+            <div className="w-16 h-16 bg-muted/10 border border-border rounded-2xl flex items-center justify-center mx-auto mb-4 text-muted-foreground">
               <PiggyBank className="h-8 w-8" />
             </div>
-            <h3 className="text-base font-bold text-on-surface">Create your first savings goal.</h3>
-            <p className="text-sm text-on-surface-variant mt-1 max-w-sm mx-auto">
+            <h3 className="text-base font-bold text-foreground">Create your first savings goal.</h3>
+            <p className="text-sm text-muted-foreground mt-1 max-w-sm mx-auto">
               Setup a financial goal with target amounts and timelines to allocate savings contributions.
             </p>
-            <button
+            <Button
               onClick={handleOpenAdd}
-              className="mt-4 px-5 py-2.5 text-xs font-bold text-on-primary bg-pf-primary hover:bg-pf-primary-container rounded-xl shadow-md"
+              className="mt-4 rounded-xl shadow-md"
             >
               Add First Goal
-            </button>
+            </Button>
           </div>
         )}
       </div>
 
       {/* Add Goal Dialog */}
-      {isAddOpen && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/55 backdrop-blur-sm animate-fade-in">
-          <div
-            className="bg-jm-navy rounded-2xl shadow-2xl border border-jm-dark-blue/50 p-6 relative"
-            style={{
-              width: "640px",
-              maxWidth: "95vw",
-              maxHeight: "90vh",
-            }}
-          >
-            <h2 className="text-xl font-bold text-on-surface mb-6 shrink-0">
-              Create Savings Goal
-            </h2>
+      <AnimatePresence>
+        {isAddOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setIsAddOpen(false)}
+              className="fixed inset-0 bg-black/40 backdrop-blur-sm"
+            />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 10 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 10 }}
+              className="bg-card/95 border border-border text-foreground rounded-3xl shadow-2xl p-6 relative w-full max-w-lg overflow-hidden z-10"
+            >
+              <div className="flex items-center justify-between mb-6 border-b border-border pb-4">
+                <h2 className="text-xl font-bold tracking-tight">Create Savings Goal</h2>
+                <button
+                  onClick={() => setIsAddOpen(false)}
+                  className="p-1 rounded-lg hover:bg-muted/10 text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  <X className="h-5 w-5" />
+                </button>
+              </div>
 
-            <div className="overflow-y-auto max-h-[70vh] pr-2">
-              <form onSubmit={handleAddGoalSubmit} className="space-y-5">
-
+              <form onSubmit={handleAddGoalSubmit} className="space-y-4">
                 {/* Goal Name */}
                 <div>
-                  <label className="block text-xs font-semibold text-on-surface-variant uppercase tracking-wider mb-1.5">
-                    Goal Name
+                  <label className="block text-xs font-bold text-muted-foreground uppercase tracking-wider mb-1.5 flex items-center gap-1">
+                    <Tag className="w-3.5 h-3.5" /> Goal Name
                   </label>
-
                   <input
                     type="text"
                     placeholder="e.g. Tesla Model Y Fund"
                     value={goalName}
                     onChange={(e) => setGoalName(e.target.value)}
-                    className={`w-full h-11 px-3.5 border rounded-xl text-sm bg-slate-900 text-on-surface focus:outline-none focus:ring-2 focus:ring-pf-primary ${errors.name
-                      ? "border-error ring-2 ring-error/20"
-                      : "border-jm-dark-blue/50"
-                      }`}
+                    className={`w-full h-10 px-3 border rounded-xl text-sm bg-muted/10 text-foreground border-border focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-transparent transition-all
+                    ${errors.name ? "border-rose-500 ring-2 ring-rose-500/20" : ""}`}
                   />
                   {errors.name && (
-                    <p className="text-error text-xs mt-1 font-medium">
-                      {errors.name}
-                    </p>
+                    <p className="text-rose-500 text-xs mt-1 font-medium">{errors.name}</p>
                   )}
                 </div>
 
                 {/* Amounts */}
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-xs font-semibold text-on-surface-variant uppercase tracking-wider mb-1.5">
-                      Target Amount ($)
+                    <label className="block text-xs font-bold text-muted-foreground uppercase tracking-wider mb-1.5 flex items-center gap-1">
+                      <DollarSign className="w-3.5 h-3.5" /> Target Amount ($)
                     </label>
-
                     <input
                       type="number"
                       step="1"
                       placeholder="0"
                       value={targetAmount}
                       onChange={(e) => setTargetAmount(e.target.value)}
-                      className={`w-full h-11 px-3.5 border rounded-xl text-sm bg-slate-900 text-on-surface focus:outline-none focus:ring-2 focus:ring-pf-primary ${errors.targetAmount
-                        ? "border-error ring-2 ring-error/20"
-                        : "border-jm-dark-blue/50"
-                        }`}
+                      className={`w-full h-10 px-3 border rounded-xl text-sm bg-muted/10 text-foreground border-border focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-transparent transition-all
+                      ${errors.targetAmount ? "border-rose-500 ring-2 ring-rose-500/20" : ""}`}
                     />
                     {errors.targetAmount && (
-                      <p className="text-error text-xs mt-1 font-medium">
-                        {errors.targetAmount}
-                      </p>
+                      <p className="text-rose-500 text-xs mt-1 font-medium">{errors.targetAmount}</p>
                     )}
                   </div>
 
                   <div>
-                    <label className="block text-xs font-semibold text-on-surface-variant uppercase tracking-wider mb-1.5">
-                      Starting Amount ($)
+                    <label className="block text-xs font-bold text-muted-foreground uppercase tracking-wider mb-1.5 flex items-center gap-1">
+                      <DollarSign className="w-3.5 h-3.5" /> Starting Amount ($)
                     </label>
-
                     <input
                       type="number"
                       step="1"
                       placeholder="0"
                       value={currentAmount}
                       onChange={(e) => setCurrentAmount(e.target.value)}
-                      className={`w-full h-11 px-3.5 border rounded-xl text-sm bg-slate-900 text-on-surface focus:outline-none focus:ring-2 focus:ring-pf-primary ${errors.currentAmount
-                        ? "border-error ring-2 ring-error/20"
-                        : "border-jm-dark-blue/50"
-                        }`}
+                      className={`w-full h-10 px-3 border rounded-xl text-sm bg-muted/10 text-foreground border-border focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-transparent transition-all
+                      ${errors.currentAmount ? "border-rose-500 ring-2 ring-rose-500/20" : ""}`}
                     />
                     {errors.currentAmount && (
-                      <p className="text-error text-xs mt-1 font-medium">
-                        {errors.currentAmount}
-                      </p>
+                      <p className="text-rose-500 text-xs mt-1 font-medium">{errors.currentAmount}</p>
                     )}
                   </div>
                 </div>
 
                 {/* Deadline */}
                 <div>
-                  <label className="block text-xs font-semibold text-on-surface-variant uppercase tracking-wider mb-1.5">
-                    Target Deadline
+                  <label className="block text-xs font-bold text-muted-foreground uppercase tracking-wider mb-1.5 flex items-center gap-1">
+                    <Calendar className="w-3.5 h-3.5" /> Target Deadline
                   </label>
-
                   <input
                     type="date"
                     value={deadline}
                     onChange={(e) => setDeadline(e.target.value)}
-                    className={`w-full h-11 px-3.5 border rounded-xl text-sm bg-slate-900 text-on-surface focus:outline-none focus:ring-2 focus:ring-pf-primary ${errors.deadline
-                      ? "border-error ring-2 ring-error/20"
-                      : "border-jm-dark-blue/50"
-                      }`}
+                    className={`w-full h-10 px-3 border rounded-xl text-sm bg-muted/10 text-foreground border-border focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-transparent transition-all
+                    ${errors.deadline ? "border-rose-500 ring-2 ring-rose-500/20" : ""}`}
                   />
                   {errors.deadline && (
-                    <p className="text-error text-xs mt-1 font-medium">
-                      {errors.deadline}
-                    </p>
+                    <p className="text-rose-500 text-xs mt-1 font-medium">{errors.deadline}</p>
                   )}
                 </div>
 
                 {/* Actions */}
-                <div className="flex justify-end gap-2 pt-4">
-                  <button
+                <div className="flex justify-end gap-2 pt-4 border-t border-border mt-6">
+                  <Button
                     type="button"
+                    variant="ghost"
                     onClick={() => setIsAddOpen(false)}
-                    className="px-4 py-2 text-sm font-semibold rounded-xl hover:bg-jm-dark-blue/10 text-on-surface-variant"
+                    className="rounded-xl"
                   >
                     Cancel
-                  </button>
-
-                  <button
+                  </Button>
+                  <Button
                     type="submit"
-                    className="px-5 py-2 text-sm font-semibold text-on-primary bg-pf-primary rounded-xl hover:bg-pf-primary-container shadow-md"
+                    className="rounded-xl shadow-md"
                   >
                     Create Goal
-                  </button>
+                  </Button>
                 </div>
-
               </form>
-            </div>
+            </motion.div>
           </div>
-        </div>
-      )}
+        )}
+      </AnimatePresence>
 
       {/* Contribute Dialog */}
-      {isContributeOpen && activeGoal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/55 backdrop-blur-sm">
-          <div className="w-full max-w-md bg-jm-navy border border-jm-dark-blue/50 rounded-2xl shadow-xl p-6">
-            <h2 className="text-xl font-bold text-on-surface mb-2">Contribute Savings</h2>
-            <p className="text-xs text-on-surface-variant mb-4">
-              Allocate savings to: <span className="font-bold text-on-surface">{activeGoal.name}</span>
-            </p>
+      <AnimatePresence>
+        {isContributeOpen && activeGoal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => { setIsContributeOpen(false); setActiveGoal(null); }}
+              className="fixed inset-0 bg-black/40 backdrop-blur-sm"
+            />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 10 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 10 }}
+              className="bg-card/95 border border-border text-foreground rounded-3xl shadow-2xl p-6 relative w-full max-w-md overflow-hidden z-10"
+            >
+              <div className="flex items-center justify-between mb-2 pb-2">
+                <h2 className="text-xl font-bold tracking-tight">Contribute Savings</h2>
+                <button
+                  onClick={() => { setIsContributeOpen(false); setActiveGoal(null); }}
+                  className="p-1 rounded-lg hover:bg-muted/10 text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  <X className="h-5 w-5" />
+                </button>
+              </div>
+              <p className="text-xs text-muted-foreground mb-4 font-semibold">
+                Allocate savings to: <span className="text-foreground font-bold">{activeGoal.name}</span>
+              </p>
 
-            <form onSubmit={handleContributeSubmit} className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/55 backdrop-blur-sm animate-fade-in">
-              {/* Contribution Input */}
-              <div>
-                <label className="block text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-1.5">Contribution Amount ($)</label>
-                <div className="relative">
-                  <span className="absolute inset-y-0 left-3 flex items-center pointer-events-none text-on-surface-variant">
-                    <DollarSign className="h-4.5 w-4.5" />
-                  </span>
+              <form onSubmit={handleContributeSubmit} className="space-y-4">
+                {/* Contribution Input */}
+                <div>
+                  <label className="block text-xs font-bold text-muted-foreground uppercase tracking-wider mb-1.5 flex items-center gap-1">
+                    <DollarSign className="w-3.5 h-3.5" /> Contribution Amount ($)
+                  </label>
                   <input
                     type="number"
                     step="0.01"
                     placeholder="0.00"
                     value={contribution}
                     onChange={(e) => setContribution(e.target.value)}
-                    className={`w-full h-11 pl-9 pr-3.5 border rounded-xl text-sm bg-slate-900 border-jm-dark-blue/50 text-on-surface focus:outline-none focus:ring-2 focus:ring-pf-primary ${errors.contribution ? 'border-error ring-2 ring-error/20' : ''
-                      }`}
+                    className={`w-full h-10 px-3 border rounded-xl text-sm bg-muted/10 text-foreground border-border focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-transparent transition-all
+                    ${errors.contribution ? 'border-rose-500 ring-2 ring-rose-500/20' : ''}`}
                   />
+                  {errors.contribution && <p className="text-rose-500 text-xs mt-1 font-medium">{errors.contribution}</p>}
+
+                  <p className="text-[10px] text-muted-foreground mt-2 font-bold">
+                    Note: Funds will be registered as a savings transaction linked to this goal.
+                  </p>
                 </div>
-                {errors.contribution && <p className="text-error text-xs mt-1 font-medium">{errors.contribution}</p>}
 
-                <p className="text-[10px] text-on-surface-variant mt-2 font-medium">
-                  Note: Funds will be deducted from your primary wallet/debit card and registered as a savings transaction.
-                </p>
-              </div>
-
-              {/* Actions */}
-              <div className="flex justify-end gap-2 pt-2">
-                <button
-                  type="button"
-                  onClick={() => { setIsContributeOpen(false); setActiveGoal(null); }}
-                  className="px-4 py-2 text-sm font-semibold rounded-xl hover:bg-jm-dark-blue/10 text-on-surface-variant"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="px-5 py-2 text-sm font-semibold text-on-primary bg-pf-primary rounded-xl hover:bg-pf-primary-container shadow-md"
-                >
-                  Confirm Deposit
-                </button>
-              </div>
-            </form>
+                {/* Actions */}
+                <div className="flex justify-end gap-2 pt-4 border-t border-border mt-6">
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    onClick={() => { setIsContributeOpen(false); setActiveGoal(null); }}
+                    className="rounded-xl"
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    type="submit"
+                    className="rounded-xl shadow-md"
+                  >
+                    Confirm Deposit
+                  </Button>
+                </div>
+              </form>
+            </motion.div>
           </div>
-        </div>
-      )}
-
+        )}
+      </AnimatePresence>
     </div>
   );
 }
