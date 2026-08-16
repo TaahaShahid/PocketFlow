@@ -61,7 +61,7 @@ while true; do
         --output text 2>/dev/null || echo "")
     
     # Filter out terminated/terminating instances to see if any are left
-    COUNT=$(echo "$INSTANCES" | grep -v -E "Terminating|Terminated|^$" | wc -l | tr -d ' ' || echo "0")
+    COUNT=$(echo "$INSTANCES" | grep -v -E "Terminating|Terminated|^$" | wc -l | tr -d ' ' || true)
     
     if [ "$COUNT" -eq 0 ]; then
         echo "Success: All instances have been terminated cleanly."
