@@ -1,13 +1,14 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
-import { LogOut, Settings, Bell, Menu, CheckCircle2, AlertTriangle, ArrowDownLeft, ChevronDown } from 'lucide-react';
+import { LogOut, Settings, Bell, Menu, CheckCircle2, AlertTriangle, ArrowDownLeft, ChevronDown, Sun, Moon } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { usePathname } from 'next/navigation';
 import Link from "next/link";
 import { useNotifications } from "@/context/NotificationContext";
 import { formatRelativeTime } from "@/utils/formatRelativeTime";
 import { cn } from '@/lib/utils';
+import { useTheme } from '@/components/shared/ThemeProvider';
 
 interface HeaderProps {
   onMenuClick: () => void;
@@ -15,6 +16,7 @@ interface HeaderProps {
 }
 
 export default function Header({ onMenuClick, isCollapsed = false }: HeaderProps) {
+  const { theme, toggleTheme } = useTheme();
   const pathname = usePathname();
   const { profile, user, logout } = useAuth();
   const [showProfileMenu, setShowProfileMenu] = useState(false);
@@ -218,6 +220,16 @@ export default function Header({ onMenuClick, isCollapsed = false }: HeaderProps
             </div>
           )}
         </div>
+
+        {/* Theme Toggle Button */}
+        <button
+          onClick={toggleTheme}
+          className="p-2.5 rounded-xl hover:bg-white/5 text-on-surface-variant hover:text-on-surface border border-white/10 shadow-sm transition-all cursor-pointer animate-fade-in"
+          title={theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+          aria-label="Toggle Theme"
+        >
+          {theme === 'dark' ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+        </button>
 
         {/* Settings button */}
         <Link

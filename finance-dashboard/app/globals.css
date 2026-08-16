@@ -42,15 +42,15 @@
   --color-pf-primary: #adc6ff;
   --color-pf-primary-container: #4d8eff;
   --color-pf-secondary: #bec6e0;
-  --color-surface: #101415;
+  --color-surface: var(--surface);
   --color-surface-container-lowest: #0b0f10;
-  --color-on-surface: #e0e3e5;
-  --color-on-surface-variant: #c2c6d6;
+  --color-on-surface: var(--on-surface);
+  --color-on-surface-variant: var(--on-surface-variant);
   --color-on-tertiary: #502400;
   --color-tertiary: #ffb786;
   --color-tertiary-container: #df7412;
-  --color-outline-variant: #424754;
-  --color-outline: #8c909f;
+  --color-outline-variant: var(--outline-variant);
+  --color-outline: var(--outline);
   --color-error: #ffb4ab;
   --color-surface-container: #1d2022;
   --color-surface-container-highest: #323537;
@@ -128,6 +128,12 @@
   /* Input border */
   --input: #E0E0E0;
   --ring: #2E3A8C;
+
+  --surface: #F8FAFC;
+  --on-surface: #0F172A;
+  --on-surface-variant: #64748B;
+  --outline: rgba(0, 0, 0, 0.15);
+  --outline-variant: rgba(0, 0, 0, 0.08);
 }
 
 .dark {
@@ -165,6 +171,12 @@
   /* Subtle border using Dark Blue */
   --input: #2E3A8C;
   --ring: #4A5FD9;
+
+  --surface: #101415;
+  --on-surface: #e0e3e5;
+  --on-surface-variant: #c2c6d6;
+  --outline: #8c909f;
+  --outline-variant: #424754;
 }
 
 /* Base styles styling elements explicitly according to Brand Guidelines */

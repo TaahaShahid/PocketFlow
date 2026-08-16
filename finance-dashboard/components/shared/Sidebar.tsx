@@ -12,8 +12,8 @@ import {
   PieChart,
   FileText,
   X,
-  ChevronLeft,
-  ChevronRight
+  PanelLeftClose,
+  PanelLeft
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/context/AuthContext';
@@ -72,28 +72,58 @@ export default function Sidebar({ isOpen, onClose, isCollapsed = false, onToggle
           isCollapsed ? "lg:w-20" : "lg:w-64"
         )}
       >
-        {/* Sidebar Header with Brand Logo */}
+        {/* Sidebar Header with Brand Logo or Toggle Icon */}
         <div className={cn(
           "flex items-center justify-between h-20 border-b border-white/10 px-6 transition-all duration-300",
-          isCollapsed ? "lg:px-4 lg:justify-center" : ""
+          isCollapsed ? "lg:px-0 lg:justify-center" : ""
         )}>
-          <Link href="/dashboard" className="flex items-center gap-3 group" onClick={onClose}>
-            {/* Reverted Logo Symbol to original style using original colors */}
-            <div className="relative flex items-center justify-center w-10 h-10 rounded-xl bg-pf-primary text-on-primary shadow-md shadow-pf-primary/20 transition-all duration-300 group-hover:scale-105 group-hover:shadow-pf-primary/30">
-              <span className="text-xl font-bold font-sans tracking-tight">P</span>
-              <span className="absolute bottom-0.5 right-1.5 text-[9px] font-bold opacity-75">F</span>
-            </div>
-            {!isCollapsed && (
-              <div className="flex flex-col animate-fade-in">
-                <span className="text-base font-bold tracking-tight text-on-surface leading-none">
-                  PocketFlow
-                </span>
-                <span className="text-[10px] font-semibold text-pf-primary mt-1 tracking-wider uppercase">
-                  Finance Hub
-                </span>
+          {isCollapsed ? (
+            /* Collapsed State: Logo turns into PanelLeft toggle icon on hover */
+            <button
+              onClick={onToggleCollapse}
+              className="relative flex items-center justify-center w-10 h-10 rounded-xl bg-pf-primary text-on-primary shadow-md shadow-pf-primary/20 transition-all duration-300 hover:bg-pf-primary/20 hover:text-pf-primary group cursor-pointer"
+              title="Expand Sidebar"
+            >
+              {/* Logo badge display */}
+              <div className="absolute inset-0 flex items-center justify-center group-hover:opacity-0 transition-opacity duration-200">
+                <span className="text-xl font-bold font-sans tracking-tight">P</span>
+                <span className="absolute bottom-0.5 right-1.5 text-[9px] font-bold opacity-75">F</span>
               </div>
-            )}
-          </Link>
+              {/* Collapse open panel icon display on hover */}
+              <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200 text-on-surface">
+                <PanelLeft className="h-5 w-5" />
+              </div>
+            </button>
+          ) : (
+            /* Expanded State: Logo & Brand Name on left, PanelLeftClose button on right */
+            <div className="flex items-center justify-between w-full">
+              <Link href="/dashboard" className="flex items-center gap-3 group" onClick={onClose}>
+                <div className="relative flex items-center justify-center w-10 h-10 rounded-xl bg-pf-primary text-on-primary shadow-md shadow-pf-primary/20 transition-all duration-300 group-hover:scale-105">
+                  <span className="text-xl font-bold font-sans tracking-tight">P</span>
+                  <span className="absolute bottom-0.5 right-1.5 text-[9px] font-bold opacity-75">F</span>
+                </div>
+                <div className="flex flex-col">
+                  <span className="text-base font-bold tracking-tight text-on-surface leading-none">
+                    PocketFlow
+                  </span>
+                  <span className="text-[10px] font-semibold text-pf-primary mt-1 tracking-wider uppercase">
+                    Finance Hub
+                  </span>
+                </div>
+              </Link>
+
+              {/* Toggle close button on desktop */}
+              {onToggleCollapse && (
+                <button
+                  onClick={onToggleCollapse}
+                  className="hidden lg:flex p-1.5 rounded-lg text-on-surface-variant hover:text-on-surface hover:bg-white/5 transition-colors cursor-pointer"
+                  title="Collapse Sidebar"
+                >
+                  <PanelLeftClose className="h-5 w-5" />
+                </button>
+              )}
+            </div>
+          )}
 
           {/* Close button for Mobile drawer */}
           <button
@@ -124,7 +154,7 @@ export default function Sidebar({ isOpen, onClose, isCollapsed = false, onToggle
                 )}
                 title={isCollapsed ? item.name : undefined}
               >
-                {/* Active link sliding background indicator - reverted to original colors */}
+                {/* Active link sliding background indicator */}
                 {isActive && (
                   <motion.div
                     layoutId="activeSidebarTab"
@@ -144,19 +174,6 @@ export default function Sidebar({ isOpen, onClose, isCollapsed = false, onToggle
             );
           })}
         </nav>
-
-        {/* Collapse Button - only visible on desktop layout */}
-        {onToggleCollapse && (
-          <div className="hidden lg:block px-4 py-2 border-t border-white/5">
-            <button
-              onClick={onToggleCollapse}
-              className="w-full flex items-center justify-center p-2 rounded-xl text-on-surface-variant hover:text-on-surface hover:bg-white/5 transition-colors"
-              title={isCollapsed ? "Expand Sidebar" : "Collapse Sidebar"}
-            >
-              {isCollapsed ? <ChevronRight className="h-5 w-5" /> : <ChevronLeft className="h-5 w-5" />}
-            </button>
-          </div>
-        )}
 
         {/* Sidebar Footer Account Details */}
         <div className={cn(
