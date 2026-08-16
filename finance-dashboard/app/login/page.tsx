@@ -81,9 +81,11 @@ export default function LoginPage() {
                 >
                     {/* Logo Header */}
                     <div className="flex flex-col items-center mb-8 text-center">
-                        <div className="w-12 h-12 rounded-xl bg-primary flex items-center justify-center shadow-lg shadow-primary/20">
-                            <Wallet className="w-6 h-6 text-white" />
-                        </div>
+                        <img
+                            src="/B_LOGO.jpg"
+                            alt="PocketFlow Logo"
+                            className="w-16 h-16 rounded-2xl object-cover shadow-lg shadow-primary/15"
+                        />
                         <h1 className="text-2xl font-bold text-foreground mt-5 tracking-tight">
                             Welcome back
                         </h1>

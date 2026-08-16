@@ -17,6 +17,7 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/context/AuthContext';
+import { useTheme } from '@/components/shared/ThemeProvider';
 
 interface SidebarProps {
   isOpen: boolean;
@@ -26,6 +27,7 @@ interface SidebarProps {
 }
 
 export default function Sidebar({ isOpen, onClose, isCollapsed = false, onToggleCollapse }: SidebarProps) {
+  const { theme } = useTheme();
   const pathname = usePathname();
   const { user, profile } = useAuth();
 
@@ -81,13 +83,16 @@ export default function Sidebar({ isOpen, onClose, isCollapsed = false, onToggle
             /* Collapsed State: Logo turns into PanelLeft toggle icon on hover */
             <button
               onClick={onToggleCollapse}
-              className="relative flex items-center justify-center w-10 h-10 rounded-xl bg-pf-primary text-on-primary shadow-md shadow-pf-primary/20 transition-all duration-300 hover:bg-pf-primary/20 hover:text-pf-primary group cursor-pointer"
+              className="relative flex items-center justify-center w-10 h-10 rounded-xl bg-transparent transition-all duration-300 hover:bg-muted/30 group cursor-pointer"
               title="Expand Sidebar"
             >
               {/* Logo badge display */}
               <div className="absolute inset-0 flex items-center justify-center group-hover:opacity-0 transition-opacity duration-200">
-                <span className="text-xl font-bold font-sans tracking-tight">P</span>
-                <span className="absolute bottom-0.5 right-1.5 text-[9px] font-bold opacity-75">F</span>
+                <img
+                  src={theme === 'dark' ? '/B_LOGO.jpg' : '/W_LOGO.jpg'}
+                  alt="Logo"
+                  className="w-8 h-8 rounded-lg object-cover"
+                />
               </div>
               {/* Collapse open panel icon display on hover */}
               <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200 text-on-surface">
@@ -98,10 +103,11 @@ export default function Sidebar({ isOpen, onClose, isCollapsed = false, onToggle
             /* Expanded State: Logo & Brand Name on left, PanelLeftClose button on right */
             <div className="flex items-center justify-between w-full">
               <Link href="/dashboard" className="flex items-center gap-3 group" onClick={onClose}>
-                <div className="relative flex items-center justify-center w-10 h-10 rounded-xl bg-pf-primary text-on-primary shadow-md shadow-pf-primary/20 transition-all duration-300 group-hover:scale-105">
-                  <span className="text-xl font-bold font-sans tracking-tight">P</span>
-                  <span className="absolute bottom-0.5 right-1.5 text-[9px] font-bold opacity-75">F</span>
-                </div>
+                <img
+                  src={theme === 'dark' ? '/B_LOGO.jpg' : '/W_LOGO.jpg'}
+                  alt="PocketFlow Logo"
+                  className="w-10 h-10 rounded-xl object-cover shadow-sm transition-all duration-300 group-hover:scale-105"
+                />
                 <div className="flex flex-col">
                   <span className="text-base font-bold tracking-tight text-on-surface leading-none">
                     PocketFlow

@@ -7,8 +7,10 @@ import { useAuth } from '@/context/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Download, Printer, Calendar, CheckCircle, Loader2 } from 'lucide-react';
+import { useTheme } from '@/components/shared/ThemeProvider';
 
 export default function ReportsPage() {
+  const { theme } = useTheme();
   const { transactions, loading: txLoading } = useTransactions();
   const { profile, loading: authLoading } = useAuth();
   const { addToast } = useFinanceStore();
@@ -239,10 +241,11 @@ export default function ReportsPage() {
         {/* Statement Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-border pb-6 gap-4">
           <div className="flex items-center gap-3">
-            <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-primary text-primary-foreground shadow-md">
-              <span className="text-xl font-bold font-sans">P</span>
-              <span className="text-xs font-bold font-sans self-end mb-1 ml-0.5 text-primary-foreground/70">F</span>
-            </div>
+            <img
+              src={theme === 'dark' ? '/B_LOGO.jpg' : '/W_LOGO.jpg'}
+              alt="PocketFlow Logo"
+              className="w-10 h-10 rounded-xl object-cover shadow-sm"
+            />
             <div>
               <h2 className="text-base font-bold tracking-tight text-foreground uppercase leading-none">
                 PocketFlow

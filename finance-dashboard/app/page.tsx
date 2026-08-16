@@ -225,10 +225,11 @@ void main() {
       <header className="fixed top-0 left-0 right-0 z-50 border-b border-outline-variant bg-surface/65 backdrop-blur-xl">
         <nav className="flex items-center justify-between px-6 py-4 max-w-7xl mx-auto">
           <Link href="/" className="flex items-center gap-3 group">
-            <div className="relative flex items-center justify-center w-9 h-9 rounded-xl bg-pf-primary text-on-primary shadow-md shadow-pf-primary/20 transition-all duration-300 group-hover:scale-105">
-              <span className="text-lg font-bold font-sans tracking-tight">P</span>
-              <span className="absolute bottom-0.5 right-1.5 text-[8px] font-bold opacity-75">F</span>
-            </div>
+            <img
+              src={theme === 'dark' ? '/B_LOGO.jpg' : '/W_LOGO.jpg'}
+              alt="PocketFlow Logo"
+              className="w-9 h-9 rounded-xl object-cover shadow-sm transition-all duration-300 group-hover:scale-105"
+            />
             <span className="text-base font-bold tracking-tight text-on-surface leading-none">PocketFlow</span>
           </Link>
 
@@ -904,10 +905,11 @@ void main() {
       <footer className="relative z-10 border-t border-outline-variant py-12 px-6 bg-surface">
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
           <div className="flex items-center gap-3">
-            <div className="relative flex items-center justify-center w-8 h-8 rounded-lg bg-pf-primary text-on-primary shadow-md shadow-pf-primary/20">
-              <span className="text-base font-bold font-sans tracking-tight">P</span>
-              <span className="absolute bottom-0.5 right-1.5 text-[6px] font-bold opacity-75">F</span>
-            </div>
+            <img
+              src={theme === 'dark' ? '/B_LOGO.jpg' : '/W_LOGO.jpg'}
+              alt="PocketFlow Logo"
+              className="w-8 h-8 rounded-lg object-cover shadow-sm"
+            />
             <span className="text-sm font-bold tracking-tight text-on-surface">PocketFlow</span>
           </div>
 
