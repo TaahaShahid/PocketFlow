@@ -126,6 +126,7 @@ echo "Fetching application secrets from SSM..."
 FIREBASE_SERVICE_ACCOUNT_B64=$(aws ssm get-parameter --name "/pocketflow/production/firebase_service_account_b64" --with-decryption --query "Parameter.Value" --output text || echo "")
 AWS_ACCESS_KEY_ID_VAL=$(aws ssm get-parameter --name "/pocketflow/production/aws_access_key_id" --with-decryption --query "Parameter.Value" --output text || echo "")
 AWS_SECRET_ACCESS_KEY_VAL=$(aws ssm get-parameter --name "/pocketflow/production/aws_secret_access_key" --with-decryption --query "Parameter.Value" --output text || echo "")
+GEMINI_API_KEY_VAL=$(aws ssm get-parameter --name "/pocketflow/production/gemini_api_key" --with-decryption --query "Parameter.Value" --output text || echo "")
 
 # Write the .env file
 cat << ENVFILE > .env
@@ -133,6 +134,7 @@ FIREBASE_SERVICE_ACCOUNT_B64=${FIREBASE_SERVICE_ACCOUNT_B64}
 AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID_VAL}
 AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY_VAL}
 AWS_DEFAULT_REGION=us-east-1
+GEMINI_API_KEY=${GEMINI_API_KEY_VAL}
 ENVFILE
 
 chmod 600 .env

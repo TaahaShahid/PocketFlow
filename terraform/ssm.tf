@@ -36,3 +36,17 @@ resource "aws_ssm_parameter" "aws_secret_access_key" {
 
   tags = local.common_tags
 }
+
+resource "aws_ssm_parameter" "gemini_api_key" {
+  name        = "/pocketflow/production/gemini_api_key"
+  description = "Google Gemini API Key for AI Insights"
+  type        = "SecureString"
+  value       = "placeholder-replace-me"
+
+  lifecycle {
+    ignore_changes = [value]
+  }
+
+  tags = local.common_tags
+}
+
