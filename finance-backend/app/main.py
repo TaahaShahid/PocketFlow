@@ -8,6 +8,7 @@ from app.api.transactions import router as transaction_router
 from fastapi.middleware.cors import CORSMiddleware
 from app.api.goals import router as goal_router
 from app.api import budgets
+from app.api.insights import router as insights_router
 
 app = FastAPI(
     title=settings.PROJECT_NAME,
@@ -56,6 +57,12 @@ app.include_router(
     budgets.router,
     prefix="/budgets",
     tags=["Budgets"],
+)
+
+app.include_router(
+    insights_router,
+    prefix="/insights",
+    tags=["Insights"],
 )
 
 app.add_middleware(

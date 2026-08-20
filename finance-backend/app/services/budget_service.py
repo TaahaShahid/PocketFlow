@@ -49,12 +49,14 @@ class BudgetService:
             budget_id,
         )
 
-        if not budget_ref.get().exists:
+        budget_snap = budget_ref.get()
+        if not budget_snap.exists:
             raise HTTPException(
                 status_code=404,
                 detail="Budget not found",
             )
 
+        budget_data = budget_snap.to_dict()
         update_data = {}
 
         if data.category is not None:
@@ -62,6 +64,8 @@ class BudgetService:
 
         if data.monthly_limit is not None:
             update_data["monthlyLimit"] = data.monthly_limit
+            spent = budget_data.get("spent", 0.0)
+            update_data["remaining"] = data.monthly_limit - spent
 
         budget_ref.update(update_data)
 

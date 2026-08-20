@@ -15,3 +15,4 @@ class UpdateTransactionRequest(BaseModel):
     category: Optional[str] = None
     recipient_name: Optional[str] = None
     notes: Optional[str] = None
+    amount: Optional[float] = None

@@ -1,6 +1,4 @@
 
-from app.api import wallets
-from app.api import wallets
 from firebase_admin import firestore
 
 from app.repositories.wallet_repository import WalletRepository
@@ -37,7 +35,7 @@ class WalletService:
 
     @staticmethod
     def create_wallet(user_id: str, wallet):
-        wallet_data = wallet.model_dump()
+        wallet_data = wallet.model_dump() if hasattr(wallet, "model_dump") else wallet.dict()
 
         wallet_data["createdAt"] = firestore.SERVER_TIMESTAMP
 
@@ -62,9 +60,8 @@ class WalletService:
             wallet_id,
         )
 
-        wallet_ref.update(
-            wallet.model_dump(exclude_unset=True)
-        )
+        wallet_data = wallet.model_dump(exclude_unset=True) if hasattr(wallet, "model_dump") else wallet.dict(exclude_unset=True)
+        wallet_ref.update(wallet_data)
 
         return {
             "message": "Wallet updated successfully"

@@ -1,4 +1,5 @@
-from pydantic import BaseSettings
+from typing import Optional
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
@@ -6,9 +7,12 @@ class Settings(BaseSettings):
     API_VERSION: str = "1.0.0"
 
     FIREBASE_SERVICE_ACCOUNT_B64: str
+    GEMINI_API_KEY: Optional[str] = None
 
-    class Config:
-        env_file = ".env"
+    model_config = SettingsConfigDict(
+        env_file=".env",
+        extra="ignore"
+    )
 
 
 settings = Settings()

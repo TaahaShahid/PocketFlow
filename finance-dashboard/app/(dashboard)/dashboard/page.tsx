@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useFinanceStore, CATEGORIES } from '../../../hooks/useFinanceStore';
 import { Card as WalletCard } from '../../../types';
@@ -10,9 +10,10 @@ import { useGoals } from '@/context/GoalContext';
 import { useBudgets } from '@/context/BudgetContext';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { Loader2, ArrowUpRight, ArrowDownRight, Wallet as WalletIcon, Plus, PiggyBank, DollarSign, TrendingUp, TrendingDown, ChevronRight, Activity, Utensils, ShoppingBag, Car, Film, CreditCard, X, Calendar, User, Tag, Layers, LucideIcon } from 'lucide-react';
+import { Loader2, ArrowUpRight, ArrowDownRight, Wallet as WalletIcon, Plus, PiggyBank, DollarSign, TrendingUp, TrendingDown, ChevronRight, Activity, Utensils, ShoppingBag, Car, Film, CreditCard, X, Calendar, User, Tag, Layers, LucideIcon, Sparkles, BrainCircuit } from 'lucide-react';
 import { BarChart, Bar, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import Link from 'next/link';
+import { api } from '@/lib/api/client';
 
 // Quick Custom Transaction Modal for instant data input
 function AddTransactionModal({ isOpen, onClose }: { isOpen: boolean, onClose: () => void }) {
@@ -275,6 +276,22 @@ export default function Dashboard() {
 
     const [chartPeriod, setChartPeriod] = useState<'this-month' | 'last-3' | 'last-6' | 'this-year'>('this-month');
     const [isAddTxOpen, setIsAddTxOpen] = useState(false);
+    const [aiSummary, setAiSummary] = useState<string | null>(null);
+    const [aiLoading, setAiLoading] = useState(true);
+
+    useEffect(() => {
+        async function fetchAISummary() {
+            try {
+                const response = await api.get('/insights/ai-narrative?period=month');
+                setAiSummary(response.data.summary);
+            } catch (err) {
+                console.error('Error fetching AI Summary on dashboard:', err);
+            } finally {
+                setAiLoading(false);
+            }
+        }
+        fetchAISummary();
+    }, []);
 
     // 1. Calculate Key Metrics
     const metrics = useMemo(() => {
@@ -498,6 +515,36 @@ export default function Dashboard() {
                     <Plus className="h-4.5 w-4.5" /> Add Transaction
                 </Button>
             </div>
+
+            {/* AI Summary Banner */}
+            {!aiLoading && aiSummary && (
+                <motion.div
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="rounded-3xl border border-pf-primary/20 bg-gradient-to-r from-pf-primary/5 via-purple-500/5 to-card/5 backdrop-blur-xl shadow-lg p-5 flex flex-col md:flex-row md:items-center justify-between gap-4"
+                >
+                    <div className="flex items-start gap-3">
+                        <div className="p-2 bg-pf-primary/10 rounded-xl text-pf-primary mt-0.5 shrink-0">
+                            <BrainCircuit className="h-5 w-5 animate-pulse" />
+                        </div>
+                        <div>
+                            <div className="flex items-center gap-1.5">
+                                <span className="text-[10px] font-bold uppercase tracking-wider text-pf-primary">PocketFlow AI Assistant</span>
+                                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                            </div>
+                            <p className="text-xs font-semibold text-foreground/90 mt-1 leading-relaxed">
+                                {aiSummary}
+                            </p>
+                        </div>
+                    </div>
+                    <Link href="/insights" className="shrink-0">
+                        <Button variant="outline" size="sm" className="rounded-xl border-pf-primary/20 text-pf-primary hover:bg-pf-primary/5 hover:text-pf-primary text-xs font-bold gap-1 cursor-pointer">
+                            <span>Detailed Insights</span>
+                            <ChevronRight className="h-4 w-4" />
+                        </Button>
+                    </Link>
+                </motion.div>
+            )}
 
             {/* Metrics */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">

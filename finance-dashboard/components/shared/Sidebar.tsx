@@ -13,7 +13,8 @@ import {
   FileText,
   X,
   PanelLeftClose,
-  PanelLeft
+  PanelLeft,
+  Sparkles
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/context/AuthContext';
@@ -53,6 +54,7 @@ export default function Sidebar({ isOpen, onClose, isCollapsed = false, onToggle
     { name: 'Wallet & Cards', href: '/wallet', icon: Wallet },
     { name: 'Savings Goals', href: '/goals', icon: Target },
     { name: 'Analytics', href: '/analytics', icon: PieChart },
+    { name: 'AI Insights', href: '/insights', icon: Sparkles },
     { name: 'Reports', href: '/reports', icon: FileText }
   ];
 

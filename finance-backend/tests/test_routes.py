@@ -62,6 +62,70 @@ async def test_get_budgets_authenticated():
         
         assert response.status_code == 200
         assert response.json() == dummy_budgets
-        mock_get.assert_called_once_with("test-user-123")
+        
+    app.dependency_overrides.clear()
+
+
+@pytest.mark.anyio
+async def test_get_spending_insights_authenticated():
+    from app.core.auth import get_current_user
+    app.dependency_overrides[get_current_user] = mock_get_current_user
     
+    dummy_insights = {
+        "period": {
+            "type": "month",
+            "start": "2026-08-19T00:00:00Z",
+            "end": "2026-08-19T14:00:00Z"
+        },
+        "summary": {
+            "totalIncome": 1000.0,
+            "totalExpenses": 400.0,
+            "netCashFlow": 600.0
+        },
+        "categories": [
+            {"category": "Food", "amount": 400.0, "percentage": 100.0}
+        ],
+        "topExpenses": [],
+        "monthlySpending": [],
+        "monthlyIncome": [],
+        "budgets": [],
+        "comparisons": []
+    }
+    
+    with patch("app.services.insight_service.InsightService.get_spending_insights", return_value=dummy_insights) as mock_get:
+        async with AsyncClient(transport=ASGITransport(app=app), base_url="http://testserver") as ac:
+            response = await ac.get("/insights/spending?period=month")
+        
+        assert response.status_code == 200
+        assert response.json() == dummy_insights
+        mock_get.assert_called_once_with("test-user-123", "month")
+        
+    app.dependency_overrides.clear()
+
+
+@pytest.mark.anyio
+async def test_get_ai_narrative_authenticated():
+    from app.core.auth import get_current_user
+    app.dependency_overrides[get_current_user] = mock_get_current_user
+    
+    dummy_narrative = {
+        "summary": "AI Generated summary.",
+        "insights": [
+            {
+                "title": "Warning Title",
+                "description": "Insight description.",
+                "severity": "warning",
+                "recommendation": "Try spending less."
+            }
+        ]
+    }
+    
+    with patch("app.services.ai_service.AIService.get_ai_narrative", return_value=dummy_narrative) as mock_get:
+        async with AsyncClient(transport=ASGITransport(app=app), base_url="http://testserver") as ac:
+            response = await ac.get("/insights/ai-narrative?period=month")
+        
+        assert response.status_code == 200
+        assert response.json() == dummy_narrative
+        mock_get.assert_called_once_with("test-user-123", "month")
+        
     app.dependency_overrides.clear()

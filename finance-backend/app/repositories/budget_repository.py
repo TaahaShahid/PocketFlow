@@ -24,3 +24,15 @@ class BudgetRepository:
         return BudgetRepository.collection(user_id).add(
             budget_data
         )
+
+    @staticmethod
+    def get_by_category(user_id: str, category: str):
+        docs = (
+            BudgetRepository.collection(user_id)
+            .where("category", "==", category)
+            .limit(1)
+            .stream()
+        )
+        for doc in docs:
+            return doc
+        return None
