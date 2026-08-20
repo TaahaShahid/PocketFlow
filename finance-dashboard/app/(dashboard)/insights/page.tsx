@@ -11,8 +11,6 @@ import {
   AlertTriangle,
   CheckCircle2,
   Info,
-  ArrowRight,
-  TrendingUp,
   BrainCircuit,
   Lightbulb,
   RefreshCw
@@ -38,23 +36,35 @@ export default function AIInsightsPage() {
   const [period, setPeriod] = useState<'week' | 'month' | 'year'>('month');
   const [loading, setLoading] = useState(true);
   const [data, setData] = useState<AINarrativeData | null>(null);
-
-  const fetchInsights = async (selectedPeriod: 'week' | 'month' | 'year') => {
-    setLoading(true);
-    try {
-      const response = await api.get(`/insights/ai-narrative?period=${selectedPeriod}`);
-      setData(response.data);
-    } catch (error) {
-      console.error('Error fetching AI Insights:', error);
-      addToast('Failed to generate AI Spending Narrative', 'error');
-    } finally {
-      setLoading(false);
-    }
-  };
+  const [reloadCounter, setReloadCounter] = useState(0);
 
   useEffect(() => {
-    fetchInsights(period);
-  }, [period]);
+    let active = true;
+
+    Promise.resolve().then(() => {
+      if (active) setLoading(true);
+    });
+
+    async function loadData() {
+      try {
+        const response = await api.get(`/insights/ai-narrative?period=${period}`);
+        if (active) {
+          setData(response.data);
+        }
+      } catch (error) {
+        console.error('Error fetching AI Insights:', error);
+        addToast('Failed to generate AI Spending Narrative', 'error');
+      } finally {
+        if (active) setLoading(false);
+      }
+    }
+
+    loadData();
+
+    return () => {
+      active = false;
+    };
+  }, [period, reloadCounter, addToast]);
 
   const getSeverityStyles = (severity: 'info' | 'warning' | 'positive') => {
     switch (severity) {
@@ -238,9 +248,9 @@ export default function AIInsightsPage() {
             <AlertTriangle className="h-8 w-8 text-rose-500" />
             <h3 className="text-base font-bold text-foreground">No AI Narrative Available</h3>
             <p className="text-xs text-muted-foreground max-w-sm">
-              We couldn't compile a narrative for this period. Try recording some transactions or budgets.
+              We couldn&apos;t compile a narrative for this period. Try recording some transactions or budgets.
             </p>
-            <Button onClick={() => fetchInsights(period)} variant="outline" className="rounded-xl mt-2 gap-1.5">
+            <Button onClick={() => setReloadCounter(prev => prev + 1)} variant="outline" className="rounded-xl mt-2 gap-1.5">
               <RefreshCw className="h-4 w-4" /> Try Again
             </Button>
           </motion.div>
