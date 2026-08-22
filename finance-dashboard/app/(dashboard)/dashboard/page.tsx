@@ -488,9 +488,15 @@ export default function Dashboard() {
         async function fetchAISummary() {
             try {
                 const response = await api.get('/insights/ai-narrative?period=month');
-                setAiSummary(response.data.summary);
+                const summary = response.data?.summary;
+                if (summary && !summary.includes("encountered an issue")) {
+                    setAiSummary(summary);
+                } else {
+                    setAiSummary(null);
+                }
             } catch (err) {
                 console.error('Error fetching AI Summary on dashboard:', err);
+                setAiSummary(null);
             } finally {
                 setAiLoading(false);
             }
