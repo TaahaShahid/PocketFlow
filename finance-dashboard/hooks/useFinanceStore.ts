@@ -12,6 +12,11 @@ interface FinanceStore {
   toasts: Toast[];
   addToast: (message: string, type: Toast['type']) => void;
   removeToast: (id: string) => void;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  aiInsightsCache: Record<string, any>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  setAiInsightsCache: (period: string, data: any) => void;
+  clearAiInsightsCache: () => void;
 }
 
 // Pre-defined categories helper
@@ -38,6 +43,7 @@ export const CATEGORIES = {
 
 export const useFinanceStore = create<FinanceStore>((set, get) => ({
   toasts: [],
+  aiInsightsCache: {},
 
   // Toasts management
   addToast: (message, type) => {
@@ -52,5 +58,12 @@ export const useFinanceStore = create<FinanceStore>((set, get) => ({
 
   removeToast: (id) => set((state) => ({
     toasts: state.toasts.filter((t) => t.id !== id)
-  }))
+  })),
+
+  // AI Insights Caching
+  setAiInsightsCache: (period, data) => set((state) => ({
+    aiInsightsCache: { ...state.aiInsightsCache, [period]: data }
+  })),
+
+  clearAiInsightsCache: () => set({ aiInsightsCache: {} })
 }));
