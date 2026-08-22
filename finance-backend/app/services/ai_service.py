@@ -44,29 +44,27 @@ Instructions:
 3. Base your analysis strictly on the provided ground-truth metrics. Do not fabricate categories, amounts, or budgets.
 """
 
-        # 4. Generate structured content
-        # Note: We use gemini-3.6-flash since new keys are guided to use the 3.6-flash models by Google.
-        response = client.models.generate_content(
-            model='gemini-3.6-flash',
-            contents=prompt,
-            config=types.GenerateContentConfig(
-                response_mime_type="application/json",
-                response_schema=AISpendingInsightsResponse,
-                temperature=0.2
-            ),
-        )
-
-        # 5. Load the JSON response
+        # 4. Generate structured content and parse it
         try:
+            response = client.models.generate_content(
+                model='gemini-3.6-flash',
+                contents=prompt,
+                config=types.GenerateContentConfig(
+                    response_mime_type="application/json",
+                    response_schema=AISpendingInsightsResponse,
+                    temperature=0.2
+                ),
+            )
             return json.loads(response.text)
         except Exception as e:
-            # Fallback if parsing fails
+            print(f"Gemini API narrative generation error: {e}")
+            # Fallback if generation or parsing fails
             return {
                 "summary": "We encountered an issue analyzing your financial data at this moment.",
                 "insights": [
                     {
                         "title": "Analysis Error",
-                        "description": "The AI response could not be parsed correctly.",
+                        "description": "The AI response could not be compiled or parsed correctly.",
                         "severity": "info",
                         "recommendation": "Please try again later."
                     }

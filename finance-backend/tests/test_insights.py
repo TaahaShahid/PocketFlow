@@ -216,6 +216,24 @@ def test_ai_narrative_generation():
         mock_client.models.generate_content.assert_called_once()
 
 
+def test_ai_narrative_generation_failure_fallback():
+    from unittest.mock import MagicMock
+    from app.services.ai_service import AIService
+
+    mock_client = MagicMock()
+    mock_client.models.generate_content.side_effect = Exception("API Quota Exceeded")
+
+    with patch("app.services.insight_service.InsightService.get_spending_insights", return_value={"mock": "data"}), \
+         patch("app.services.ai_service.AIService.get_client", return_value=mock_client):
+        
+        res = AIService.get_ai_narrative("test-user", "month")
+        
+        assert "issue analyzing your financial data" in res["summary"]
+        assert len(res["insights"]) == 1
+        assert res["insights"][0]["title"] == "Analysis Error"
+        mock_client.models.generate_content.assert_called_once()
+
+
 def test_ai_chat_context_assembly():
     from app.services.ai_service import AIService
     now = get_utc_now()
