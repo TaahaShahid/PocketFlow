@@ -70,3 +70,11 @@ class AISingleInsight(BaseModel):
 class AISpendingInsightsResponse(BaseModel):
     summary: str
     insights: List[AISingleInsight]
+
+
+class AIChatRequest(BaseModel):
+    message: str
+
+
+class AIChatResponse(BaseModel):
+    answer: str

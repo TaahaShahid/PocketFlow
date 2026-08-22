@@ -214,3 +214,52 @@ def test_ai_narrative_generation():
         assert res["insights"][0]["title"] == "AI Insight Title"
         assert res["insights"][0]["severity"] == "positive"
         mock_client.models.generate_content.assert_called_once()
+
+
+def test_ai_chat_context_assembly():
+    from app.services.ai_service import AIService
+    now = get_utc_now()
+    txs = [
+        MockDoc("t1", {"type": "expense", "amount": 100.0, "category": "Food", "recipientName": "McDonalds", "notes": "Lunch", "date": now}),
+        MockDoc("t2", {"type": "income", "amount": 2500.0, "category": "Salary", "date": now})
+    ]
+
+    with patch("app.services.wallet_service.WalletService.get_wallets", return_value=[{"name": "Checking", "balance": 1500.0, "type": "checking"}]), \
+         patch("app.repositories.transaction_repository.TransactionRepository.get_all", return_value=txs):
+        
+        context = AIService.get_chat_context("test-user")
+        
+        assert len(context["wallets"]) == 1
+        assert context["wallets"][0]["name"] == "Checking"
+        assert context["wallets"][0]["balance"] == 1500.0
+        
+        assert context["monthly_summary"]["total_income"] == 2500.0
+        assert context["monthly_summary"]["total_expenses"] == 100.0
+        
+        assert len(context["category_spending"]) == 1
+        assert context["category_spending"][0]["category"] == "Food"
+        assert context["category_spending"][0]["amount"] == 100.0
+        
+        assert len(context["recent_transactions"]) == 2
+        # Txs sorted chronologically: t1 then t2
+        assert context["recent_transactions"][0]["amount"] == 100.0
+        assert context["recent_transactions"][0]["recipient"] == "McDonalds"
+        assert context["recent_transactions"][0]["notes"] == "Lunch"
+
+
+def test_ai_chat_response():
+    from unittest.mock import MagicMock
+    from app.services.ai_service import AIService
+
+    mock_client = MagicMock()
+    mock_gen_response = MagicMock()
+    mock_gen_response.text = "Mocked AI assistant response message."
+    mock_client.models.generate_content.return_value = mock_gen_response
+
+    with patch("app.services.ai_service.AIService.get_chat_context", return_value={"mock": "context"}), \
+         patch("app.services.ai_service.AIService.get_client", return_value=mock_client):
+        
+        res = AIService.get_ai_chat_response("test-user", "How much did I spend?")
+        
+        assert res["answer"] == "Mocked AI assistant response message."
+        mock_client.models.generate_content.assert_called_once()

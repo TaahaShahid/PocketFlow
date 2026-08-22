@@ -9,7 +9,7 @@ import { useTransactions } from '@/context/TransactionContext';
 import { useGoals } from '@/context/GoalContext';
 import { useBudgets } from '@/context/BudgetContext';
 import { Button } from '@/components/ui/button';
-import { Loader2, ArrowUpRight, ArrowDownRight, Wallet as WalletIcon, Plus, PiggyBank, DollarSign, TrendingUp, TrendingDown, ChevronRight, Activity, Utensils, ShoppingBag, Car, Film, CreditCard, X, Calendar, User, Tag, Layers, LucideIcon, BrainCircuit } from 'lucide-react';
+import { Loader2, ArrowUpRight, ArrowDownRight, Wallet as WalletIcon, Plus, PiggyBank, DollarSign, TrendingUp, TrendingDown, ChevronRight, Activity, Utensils, ShoppingBag, Car, Film, CreditCard, X, Calendar, User, Tag, Layers, LucideIcon, BrainCircuit, Sparkles, Send, Bot } from 'lucide-react';
 import { BarChart, Bar, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import Link from 'next/link';
 import { api } from '@/lib/api/client';
@@ -265,6 +265,211 @@ const goalBarColors = ['bg-primary', 'bg-emerald-500', 'bg-rose-500'];
 const goalTextColors = ['text-primary', 'text-emerald-500', 'text-rose-500'];
 const chartTooltipStyle = { backgroundColor: 'var(--card)', border: '1px solid var(--border)', borderRadius: 16, color: 'var(--foreground)' };
 
+interface ChatMessage {
+    sender: 'user' | 'ai';
+    text: string;
+}
+
+function AIChatDrawer({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
+    const [messages, setMessages] = useState<ChatMessage[]>([]);
+    const [input, setInput] = useState('');
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
+    const messagesEndRef = React.useRef<HTMLDivElement>(null);
+
+    const suggestedQuestions = [
+        "Where did most of my money go?",
+        "How much did I spend this month?",
+        "How am I doing with my budgets?",
+        "What changed from last month?",
+        "How can I reduce my spending?"
+    ];
+
+    const scrollToBottom = () => {
+        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    };
+
+    useEffect(() => {
+        if (isOpen) {
+            scrollToBottom();
+        }
+    }, [messages, isOpen]);
+
+    const handleSendMessage = async (text: string) => {
+        if (!text.trim() || loading) return;
+        const userMessage: ChatMessage = { sender: 'user', text: text.trim() };
+        setMessages((prev) => [...prev, userMessage]);
+        setInput('');
+        setLoading(true);
+        setError(null);
+
+        try {
+            const response = await api.post('/insights/chat', { message: text.trim() });
+            const aiMessage: ChatMessage = { sender: 'ai', text: response.data.answer };
+            setMessages((prev) => [...prev, aiMessage]);
+        } catch (err) {
+            console.error('AI Assistant Error:', err);
+            setError('Failed to reach AI assistant. Please try again.');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    return (
+        <AnimatePresence>
+            {isOpen && (
+                <div className="fixed inset-0 z-50 flex justify-end">
+                    {/* Backdrop mask */}
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        onClick={onClose}
+                        className="fixed inset-0 bg-black/40 backdrop-blur-sm"
+                    />
+
+                    {/* Chat Drawer container */}
+                    <motion.div
+                        initial={{ opacity: 0, x: '100%' }}
+                        animate={{ opacity: 1, x: 0 }}
+                        exit={{ opacity: 0, x: '100%' }}
+                        transition={{ type: 'spring', damping: 30, stiffness: 250 }}
+                        className="relative w-full max-w-md h-full bg-card/95 border-l border-border/40 text-foreground shadow-2xl flex flex-col justify-between z-10"
+                    >
+                        {/* Header */}
+                        <div className="flex items-center justify-between p-5 border-b border-border/20">
+                          <div className="flex items-center gap-3">
+                            <div className="p-2 bg-pf-primary/10 rounded-xl text-pf-primary">
+                              <Sparkles className="h-5 w-5 animate-pulse" />
+                            </div>
+                            <div>
+                              <h3 className="text-base font-bold leading-none">PocketFlow AI Assistant</h3>
+                              <span className="text-[10px] text-on-surface-variant mt-1.5 block font-medium">Powered by Gemini 3.6 Flash</span>
+                            </div>
+                          </div>
+                          <button
+                            onClick={onClose}
+                            className="p-1.5 rounded-lg hover:bg-white/5 text-on-surface-variant hover:text-on-surface transition-colors cursor-pointer"
+                            title="Close Assistant"
+                          >
+                            <X className="h-5 w-5" />
+                          </button>
+                        </div>
+
+                        {/* Conversation list */}
+                        <div className="flex-1 overflow-y-auto p-5 space-y-4 scrollbar-thin">
+                          {messages.length === 0 ? (
+                            /* Empty state */
+                            <div className="h-full flex flex-col items-center justify-center text-center px-4 space-y-6">
+                              <div className="p-4 bg-pf-primary/5 rounded-full border border-pf-primary/10 text-pf-primary">
+                                <Bot className="h-10 w-10" />
+                              </div>
+                              <div>
+                                <h4 className="text-sm font-bold text-foreground">PocketFlow Intelligence</h4>
+                                <p className="text-xs text-on-surface-variant max-w-xs mt-1.5 leading-relaxed font-semibold">
+                                  I can help you review your budgets, categories, recent transactions, and wallet balances using real-time details.
+                                </p>
+                              </div>
+
+                              {/* Suggestions list */}
+                              <div className="w-full space-y-2 pt-2">
+                                <span className="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest block text-left px-1">
+                                  Suggested Questions
+                                </span>
+                                <div className="grid grid-cols-1 gap-2">
+                                  {suggestedQuestions.map((q) => (
+                                    <button
+                                      key={q}
+                                      onClick={() => handleSendMessage(q)}
+                                      className="w-full text-left px-4 py-2.5 rounded-xl border border-border/40 bg-muted/20 hover:bg-pf-primary/5 hover:border-pf-primary/20 transition-all text-xs font-semibold text-foreground/90 cursor-pointer"
+                                    >
+                                      {q}
+                                    </button>
+                                  ))}
+                                </div>
+                              </div>
+                            </div>
+                          ) : (
+                            /* Chat Messages */
+                            <div className="space-y-4 flex flex-col">
+                              {messages.map((m, idx) => {
+                                const isUser = m.sender === 'user';
+                                return (
+                                  <div
+                                    key={idx}
+                                    className={`flex flex-col max-w-[85%] ${
+                                      isUser ? 'self-end items-end' : 'self-start items-start'
+                                    }`}
+                                  >
+                                    <div
+                                      className={`px-4 py-2.5 rounded-2xl text-xs font-semibold leading-relaxed ${
+                                        isUser
+                                          ? 'bg-pf-primary text-white rounded-tr-none'
+                                          : 'bg-muted/40 text-foreground border border-border/10 rounded-tl-none'
+                                      }`}
+                                    >
+                                      {m.text}
+                                    </div>
+                                  </div>
+                                );
+                              })}
+
+                              {/* Loading response state */}
+                              {loading && (
+                                <div className="flex flex-col items-start self-start max-w-[80%]">
+                                  <div className="bg-muted/40 border border-border/10 rounded-2xl rounded-tl-none px-4 py-3 flex items-center gap-2">
+                                    <Loader2 className="h-3.5 w-3.5 animate-spin text-pf-primary" />
+                                    <span className="text-[10px] font-semibold text-muted-foreground">Formulating financial response...</span>
+                                  </div>
+                                </div>
+                              )}
+
+                              {/* Error state */}
+                              {error && (
+                                <div className="flex flex-col items-center justify-center p-3 rounded-xl border border-rose-500/25 bg-rose-500/5 text-rose-500 text-xs font-medium">
+                                  {error}
+                                </div>
+                              )}
+
+                              <div ref={messagesEndRef} />
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Input area */}
+                        <div className="p-4 border-t border-border/20 bg-muted/5">
+                          <form
+                            onSubmit={(e) => {
+                              e.preventDefault();
+                              handleSendMessage(input);
+                            }}
+                            className="flex items-center gap-2"
+                          >
+                            <input
+                              type="text"
+                              value={input}
+                              onChange={(e) => setInput(e.target.value)}
+                              disabled={loading}
+                              placeholder="Ask a question about your money..."
+                              className="flex-1 bg-muted/40 border border-border/40 rounded-xl px-4 py-2.5 text-xs font-semibold focus:outline-none focus:border-pf-primary/40 disabled:opacity-50"
+                            />
+                            <button
+                              type="submit"
+                              disabled={loading || !input.trim()}
+                              className="p-2.5 bg-pf-primary hover:bg-pf-primary/95 text-white rounded-xl transition-colors disabled:opacity-50 flex items-center justify-center cursor-pointer"
+                              title="Send message"
+                            >
+                              <Send className="h-4 w-4" />
+                            </button>
+                          </form>
+                        </div>
+                    </motion.div>
+                </div>
+            )}
+        </AnimatePresence>
+    );
+}
+
 export default function Dashboard() {
     const { transactions, loading: txLoading } = useTransactions();
     const { wallets: cards, loading: walletsLoading } = useWallets();
@@ -275,6 +480,7 @@ export default function Dashboard() {
 
     const [chartPeriod, setChartPeriod] = useState<'this-month' | 'last-3' | 'last-6' | 'this-year'>('this-month');
     const [isAddTxOpen, setIsAddTxOpen] = useState(false);
+    const [isAIChatOpen, setIsAIChatOpen] = useState(false);
     const [aiSummary, setAiSummary] = useState<string | null>(null);
     const [aiLoading, setAiLoading] = useState(true);
 
@@ -507,12 +713,21 @@ export default function Dashboard() {
                         Real-time analytics and transaction management system.
                     </p>
                 </div>
-                <Button
-                    onClick={() => setIsAddTxOpen(true)}
-                    className="rounded-xl shadow-lg shadow-primary/10 self-start sm:self-auto"
-                >
-                    <Plus className="h-4.5 w-4.5" /> Add Transaction
-                </Button>
+                <div className="flex items-center gap-2 self-start sm:self-auto">
+                    <Button
+                        onClick={() => setIsAIChatOpen(true)}
+                        variant="outline"
+                        className="rounded-xl border-pf-primary/20 text-pf-primary hover:bg-pf-primary/5 hover:text-pf-primary gap-1.5 cursor-pointer"
+                    >
+                        <Sparkles className="h-4 w-4 animate-pulse" /> AI Assistant
+                    </Button>
+                    <Button
+                        onClick={() => setIsAddTxOpen(true)}
+                        className="rounded-xl shadow-lg shadow-primary/10 cursor-pointer"
+                    >
+                        <Plus className="h-4.5 w-4.5" /> Add Transaction
+                    </Button>
+                </div>
             </div>
 
             {/* AI Summary Banner */}
@@ -921,6 +1136,12 @@ export default function Dashboard() {
             <AddTransactionModal
                 isOpen={isAddTxOpen}
                 onClose={() => setIsAddTxOpen(false)}
+            />
+
+            {/* AI Financial Assistant Chat Drawer */}
+            <AIChatDrawer
+                isOpen={isAIChatOpen}
+                onClose={() => setIsAIChatOpen(false)}
             />
         </div>
     );

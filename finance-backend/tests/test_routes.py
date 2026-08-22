@@ -129,3 +129,29 @@ async def test_get_ai_narrative_authenticated():
         mock_get.assert_called_once_with("test-user-123", "month")
         
     app.dependency_overrides.clear()
+
+
+@pytest.mark.anyio
+async def test_get_ai_chat_response_authenticated():
+    from app.core.auth import get_current_user
+    app.dependency_overrides[get_current_user] = mock_get_current_user
+    
+    dummy_chat_response = {"answer": "AI Assistant Response Text."}
+    
+    with patch("app.services.ai_service.AIService.get_ai_chat_response", return_value=dummy_chat_response) as mock_post:
+        async with AsyncClient(transport=ASGITransport(app=app), base_url="http://testserver") as ac:
+            response = await ac.post("/insights/chat", json={"message": "Hello AI"})
+        
+        assert response.status_code == 200
+        assert response.json() == dummy_chat_response
+        mock_post.assert_called_once_with("test-user-123", "Hello AI")
+        
+    app.dependency_overrides.clear()
+
+
+@pytest.mark.anyio
+async def test_get_ai_chat_response_unauthenticated():
+    async with AsyncClient(transport=ASGITransport(app=app), base_url="http://testserver") as ac:
+        response = await ac.post("/insights/chat", json={"message": "Hello AI"})
+    
+    assert response.status_code in [401, 403, 422]

@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, Query
 
 from app.core.auth import get_current_user
-from app.schemas.insight import SpendingInsightsResponse, AISpendingInsightsResponse
+from app.schemas.insight import SpendingInsightsResponse, AISpendingInsightsResponse, AIChatRequest, AIChatResponse
 from app.services.insight_service import InsightService
 from app.services.ai_service import AIService
 
@@ -24,3 +24,12 @@ def get_ai_narrative(
 ):
     user_id = current_user["uid"]
     return AIService.get_ai_narrative(user_id, period)
+
+
+@router.post("/chat", response_model=AIChatResponse)
+def get_ai_chat_response(
+    body: AIChatRequest,
+    current_user=Depends(get_current_user),
+):
+    user_id = current_user["uid"]
+    return AIService.get_ai_chat_response(user_id, body.message)
